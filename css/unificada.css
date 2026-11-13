@@ -11,6 +11,57 @@
 .documento-incorporado #view-dashboard .dashboard-cabecalho { margin-bottom: 8px; }
 .documento-incorporado #view-dashboard .dashboard-cabecalho h2, .documento-incorporado #view-dashboard .dashboard-cabecalho p { display: none; }
 
+/* Hierarquia do painel: normativos, dois cartões e atividades. */
+.painel-kicker { display: none; }
+.painel-ativo .breadcrumb { display: none; }
+.painel-ativo .page-inner { padding-top: 0; }
+.painel-ativo .top {
+  margin: 0 0 24px; padding: 22px 24px; border: 1px solid var(--border);
+  border-radius: 12px; background: #fff; box-shadow: var(--shadow);
+}
+.painel-ativo .painel-kicker { display: block; margin-bottom: 4px; font-size: 14px; color: var(--ink-soft); }
+.painel-ativo .top h2 { margin: 0; font-size: 25px; line-height: 1.3; }
+.painel-ativo .top > .actions { display: none; }
+.painel-ativo .documental-area { margin-bottom: 28px; }
+.plataforma-unificada .painel-atividades-head {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
+  gap: 16px 24px; margin: 0 0 28px; padding: 22px 24px;
+}
+.painel-atividades-head h3 { margin: 0; font-size: 24px; }
+.painel-atividades-head .module-meeting-summary {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px;
+  margin: 0; padding: 0; border: 0; background: transparent; box-shadow: none;
+}
+.plataforma-unificada .painel-atividades-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,2fr); gap: 28px; align-items: stretch; }
+.painel-atividades-grid > .card { min-width: 0; margin: 0; padding: 22px; }
+.painel-atividades-grid .card-scroll { max-height: 320px; }
+.painel-atividades-grid .person-summary { flex-wrap: wrap; }
+.painel-atividades-grid .person-copy { min-width: 100px; overflow-wrap: anywhere; }
+.painel-atividades-grid .empty-state { display: grid; align-content: center; min-height: 220px; }
+.documento-incorporado #view-dashboard .dashboard-cabecalho { margin: 0 0 10px; }
+.documento-incorporado #view-dashboard .dashboard-grid { gap: 28px; align-items: stretch; }
+.documento-incorporado #view-dashboard .dashboard-card { min-width: 0; min-height: 300px; padding: 22px; height: auto; }
+.documento-incorporado #view-dashboard .dashboard-card-head { flex-wrap: wrap; gap: 12px; }
+.documento-incorporado #view-dashboard .dashboard-indicadores { gap: 8px; margin: 0 0 16px; grid-template-columns: repeat(3,minmax(0,1fr)); }
+.documento-incorporado #view-dashboard .dashboard-indicador { min-width: 0; min-height: 0; padding: 8px; border-radius: 8px; box-shadow: none; }
+.documento-incorporado #view-dashboard .dashboard-indicador span { font-size: 11px; }
+.documento-incorporado #view-dashboard .dashboard-indicador strong { font-size: 22px; }
+.documento-incorporado #view-dashboard .dashboard-indicador small { display: none; }
+.documento-incorporado #view-dashboard .dashboard-documentos-atencao-card .dashboard-lista { max-height: 320px; }
+@media(min-width:740px) {
+  .documento-incorporado #view-dashboard .dashboard-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .documento-incorporado #view-dashboard .dashboard-situacao { grid-column: 1; grid-row: 1; }
+  .documento-incorporado #view-dashboard .dashboard-documentos-atencao-card { grid-column: 2; grid-row: 1; }
+}
+@media(max-width:739px) {
+  .documento-incorporado #view-dashboard .dashboard-grid { grid-template-columns: minmax(0,1fr); gap: 18px; }
+  .documento-incorporado #view-dashboard .dashboard-card { min-height: 0; padding: 18px; }
+  .documento-incorporado #view-dashboard .dashboard-situacao,
+  .documento-incorporado #view-dashboard .dashboard-documentos-atencao-card { grid-column: 1; grid-row: auto; }
+  .plataforma-unificada .painel-atividades-grid { grid-template-columns: minmax(0,1fr); gap: 18px; }
+  .painel-ativo .top,.plataforma-unificada .painel-atividades-head { padding: 18px; }
+}
+
 /* Navegação e buscas sem dependência de ícones. */
 .campo-busca-icone { background-image: none; padding-left: 12px !important; }
 .plataforma-unificada .empty-icon, .plataforma-unificada .foot-icon,

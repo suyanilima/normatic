@@ -7,6 +7,9 @@ const visualizarAtividade = viewCalendarRecord;
 const areaReunioes = document.getElementById('farol-reunioes');
 for(const child of [...areaReunioes.children]) if(!child.classList.contains('view')) document.body.appendChild(child);
 const content = document.getElementById('content');
+const painelKicker = document.createElement('span');
+painelKicker.className = 'painel-kicker'; painelKicker.textContent = 'Painel';
+document.querySelector('.top > div').prepend(painelKicker);
 content.after(areaReunioes);
 const subnav = document.createElement('nav');
 subnav.className = 'gestao-navegacao'; subnav.setAttribute('aria-label','Reuniões e compromissos');
@@ -76,12 +79,13 @@ function filtrarCompromissos(value) {
 }
 render = function() {
   fecharMenusAcoes();
+  document.body.classList.toggle('painel-ativo', page === 'dashboard');
   const reuniao = ['reunioes','minutas','cadastro-reuniao'].includes(page);
   const documental = ['normativos','novo-normativo'].includes(page);
   const gestao = ['reunioes','compromissos','cadastro-reuniao'].includes(page);
   areaReunioes.hidden = !reuniao;
   areaDocumentos.hidden = !(documental || page === 'dashboard');
-  document.getElementById('documental-titulo').hidden = page !== 'dashboard';
+  document.getElementById('documental-titulo').hidden = true;
   content.hidden = reuniao || documental;
   subnav.hidden = !gestao;
   subnav.innerHTML = [['reunioes','Reuniões'],['compromissos','Compromissos'],['cadastro-reuniao','Unidades e nova reunião']].map(([id,label])=>`<button type="button" class="secondary ${page===id?'active':''}" ${page===id?'aria-current="page"':''} onclick="go(${argumentoJsHtml(id)})">${label}</button>`).join('');
@@ -97,12 +101,15 @@ render = function() {
     renderAtividades();
     if(page === 'dashboard') {
       cabecalho('Painel'); abrirDocumentos('dashboard');
-      const summary = document.createElement('section'); summary.className='card module-meeting-summary';
+      document.getElementById('title').textContent = 'Normativos';
+      const heading = document.createElement('section'); heading.className='card painel-atividades-head';
+      const title=document.createElement('h3'); title.textContent='Atividades';
+      const summary = document.createElement('div'); summary.className='module-meeting-summary';
       const active = reunioes.filter(r=>!r.cancelada && r.situacao!=='Cancelada');
       const atas = new Set(minutasHistorico.map(m=>m.reuniao?.id));
       summary.innerHTML=`<strong>Reuniões: ${reunioes.length}</strong><span>Atas salvas: ${minutasHistorico.length}</span><span>Sem ata: ${active.filter(r=>!atas.has(r.id)).length}</span><a href="#reunioes">Consultar reuniões</a>`;
-      content.prepend(summary);
-      const title=document.createElement('h3'); title.textContent='Atividades'; content.prepend(title);
+      heading.append(title,summary); content.prepend(heading);
+      content.querySelector(':scope > .grid')?.classList.add('painel-atividades-grid');
     }
     if(page === 'agenda') {
       const filters=document.createElement('div'); filters.className='agenda-filtros';

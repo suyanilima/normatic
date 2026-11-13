@@ -67,9 +67,15 @@ function set(w,selector,value){const field=w.document.querySelector(selector);as
     w.dispatchEvent(new w.MessageEvent('message',{origin:w.location.origin,source:frame.contentWindow,data:{canal:'normatic:documental',acao:'altura',altura:2000,modal:false}}));
     assert.equal(frame.style.height,'2000px');
     w.go('dashboard');
+    assert.ok(d.body.classList.contains('painel-ativo'));
+    assert.equal(d.getElementById('title').textContent,'Normativos');
+    assert.ok(d.querySelector('.painel-atividades-head h3'));
+    assert.ok(d.querySelector('.painel-atividades-head .module-meeting-summary a[href="#reunioes"]'));
+    assert.equal(d.querySelectorAll('.painel-atividades-grid > .card').length,2);
     assert.ok(d.getElementById('content').textContent.includes('Atividades'));
     assert.ok(frame.contentDocument.getElementById('view-dashboard').classList.contains('active'));
     assert.equal(frame.contentDocument.getElementById('dashboard-total-documentos').textContent,'1','Painel preserva indicadores dos documentos existentes');
+    assert.ok(frame.contentDocument.querySelector('.dashboard-situacao .dashboard-indicadores'),'Indicadores preservados dentro do cartão de situação');
     assert.equal(w.localStorage.getItem('igov:documentos'),JSON.stringify(documentSeed),'Integração não regrava os dados originais');
     assert.equal(d.querySelectorAll('#nav > button').length,8);
     assert.deepEqual(current.errors.map(e=>e.message),[]);

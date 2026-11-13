@@ -35,10 +35,11 @@ function styleAtWidths(w, verify) {
     styleAtWidths(w,(width,style)=>{
       const grid=style(d.querySelector('.dashboard-indicadores'));
       assert.equal(grid.display,'grid');
-      assert.equal(grid.gridTemplateColumns.replace(/\s/g,''), width<=520?'1fr': 'repeat(3,minmax(0,1fr))', 'Indicadores em '+width);
+      assert.equal(grid.gridTemplateColumns.replace(/\s/g,''), 'repeat(3,minmax(0,1fr))', 'Indicadores compactos em '+width);
       const card=style(d.querySelector('.dashboard-indicador'));
       assert.ok(!/span 2/.test(card.gridColumn));
-      assert.equal(parseFloat(style(d.querySelector('.dashboard-documentos-atencao-card')).minHeight),0);
+      assert.equal(parseFloat(style(d.querySelector('.dashboard-documentos-atencao-card')).minHeight),width<740?0:300);
+      assert.equal(style(d.querySelector('.dashboard-grid')).gridTemplateColumns.replace(/\s/g,''),width<740?'minmax(0,1fr)':'repeat(2,minmax(0,1fr))');
     });
     current.dom.window.close();
     current = await open('index.html#minutas',{'igov:reunioes':meetings,'igov:minutas':minutes});
