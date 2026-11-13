@@ -102,11 +102,11 @@ function renderPaginacaoAtas(totalItens){
   if(!elemento) return;
   const totalPaginas=Math.ceil(totalItens/itensPorPaginaAtas);
   if(totalPaginas<=1){ elemento.innerHTML=''; return; }
-  let html=`<button class="pagina-btn pagina-seta" type="button" onclick="mudarPaginaAtas(-1)" ${paginaAtas===1?'disabled':''} aria-label="Página anterior"><span class="system-icon system-icon-chevron-back" aria-hidden="true"></span></button>`;
+  let html=`<button class="pagina-btn pagina-seta" type="button" onclick="mudarPaginaAtas(-1)" ${paginaAtas===1?'disabled':''} aria-label="Página anterior">Anterior</button>`;
   for(let pagina=1;pagina<=totalPaginas;pagina++){
     html+=`<button class="pagina-btn ${pagina===paginaAtas?'active':''}" type="button" onclick="irParaPaginaAtas(${pagina})">${pagina}</button>`;
   }
-  html+=`<button class="pagina-btn pagina-seta" type="button" onclick="mudarPaginaAtas(1)" ${paginaAtas===totalPaginas?'disabled':''} aria-label="Próxima página"><span class="system-icon system-icon-chevron-forward" aria-hidden="true"></span></button>`;
+  html+=`<button class="pagina-btn pagina-seta" type="button" onclick="mudarPaginaAtas(1)" ${paginaAtas===totalPaginas?'disabled':''} aria-label="Próxima página">Próximo</button>`;
   elemento.innerHTML=html;
 }
 

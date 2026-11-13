@@ -116,7 +116,7 @@ function renderPaginacao(totalItens){
       onclick="mudarPagina(-1)"
       ${paginaAtual === 1 ? 'disabled' : ''}
       aria-label="Página anterior">
-      <span class="system-icon system-icon-chevron-back" aria-hidden="true"></span>
+      Anterior
     </button>
   `;
 
@@ -136,7 +136,7 @@ function renderPaginacao(totalItens){
       onclick="mudarPagina(1)"
       ${paginaAtual === totalPaginas ? 'disabled' : ''}
       aria-label="Próxima página">
-      <span class="system-icon system-icon-chevron-forward" aria-hidden="true"></span>
+      Próximo
     </button>
   `;
 

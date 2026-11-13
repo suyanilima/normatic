@@ -10,6 +10,66 @@
 .modulo-normatic.documento-incorporado .wrap { width: 100%; max-width: none; margin: 0; padding: 0; }
 .documento-incorporado #view-dashboard .dashboard-cabecalho { margin-bottom: 8px; }
 .documento-incorporado #view-dashboard .dashboard-cabecalho h2, .documento-incorporado #view-dashboard .dashboard-cabecalho p { display: none; }
+
+/* Navegação e buscas sem dependência de ícones. */
+.campo-busca-icone { background-image: none; padding-left: 12px !important; }
+.plataforma-unificada .empty-icon, .plataforma-unificada .foot-icon,
+.documento-incorporado .type-icon { display: none; }
+.plataforma-unificada .complete-toggle { width: auto; height: auto; flex: 0 0 auto; border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: 12px; line-height: 20px; }
+.modulo-farol .calendar-toolbar { grid-template-columns: auto auto minmax(0,1fr) auto; }
+.modulo-farol .calendar-toolbar > button { width: auto; padding: 0 10px; font-size: 12px; }
+.modulo-farol .calendar-toolbar > button:nth-of-type(2) { width: auto; }
+.pagina-seta { width: auto; white-space: nowrap; }
+@media(max-width:420px) {
+  .modulo-farol .calendar-toolbar { grid-template-columns: auto minmax(0,1fr) auto; row-gap: 8px; }
+  .modulo-farol .calendar-toolbar b { grid-column: 1/-1; grid-row: 1; }
+  .modulo-farol .calendar-toolbar > button:first-of-type { grid-column: 1; grid-row: 2; }
+  .modulo-farol .calendar-toolbar > button:nth-of-type(2) { grid-column: 2; grid-row: 2; justify-self: start; }
+  .modulo-farol .calendar-toolbar > button:last-of-type { grid-column: 3; grid-row: 2; }
+}
+
+/* O formulário não herda o espaçamento dos rótulos e rádios do legado. */
+.plataforma-unificada #modal .fields {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  align-items: end;
+  gap: 16px;
+}
+.plataforma-unificada #modal .fields > div:not(.agenda-modo):not(.agenda-datas) {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-width: 0;
+}
+.plataforma-unificada #modal .fields > div > label,
+.plataforma-unificada #modal .agenda-data-linha label {
+  margin: 0 0 6px;
+  font-size: 14px;
+  line-height: 20px;
+}
+.plataforma-unificada #modal .fields > div > :is(input,select) {
+  width: 100%; min-width: 0; height: 44px; margin: 0;
+}
+.plataforma-unificada #modal textarea { margin: 0; min-height: 88px; }
+.plataforma-unificada #modal .agenda-modo {
+  display: block; padding: 14px; border: 1px solid var(--border);
+  border-radius: 8px; background: var(--bg);
+}
+.plataforma-unificada #modal .agenda-modo-opcoes {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin: 10px 0 0;
+}
+.plataforma-unificada #modal .agenda-modo-opcoes label {
+  display: inline-flex; flex-direction: row; align-items: center; gap: 8px;
+  margin: 0; line-height: 20px; white-space: nowrap;
+}
+.plataforma-unificada #modal .agenda-modo-opcoes input[type=radio] {
+  flex: 0 0 16px; width: 16px; height: 16px; min-height: 0; margin: 0; padding: 0;
+  accent-color: var(--gov-blue);
+}
+.plataforma-unificada #modal .modal-actions { margin-top: 20px; gap: 12px; }
+@media(max-width:560px) {
+  .plataforma-unificada #modal .fields { grid-template-columns: minmax(0,1fr); gap: 14px; }
+}
 @media(max-width:640px) {
   .plataforma-unificada .top { flex-wrap: wrap; }
   .plataforma-unificada .top > .actions { width: 100%; justify-content: flex-start; }

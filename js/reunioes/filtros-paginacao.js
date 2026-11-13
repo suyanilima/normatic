@@ -90,11 +90,11 @@ function renderPaginacaoReunioes(totalItens){
   if(!elemento) return;
   const totalPaginas = Math.ceil(totalItens / itensPorPaginaReunioes);
   if(totalPaginas <= 1){ elemento.innerHTML = ''; return; }
-  let html = `<button class="pagina-btn pagina-seta" type="button" onclick="mudarPaginaReunioes(-1)" ${paginaReunioes === 1 ? 'disabled' : ''} aria-label="Página anterior"><span class="system-icon system-icon-chevron-back" aria-hidden="true"></span></button>`;
+  let html = `<button class="pagina-btn pagina-seta" type="button" onclick="mudarPaginaReunioes(-1)" ${paginaReunioes === 1 ? 'disabled' : ''} aria-label="Página anterior">Anterior</button>`;
   for(let pagina = 1; pagina <= totalPaginas; pagina++){
     html += `<button class="pagina-btn ${pagina === paginaReunioes ? 'active' : ''}" type="button" onclick="irParaPaginaReunioes(${pagina})">${pagina}</button>`;
   }
-  html += `<button class="pagina-btn pagina-seta" type="button" onclick="mudarPaginaReunioes(1)" ${paginaReunioes === totalPaginas ? 'disabled' : ''} aria-label="Próxima página"><span class="system-icon system-icon-chevron-forward" aria-hidden="true"></span></button>`;
+  html += `<button class="pagina-btn pagina-seta" type="button" onclick="mudarPaginaReunioes(1)" ${paginaReunioes === totalPaginas ? 'disabled' : ''} aria-label="Próxima página">Próximo</button>`;
   elemento.innerHTML = html;
 }
 
