@@ -8,12 +8,12 @@ for (const file of ['index.html','normativos.html','farol.html','dist/prototipo-
   const dom = new JSDOM(html), document = dom.window.document;
   const ids = [...document.querySelectorAll('[id]')].map(element => element.id);
   assert.equal(new Set(ids).size,ids.length, 'IDs únicos em ' + file);
-  for (const element of document.querySelectorAll('[src],link[href],a[href]')) {
-    const ref = element.getAttribute('src') || element.getAttribute('href');
+  for (const element of document.querySelectorAll('[src],link[href],a[href],script[data-app-src]')) {
+    const ref = element.getAttribute('src') || element.getAttribute('href') || element.getAttribute('data-app-src');
     if (!ref || /^(#|https?:|data:|mailto:|javascript:)/.test(ref)) continue;
     assert.ok(fs.existsSync(path.resolve(root,path.dirname(file),ref.split('#')[0])), file + ': ' + ref);
   }
-  if (file.startsWith('dist/')) assert.equal(document.querySelectorAll('script[src],link[rel=stylesheet]').length, 0);
+  if (file.startsWith('dist/')) assert.equal(document.querySelectorAll('script[src],script[data-app-src],link[rel=stylesheet]').length, 0);
   dom.window.close();
 }
 for (const file of fs.readdirSync(path.join(root,'css')).filter(f => f.endsWith('.css'))) {

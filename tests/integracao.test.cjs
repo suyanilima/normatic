@@ -8,11 +8,13 @@ const fixtureMeeting = { id: 'reuniao-anterior', data: '2099-11-12', horario: '1
 const localResources = { interceptors: [requestInterceptor(request => {
     const parsed = new URL(request.url);
     if (parsed.host !== 'plataforma.test') throw Error('Recurso externo inesperado: ' + request.url);
+    // As suítes locais não dependem da configuração de produção nem da rede.
+    if (parsed.pathname === '/js/cloud/config.js') return new Response('window.NORMATIC_SUPABASE_CONFIG={enabled:false}', {headers:{'Content-Type':'application/javascript'}});
     const file = path.join(root, decodeURIComponent(parsed.pathname));
     assert.ok(file.startsWith(root + path.sep));
     return new Response(fs.readFileSync(file), { headers: { 'Content-Type': file.endsWith('.css') ? 'text/css' : file.endsWith('.html') ? 'text/html' : 'application/javascript' } });
 })] };
-async function open(page, storage = {}) {
+async function open(page, storage = {}, settings = {}) {
   const errors = [];
   const virtualConsole = new VirtualConsole();
   virtualConsole.on('jsdomError', error => {
@@ -20,8 +22,10 @@ async function open(page, storage = {}) {
     if (/HTMLCanvasElement.*getContext/.test(error.message)) return;
     errors.push(error);
   });
-  const dom = new JSDOM(fs.readFileSync(path.join(root, page.split('#')[0]), 'utf8'), {
-    url: 'http://plataforma.test/' + page, runScripts: 'dangerously', resources: localResources,
+  let html = fs.readFileSync(path.join(root, page.split('#')[0]), 'utf8');
+  if (!settings.resources) html = html.replace(/(window\.NORMATIC_SUPABASE_CONFIG\s*=\s*Object\.freeze\(\{[\s\S]*?enabled:\s*)true/, '$1false');
+  const dom = new JSDOM(html, {
+    url: 'http://plataforma.test/' + page, runScripts: 'dangerously', resources: settings.resources || localResources,
     pretendToBeVisual: true, virtualConsole,
     beforeParse(w) {
       Object.entries(storage).forEach(([k,v]) => w.localStorage.setItem(k, typeof v === 'string' ? v : JSON.stringify(v)));
@@ -34,9 +38,11 @@ async function open(page, storage = {}) {
       w.confirm = () => true;
       w.TextEncoder = TextEncoder;
       w.TextDecoder = TextDecoder;
+      settings.beforeParse?.(w);
     }
   });
   await new Promise(resolve => dom.window.addEventListener('load', resolve, { once: true }));
+  if(settings.waitForReady !== false) await dom.window.NORMATIC_READY;
   await wait(); await wait();
   assert.deepEqual(errors.map(e => e.message), [], `Inicialização de ${page}`);
   return { dom, w: dom.window, d: dom.window.document, errors };
@@ -131,13 +137,13 @@ if(require.main === module) (async () => {
     d.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'Escape' }));
     w.go('reunioes'); w.newRecord(); w.selecionarTipoReuniao('CGTIC');
     set(d, '#r-data', '2099-11-13'); set(d, '#r-horario', '14:00'); set(d, '#r-pauta', 'Nova pauta no FAROL');
-    w.cadastrarReuniao();
+    await w.cadastrarReuniao();
     let meetings = JSON.parse(w.localStorage.getItem('igov:reunioes'));
     assert.equal(meetings.length, 2, 'Cadastro novo preserva reunião anterior');
     const meetingId = meetings.find(item=>item.id!==fixtureMeeting.id).id;
-    w.editarReuniao(meetingId); set(d, '#edit-r-pauta', 'Pauta revisada'); w.confirmarEdicaoReuniao();
+    w.editarReuniao(meetingId); set(d, '#edit-r-pauta', 'Pauta revisada'); await w.confirmarEdicaoReuniao();
     assert.equal(JSON.parse(w.localStorage.getItem('igov:reunioes')).find(r=>r.id===meetingId).pauta, 'Pauta revisada');
-    w.remarcarReuniao(meetingId); set(d, '#remarcar-reuniao-data', '2099-11-16'); w.confirmarRemarcacaoReuniao();
+    w.remarcarReuniao(meetingId); set(d, '#remarcar-reuniao-data', '2099-11-16'); await w.confirmarRemarcacaoReuniao();
     assert.equal(JSON.parse(w.localStorage.getItem('igov:reunioes')).find(r=>r.id===meetingId).situacao, 'Reagendada');
     set(d, '#reuniao-busca', 'inexistente'); w.filtrarReunioes();
     assert.equal(w.obterReunioesFiltradas().length, 0);
@@ -146,7 +152,7 @@ if(require.main === module) (async () => {
     assert.ok(d.getElementById('relatorio-modal-overlay').classList.contains('open'));
     w.fecharRelatorio();
     w.abrirMinutaReuniao(meetingId); set(d, '#minuta-reuniao-transcricao', 'Decisão registrada na reunião.');
-    w.iniciarRevisaoManualMinuta(); w.gerarMinutaReuniao();
+    w.iniciarRevisaoManualMinuta(); await w.gerarMinutaReuniao();
     assert.equal(JSON.parse(w.localStorage.getItem('igov:minutas')).length, 1, 'Geração manual de ata preservada');
     assert.ok(w.gerarXmlDocumentoAta().includes('Decisão registrada'), 'Conteúdo da exportação Word');
     const downloads = [];
@@ -157,16 +163,16 @@ if(require.main === module) (async () => {
     const OriginalPdf = w.jspdf.jsPDF; let exportedPdf;
     w.jspdf.jsPDF = function (...args) { const pdf = new OriginalPdf(...args); pdf.save = () => { exportedPdf = pdf.output(); }; return pdf; };
     w.imprimirMinutaPdf(); assert.ok(exportedPdf.startsWith('%PDF-'), 'PDF gerado');
-    w.concluirAta();
+    await w.concluirAta();
     assert.equal(JSON.parse(w.localStorage.getItem('igov:minutas'))[0].concluida, true);
-    w.cancelarReuniao(meetingId); w.confirmarCancelamentoReuniao();
+    w.cancelarReuniao(meetingId); await w.confirmarCancelamentoReuniao();
     assert.equal(JSON.parse(w.localStorage.getItem('igov:reunioes')).find(r=>r.id===meetingId).situacao, 'Cancelada');
     w.go('responsaveis'); data = await w.FarolStorage.api('getData');
     w.edit('responsaveis', data.responsaveis[0].id); set(d, '[name=nome]', 'Pessoa revisada'); await submit(d);
     assert.equal((await w.FarolStorage.api('getData')).tarefas[0].responsavel, 'Pessoa revisada');
     await w.removeRecord('tarefas', taskId);
     assert.equal((await w.FarolStorage.api('getData')).tarefas.length, 0);
-    w.excluirReuniao(meetingId); w.confirmarExclusaoReuniao();
+    w.excluirReuniao(meetingId); await w.confirmarExclusaoReuniao();
     assert.equal(JSON.parse(w.localStorage.getItem('igov:reunioes')).length, 1);
     assert.equal(JSON.parse(w.localStorage.getItem('igov:documentos')).length, 1, 'FAROL não altera documentos');
     assert.deepEqual(current.errors.map(e => e.message), []);

@@ -32,6 +32,7 @@ function abrirDocumentos(aba) {
     else frameDocumentos.src = 'normativos.html#' + aba;
     frameDocumentos.addEventListener('load', () => {
       frameDocumentos.contentWindow?.setTab?.(abaDocumental,{semHistorico:true,plataforma:true});
+      frameDocumentos.contentWindow?.addEventListener('normatic:ready',()=>frameDocumentos.contentWindow?.setTab?.(abaDocumental,{semHistorico:true,plataforma:true}),{once:true});
     });
     areaDocumentos.appendChild(frameDocumentos);
   } else {

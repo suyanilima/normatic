@@ -26,7 +26,7 @@ function normalizarLinkReuniao(valor){
 
 function carregarReunioes(){
   try{
-    const dados = JSON.parse(localStorage.getItem(REUNIOES_STORAGE_KEY) || '[]');
+    const dados = window.NormaticCloud?.enabled ? window.NormaticCloud.readCollection('reunioes') : JSON.parse(localStorage.getItem(REUNIOES_STORAGE_KEY) || '[]');
     reunioes = Array.isArray(dados) ? dados.map(item => ({
       id: limitarTexto(item.id, 80),
       data: limitarTexto(item.data, 10),
@@ -51,12 +51,13 @@ function carregarReunioes(){
   renderReunioes();
 }
 
-function salvarReunioes(){
+async function salvarReunioes(){
   try{
-    localStorage.setItem(REUNIOES_STORAGE_KEY, JSON.stringify(reunioes));
+    if(window.NormaticCloud?.enabled) await window.NormaticCloud.writeCollection('reunioes',reunioes);
+    else localStorage.setItem(REUNIOES_STORAGE_KEY, JSON.stringify(reunioes));
     return true;
   }catch(e){
-    toast('Não foi possível salvar a reunião neste navegador.', 'vencido');
+    toast(escapeHtml(e.message || 'Não foi possível salvar a reunião.'), 'vencido');
     return false;
   }
 }
@@ -70,7 +71,7 @@ function alterarFormatoReuniao(prefixo){
   if(presencial && campoLink) campoLink.value='';
 }
 
-function cadastrarReuniao(){
+async function cadastrarReuniao(){
   const campos = ['r-data','r-horario','r-frequencia','r-formato','r-pauta'];
   const invalido = campos.map(id => document.getElementById(id)).find(campo => !campo?.value.trim() || !campo.checkValidity());
   if(invalido){
@@ -125,7 +126,7 @@ function cadastrarReuniao(){
   }else{
     reunioes.unshift(reuniao);
   }
-  if(!salvarReunioes()){
+  if(!await salvarReunioes()){
     if(indiceEdicao >= 0) reunioes[indiceEdicao] = anterior;
     else reunioes.shift();
     return;
@@ -201,7 +202,7 @@ function fecharRemarcacaoReuniao(){
   reuniaoRemarcandoId=null;
 }
 
-function confirmarRemarcacaoReuniao(){
+async function confirmarRemarcacaoReuniao(){
   const reuniao=reunioes.find(item=>item.id===reuniaoRemarcandoId);
   const campo=document.getElementById('remarcar-reuniao-data');
   if(!reuniao || !campo?.value || !campo.checkValidity()){
@@ -214,7 +215,7 @@ function confirmarRemarcacaoReuniao(){
   reuniao.reagendada=true;
   reuniao.cancelada=false;
   reuniao.situacao='Reagendada';
-  if(!salvarReunioes()){
+  if(!await salvarReunioes()){
     Object.assign(reuniao,anterior);
     return;
   }
@@ -246,7 +247,7 @@ function fecharCancelamentoReuniao(){
   reuniaoCancelandoId=null;
 }
 
-function confirmarCancelamentoReuniao(){
+async function confirmarCancelamentoReuniao(){
   const reuniao=reunioes.find(item=>item.id===reuniaoCancelandoId);
   if(!reuniao){
     fecharCancelamentoReuniao();
@@ -261,7 +262,7 @@ function confirmarCancelamentoReuniao(){
   reuniao.cancelada=true;
   reuniao.reagendada=false;
   reuniao.situacao='Cancelada';
-  if(!salvarReunioes()){
+  if(!await salvarReunioes()){
     Object.assign(reuniao,anterior);
     return;
   }

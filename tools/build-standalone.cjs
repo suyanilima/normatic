@@ -45,6 +45,11 @@ html = html.replace(
 );
 
 html = html.replace(
+  /<script type="text\/plain" data-app-src="(js\/[^"]+)"><\/script>/g,
+  (_, relativePath) => `<script type="text/plain" data-app-inline="${relativePath}">\n${fs.readFileSync(path.join(root,relativePath),'utf8')}\n</script>`,
+);
+
+html = html.replace(
   /<script\s+src="(js\/[^"]+\.js)"><\/script>/g,
   (_, relativePath) => {
     const js = fs.readFileSync(path.join(root, relativePath), 'utf8');

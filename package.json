@@ -5,11 +5,18 @@
   "description": "Protótipo front-end do Normatic",
   "scripts": {
     "pretest": "npm run build",
-    "test": "node tests/regras.test.cjs && node tests/farol-storage.test.cjs && node tests/integracao.test.cjs && node tests/arquivos.test.cjs && node tests/layout.test.cjs && node tests/unificada.test.cjs",
+    "test": "node tests/regras.test.cjs && node tests/farol-storage.test.cjs && node tests/integracao.test.cjs && node tests/arquivos.test.cjs && node tests/layout.test.cjs && node tests/unificada.test.cjs && npm run test:cloud",
+    "test:cloud": "node tests/supabase-sql.test.cjs && node tests/cloud-repository.test.cjs && node tests/cloud-access.test.cjs && node tests/cloud-integration.test.cjs",
+    "check:supabase": "node tools/check-supabase.cjs",
     "build": "node tools/build-standalone.cjs",
+    "build:site": "node tools/build-site.cjs",
     "start": "node tools/serve.cjs"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.16",
     "jsdom": "^29.1.1"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.119.0"
   }
 }

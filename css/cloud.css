@@ -1,0 +1,15 @@
+.cloud-locked body > :not(.cloud-login):not(.cloud-boot-error):not(script) { display: none !important; }
+.cloud-login { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: var(--bg); }
+.cloud-login-card { width: min(100%,420px); padding: 28px; border: 1px solid var(--border); border-radius: 12px; background: #fff; box-shadow: var(--shadow); }
+.cloud-login-card h1 { color: var(--gov-blue); margin: 0 0 8px; }
+.cloud-login-card h2 { font-size: 20px; margin: 0 0 12px; }
+.cloud-login-card p { color: var(--ink-soft); line-height: 1.5; }
+.cloud-login-card label { margin-top: 16px; }
+.cloud-login-card button { width: 100%; padding: 12px; border: 0; border-radius: 8px; background: var(--gov-blue); color: white; font: inherit; cursor: pointer; }
+.cloud-access-message { min-height: 24px; }
+.cloud-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 0 16px; font-size: 12px; }
+.cloud-toolbar button { border: 1px solid var(--border); border-radius: 8px; background: #fff; color: var(--gov-blue); padding: 8px 10px; font: inherit; cursor: pointer; }
+.cloud-toolbar [role=status] { flex-basis: 100%; }
+.cloud-toolbar button:disabled,.cloud-login-card button:disabled { opacity: .6; cursor: wait; }
+.cloud-boot-error { padding: 24px; }
+.cloud-saving::after { content: 'Salvando…'; position: fixed; inset: 0; z-index: 4000; display: grid; place-items: center; background: rgba(247,248,250,.72); color: var(--gov-blue-dark); font: 600 16px system-ui,sans-serif; }

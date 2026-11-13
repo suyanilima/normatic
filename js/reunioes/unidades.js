@@ -31,7 +31,7 @@ function rotuloPeriodicidadeReunioes(periodicidade){
 
 function carregarUnidades(){
   try{
-    const dados = JSON.parse(localStorage.getItem(UNIDADES_STORAGE_KEY) || '[]');
+    const dados = window.NormaticCloud?.enabled ? window.NormaticCloud.readCollection('unidades') : JSON.parse(localStorage.getItem(UNIDADES_STORAGE_KEY) || '[]');
     unidadesPersonalizadas = Array.isArray(dados) ? dados.map(item => ({
       codigo:normalizarCodigoUnidade(item.codigo || item.nome),
       nome:limitarTexto(String(item.nome || '').trim(), 50),
@@ -47,9 +47,9 @@ function carregarUnidades(){
   renderUnidadesReuniao();
 }
 
-function salvarUnidades(){
-  try{ localStorage.setItem(UNIDADES_STORAGE_KEY, JSON.stringify(unidadesPersonalizadas)); return true; }
-  catch(e){ toast('Não foi possível salvar a unidade neste navegador.', 'vencido'); return false; }
+async function salvarUnidades(){
+  try{ if(window.NormaticCloud?.enabled) await window.NormaticCloud.writeCollection('unidades',unidadesPersonalizadas); else localStorage.setItem(UNIDADES_STORAGE_KEY, JSON.stringify(unidadesPersonalizadas)); return true; }
+  catch(e){ toast(escapeHtml(e.message || 'Não foi possível salvar a unidade.'), 'vencido'); return false; }
 }
 
 function renderUnidadesReuniao(){
@@ -120,11 +120,11 @@ function excluirUnidade(codigo){
   abrirModalElemento('delete-unidade-modal-overlay');
 }
 function fecharExclusaoUnidade(){ fecharModalElemento('delete-unidade-modal-overlay'); unidadeExcluindoCodigo=null; }
-function confirmarExclusaoUnidade(){
+async function confirmarExclusaoUnidade(){
   const codigo=unidadeExcluindoCodigo;
   const indice=unidadesPersonalizadas.findIndex(item=>item.codigo===codigo); if(indice<0){ fecharExclusaoUnidade(); return; }
   const removida=unidadesPersonalizadas.splice(indice,1)[0]; delete FREQUENCIAS_REUNIAO[codigo]; delete CARGOS_FIXOS_REUNIAO[codigo];
-  if(!salvarUnidades()){ unidadesPersonalizadas.splice(indice,0,removida); FREQUENCIAS_REUNIAO[codigo]=removida.periodicidade; CARGOS_FIXOS_REUNIAO[codigo]=removida.membros; return; }
+  if(!await salvarUnidades()){ unidadesPersonalizadas.splice(indice,0,removida); FREQUENCIAS_REUNIAO[codigo]=removida.periodicidade; CARGOS_FIXOS_REUNIAO[codigo]=removida.membros; return; }
   renderUnidadesReuniao(); fecharExclusaoUnidade(); toast('Unidade excluída.', 'valido');
 }
 function adicionarMembroNovaUnidade(){ if(membrosNovaUnidade.length < 30){ membrosNovaUnidade.push({cargo:'',nome:''}); renderMembrosNovaUnidade(); } }
@@ -200,7 +200,7 @@ function alterarPeriodicidadeUnidade(valor){
   const personalizada=valor==='Outra'; campo.classList.toggle('oculto',!personalizada); campo.required=personalizada;
   if(!personalizada) campo.value='';
 }
-function cadastrarUnidade(){
+async function cadastrarUnidade(){
   const nome=limitarTexto(document.getElementById('unidade-nome').value.trim(),50);
   const selecaoPeriodicidade=document.getElementById('unidade-periodicidade').value;
   const periodicidade=limitarTexto((selecaoPeriodicidade==='Outra'?document.getElementById('unidade-periodicidade-outra').value:selecaoPeriodicidade).trim(),30);
@@ -215,6 +215,6 @@ function cadastrarUnidade(){
   const indice=unidadesPersonalizadas.findIndex(item=>item.codigo===codigo); const anterior=indice>=0?unidadesPersonalizadas[indice]:null;
   if(indice>=0) unidadesPersonalizadas[indice]=unidade; else unidadesPersonalizadas.push(unidade);
   FREQUENCIAS_REUNIAO[codigo]=periodicidade; CARGOS_FIXOS_REUNIAO[codigo]=membros;
-  if(!salvarUnidades()){ if(indice>=0) unidadesPersonalizadas[indice]=anterior; else unidadesPersonalizadas.pop(); return; }
+  if(!await salvarUnidades()){ if(indice>=0) unidadesPersonalizadas[indice]=anterior; else unidadesPersonalizadas.pop(); return; }
   renderUnidadesReuniao(); fecharCadastroUnidade(); selecionarTipoReuniao(codigo); toast(indice>=0?'Unidade atualizada com sucesso.':'Unidade cadastrada com sucesso.', 'valido');
 }

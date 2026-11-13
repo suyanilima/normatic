@@ -67,7 +67,7 @@ function styleAtWidths(w, verify) {
     w.irParaPaginaAtas(2); assert.equal(d.querySelectorAll('.minuta-reuniao-opcao').length,2);
     menuButton().click(); assert.ok(d.querySelector('body > .actions-dropdown.open'));
     d.querySelector('body > .actions-dropdown.open button.del').click();
-    w.confirmarExclusaoMinuta();
+    await w.confirmarExclusaoMinuta();
     assert.equal(JSON.parse(w.localStorage.getItem('igov:minutas')).length,11, 'Exclusão pelo menu mantém a ação real');
     w.filtrarAtas(); assert.equal(d.querySelector('body > .actions-dropdown.open'),null);
     assert.equal(w.localStorage.getItem('igov:reunioes'),before, 'Layout não grava nem modifica reuniões');

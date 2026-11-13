@@ -2,7 +2,7 @@
 
 function carregarHistoricoMinutas(){
   try{
-    const dados = JSON.parse(localStorage.getItem(MINUTAS_STORAGE_KEY) || '[]');
+    const dados = window.NormaticCloud?.enabled ? window.NormaticCloud.readCollection('atas') : JSON.parse(localStorage.getItem(MINUTAS_STORAGE_KEY) || '[]');
     minutasHistorico = Array.isArray(dados) ? dados : [];
   }catch(e){
     minutasHistorico = [];
@@ -11,12 +11,17 @@ function carregarHistoricoMinutas(){
   if(typeof renderDashboard === 'function') renderDashboard();
 }
 
-function salvarHistoricoMinutas(){
-  localStorage.setItem(MINUTAS_STORAGE_KEY, JSON.stringify(minutasHistorico.slice(0, 50)));
+async function salvarHistoricoMinutas(){
+  try {
+    if(window.NormaticCloud?.enabled) await window.NormaticCloud.writeCollection('atas',minutasHistorico.slice(0,50));
+    else localStorage.setItem(MINUTAS_STORAGE_KEY, JSON.stringify(minutasHistorico.slice(0, 50)));
+  } catch(error) { toast(escapeHtml(error.message || 'Não foi possível salvar a ata.'),'vencido'); return false; }
   if(typeof renderDashboard === 'function') renderDashboard();
+  return true;
 }
 
-function registrarMinutaHistorico(reuniao){
+async function registrarMinutaHistorico(reuniao){
+  const anteriores=minutasHistorico, idAnterior=minutaHistoricoIdAtivo;
   const registro = {
     id:`minuta-${Date.now()}`,
     geradaEm:new Date().toISOString(),
@@ -31,9 +36,10 @@ function registrarMinutaHistorico(reuniao){
   minutasHistorico.unshift(registro);
   minutaHistoricoIdAtivo = registro.id;
   minutasHistorico = minutasHistorico.slice(0, 50);
-  salvarHistoricoMinutas();
+  if(!await salvarHistoricoMinutas()) { minutasHistorico=anteriores; minutaHistoricoIdAtivo=idAnterior; return false; }
   renderHistoricoMinutas();
   renderEscolhaReuniaoMinuta();
+  return true;
 }
 
 function renderHistoricoMinutas(){
@@ -63,24 +69,24 @@ function carregarDadosMinutaHistorico(registro){
   minutaHistoricoIdAtivo = registro.id;
   document.getElementById('minuta-reuniao-identificacao').textContent = `${registro.reuniao.frequencia} • ${fmtData(registro.reuniao.data)} às ${registro.reuniao.horario}`;
   document.getElementById('minuta-reuniao-transcricao').value = registro.transcricao || '';
-  document.getElementById('minuta-reuniao-pauta').innerHTML = registro.pautaHtml || textoAtaParaHtml(registro.reuniao.pauta || '');
-  document.getElementById('minuta-reuniao-descricao').innerHTML = registro.descricaoHtml || '';
-  document.getElementById('minuta-reuniao-providencias').innerHTML = registro.providenciasHtml || '';
-  document.getElementById('minuta-reuniao-texto').innerHTML = registro.minutaHtml || '';
+  document.getElementById('minuta-reuniao-pauta').innerHTML = sanitizarHtmlMinuta(registro.pautaHtml || textoAtaParaHtml(registro.reuniao.pauta || ''));
+  document.getElementById('minuta-reuniao-descricao').innerHTML = sanitizarHtmlMinuta(registro.descricaoHtml);
+  document.getElementById('minuta-reuniao-providencias').innerHTML = sanitizarHtmlMinuta(registro.providenciasHtml);
+  document.getElementById('minuta-reuniao-texto').innerHTML = sanitizarHtmlMinuta(registro.minutaHtml);
   ['minuta-reuniao-pauta','minuta-reuniao-descricao','minuta-reuniao-providencias'].forEach(idEditor => atualizarContadorEditorMinuta(document.getElementById(idEditor)));
   passoMinutaLiberado = 3;
   atualizarNavegacaoMinuta();
   mostrarPassoMinuta(2);
 }
 
-function salvarEdicaoMinutaHistorico(){
+async function salvarEdicaoMinutaHistorico(){
   if(!minutaHistoricoIdAtivo){
     const reuniao = obterReuniaoMinutaAtual();
-    if(reuniao) registrarMinutaHistorico(reuniao);
-    return;
+    return reuniao ? registrarMinutaHistorico(reuniao) : false;
   }
   const indice = minutasHistorico.findIndex(item => item.id === minutaHistoricoIdAtivo);
   if(indice < 0) return;
+  const anteriores=[...minutasHistorico];
   minutasHistorico[indice] = {
     ...minutasHistorico[indice],
     geradaEm:new Date().toISOString(),
@@ -90,15 +96,17 @@ function salvarEdicaoMinutaHistorico(){
     providenciasHtml:obterHtmlEditorMinuta('minuta-reuniao-providencias'),
     minutaHtml:obterHtmlEditorMinuta('minuta-reuniao-texto')
   };
-  salvarHistoricoMinutas();
+  if(!await salvarHistoricoMinutas()) { minutasHistorico=anteriores; return false; }
   renderEscolhaReuniaoMinuta();
   toast('Alterações da ata salvas.', 'valido');
+  return true;
 }
 
-function concluirAta(){
+async function concluirAta(){
   const reuniao = obterReuniaoMinutaAtual();
   if(!reuniao) return;
-  if(!minutaHistoricoIdAtivo) registrarMinutaHistorico(reuniao);
+  if(!minutaHistoricoIdAtivo && !await registrarMinutaHistorico(reuniao)) return;
+  const anteriores=[...minutasHistorico];
   const indice = minutasHistorico.findIndex(item => item.id === minutaHistoricoIdAtivo);
   if(indice >= 0){
     minutasHistorico[indice] = {
@@ -112,7 +120,7 @@ function concluirAta(){
       providenciasHtml:obterHtmlEditorMinuta('minuta-reuniao-providencias'),
       minutaHtml:obterHtmlEditorMinuta('minuta-reuniao-texto')
     };
-    salvarHistoricoMinutas();
+    if(!await salvarHistoricoMinutas()) { minutasHistorico=anteriores; return; }
     renderHistoricoMinutas();
     renderEscolhaReuniaoMinuta();
   }
@@ -181,12 +189,13 @@ function fecharModalExcluirMinuta(){
   excluindoMinutaId = null;
 }
 
-function confirmarExclusaoMinuta(){
+async function confirmarExclusaoMinuta(){
   if(!excluindoMinutaId) return;
   const minutaId = excluindoMinutaId;
+  const anteriores=minutasHistorico;
   const reuniaoId = minutasHistorico.find(item => item.id === minutaId)?.reuniao?.id;
   minutasHistorico = minutasHistorico.filter(item => item.id !== minutaId && (!reuniaoId || item.reuniao?.id !== reuniaoId));
-  salvarHistoricoMinutas();
+  if(!await salvarHistoricoMinutas()) { minutasHistorico=anteriores; return; }
   renderHistoricoMinutas();
   renderEscolhaReuniaoMinuta();
   fecharModalElemento('delete-minuta-modal-overlay');

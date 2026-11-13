@@ -1,0 +1,44 @@
+const assert=require('node:assert/strict');
+const {setup,IDS,empty}=require('./helpers/supabase-db.cjs');
+(async()=>{
+  const {db,asUser,snapshot,commit}=await setup();
+  try {
+    await asUser(IDS.outsider,'anon');
+    await assert.rejects(snapshot,e=>e.code==='42501');
+    await asUser(IDS.outsider);
+    await assert.rejects(snapshot,e=>e.code==='42501');
+    await assert.rejects(()=>db.query('insert into public.normatic_members(user_id,role) values($1,$2)',[IDS.outsider,'admin']),e=>e.code==='42501');
+    assert.equal((await db.query('select * from public.normatic_documentos')).rows.length,0);
+    await asUser(IDS.admin);
+    const initial=await snapshot();assert.equal(initial.revision,0);
+    const data=empty();
+    data.documentos=[{id:'doc-antigo',nome:'Normativo',historico:[{texto:'Histórico preservado'}],campoPersonalizado:'não perder'}];
+    data.unidades=[{codigo:'Z',nome:'Unidade Z'},{codigo:'A',nome:'Unidade A'}];
+    data.projetos=[{id:'projeto-antigo',nome:'Projeto'}];
+    data.tarefas=[{id:'tarefa-antiga',titulo:'Tarefa',projeto_id:'projeto-antigo'}];
+    data.reunioes=[{id:'reuniao-antiga',pauta:'Pauta',membros:[{cargo:'Gestor',nome:'Membro'}]}];
+    data.atas=[{id:'ata-antiga',reuniao:{id:'reuniao-antiga'},minutaHtml:'<p>Ata preservada</p>'}];
+    const partial={...data};delete partial.atas;
+    await assert.rejects(()=>commit(0,partial),/Coleção ausente/);
+    let state=await commit(0,data);assert.equal(state.revision,1);
+    const unsafe=structuredClone(data);unsafe.documentos[0].id="id'indevido";
+    await assert.rejects(()=>commit(1,unsafe),e=>e.code==='23514');
+    assert.deepEqual(state.collections,data,'Todos os campos e a ordem devem sobreviver à gravação');
+    assert.equal((await db.query('select updated_by from public.normatic_documentos')).rows[0].updated_by,IDS.admin);
+    await assert.rejects(()=>db.query("update public.normatic_documentos set payload='{}'"),e=>e.code==='42501');
+    const duplicate=structuredClone(data);duplicate.unidades.push(duplicate.unidades[0]);
+    await assert.rejects(()=>commit(1,duplicate),/duplicadas/);
+    const invalid=structuredClone(data);invalid.projetos=[];
+    await assert.rejects(()=>commit(1,invalid),e=>e.code==='23503');
+    assert.equal((await snapshot()).revision,1,'FK inválida reverte a transação inteira');
+    const latest=structuredClone(data);latest.documentos[0].nome='Alteração de outra pessoa';
+    state=await commit(1,latest);assert.equal(state.revision,2);
+    await assert.rejects(()=>commit(1,data),e=>e.code==='40001');
+    assert.equal((await snapshot()).collections.documentos[0].nome,'Alteração de outra pessoa');
+    await asUser(IDS.viewer);assert.equal((await snapshot()).collections.documentos.length,1);
+    await assert.rejects(()=>commit(2,empty()),e=>e.code==='42501');
+    await asUser(IDS.outsider);await assert.rejects(()=>commit(2,data),e=>e.code==='42501');
+    assert.equal((await db.query('select * from public.normatic_documentos')).rows.length,0);
+    console.log('SQL Supabase: RLS, membros, leitura, escrita, FK, ordem, transação e conflitos verificados em PostgreSQL local.');
+  } finally {await db.close();}
+})().catch(e=>{console.error(e);process.exitCode=1;});

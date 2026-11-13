@@ -48,8 +48,7 @@
       if (row.hora_fim && (!/^([01]\d|2[0-3]):[0-5]\d$/.test(row.hora_fim) || row.hora_fim <= row.hora)) throw Error('O fim deve ser posterior ao início.');
     }
   }
-  async function api(operation, ...args) {
-    const data = read();
+  async function execute(operation, args, data, persist) {
     if (operation === 'getData') return data;
     if (operation === 'saveRecord') {
       const [table, input] = args; tableName(table);
@@ -63,7 +62,7 @@
         for (const n of ['projetos', 'tarefas', 'agenda']) data[n].forEach(r => { if (r.responsavel === previous.nome) r.responsavel = row.nome; });
       }
       if (index < 0) data[table].push(row); else data[table][index] = row;
-      write(data);
+      await persist(data);
       return { id: row.id, record: row };
     }
     if (operation === 'saveAgendaEmLote') {
@@ -72,13 +71,13 @@
       const records = dates.map(date => ({ ...common, ...date, id: global.crypto.randomUUID() }));
       records.forEach(row => { validateRecord('agenda', row, data); if (!row.hora_fim) throw Error('Informe o fim de cada compromisso.'); });
       if (new Set(records.map(r => r.data + '|' + r.hora)).size !== records.length) throw Error('Datas e horários duplicados no lote.');
-      data.agenda.push(...records); write(data); return { records, avisos: [] };
+      data.agenda.push(...records); await persist(data); return { records, avisos: [] };
     }
     if (operation === 'setTaskStatus') {
       const [id, status] = args;
       const row = data.tarefas.find(t => t.id === id);
       if (!row || !STATUS.includes(status)) throw Error('Tarefa ou status inválido.');
-      row.status = status; write(data); return { ok: true, record: row };
+      row.status = status; await persist(data); return { ok: true, record: row };
     }
     if (operation === 'deleteRecord') {
       const [table, id] = args; tableName(table);
@@ -86,9 +85,13 @@
       if (!row) throw Error('Registro não encontrado.');
       if (table === 'projetos' && data.tarefas.some(t => t.projeto_id === id || (!t.projeto_id && t.projeto === row.nome))) throw Error('Desvincule as tarefas antes de excluir o projeto.');
       if (table === 'responsaveis' && ['projetos', 'tarefas', 'agenda'].some(n => data[n].some(r => r.responsavel === row.nome))) throw Error('Este responsável possui registros vinculados. Reatribua os registros ou marque-o como inativo.');
-      data[table] = data[table].filter(r => r.id !== id); write(data); return true;
+      data[table] = data[table].filter(r => r.id !== id); await persist(data); return true;
     }
     throw Error('Operação indisponível nesta etapa.');
+  }
+  async function api(operation, ...args) {
+    if(global.NormaticCloud?.enabled) return global.NormaticCloud.activities((data,persist)=>execute(operation,args,data,persist));
+    return execute(operation,args,read(),write);
   }
   global.FarolStorage = Object.freeze({ api, key: KEY });
 })(globalThis);

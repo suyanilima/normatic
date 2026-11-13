@@ -2,6 +2,7 @@
 
 async function salvar(){
   try{
+    if(window.NormaticCloud?.enabled) { await window.NormaticCloud.writeCollection('documentos',docs); return true; }
     const conteudo = JSON.stringify(docs);
     if(window.storage?.set){
       await window.storage.set(STORAGE_KEY, conteudo, false);
@@ -9,14 +10,13 @@ async function salvar(){
       localStorage.setItem(STORAGE_KEY, conteudo);
     }
     return true;
-  }catch(e){ console.error('Erro ao salvar', e); }
-  toast('Não foi possível salvar os dados neste navegador.', 'vencido');
+  }catch(e){ console.error('Erro ao salvar', e); toast(escapeHtml(e.message || 'Não foi possível salvar os dados.'), 'vencido'); }
   return false;
 }
 
 async function carregar(){
   try{
-    const conteudo = window.storage?.get
+    const conteudo = window.NormaticCloud?.enabled ? JSON.stringify(window.NormaticCloud.readCollection('documentos')) : window.storage?.get
       ? (await window.storage.get(STORAGE_KEY, false))?.value
       : localStorage.getItem(STORAGE_KEY);
     const dados = conteudo ? JSON.parse(conteudo) : [];

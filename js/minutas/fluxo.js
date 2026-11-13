@@ -114,7 +114,7 @@ function gerarHtmlMinutaFinal(reuniao, pautaHtml, descricaoHtml, providenciasHtm
   return `<div class="ata-titulo"><strong>ATA - PRESI/${escapeHtml(reuniao.frequencia)}</strong></div><div class="ata-bloco"><strong>Formato:</strong> ${escapeHtml(formato)}<br><strong>Local:</strong> ${escapeHtml(local)}<br><strong>Data - Hora:</strong> ${escapeHtml(fmtData(reuniao.data))}, às ${escapeHtml(reuniao.horario)}</div><div class="ata-bloco"><strong>Comitê de Governança de TIC:</strong>${tituloParticipantes}${linhasMembros}<br><br><strong>Convidados:</strong><br>${linhasConvidados}</div><div class="ata-bloco">${secao('PAUTA:', pauta)}</div><div class="ata-bloco">${secao('DESCRIÇÃO DOS PROBLEMAS / SOLICITAÇÕES / DELIBERAÇÕES:', descricao)}</div><div class="ata-bloco">${secao('PROVIDÊNCIAS:', providencias)}</div>`;
 }
 
-function gerarMinutaReuniao(){
+async function gerarMinutaReuniao(){
   const reuniao = obterReuniaoMinutaAtual();
   const campo = document.getElementById('minuta-reuniao-descricao');
   const descricao = limitarTexto(obterTextoEditorMinuta('minuta-reuniao-descricao'), 5000);
@@ -132,8 +132,8 @@ function gerarMinutaReuniao(){
   passoMinutaLiberado = 3;
   atualizarNavegacaoMinuta();
   mostrarPassoMinuta(3);
-  if(minutaHistoricoIdAtivo) salvarEdicaoMinutaHistorico();
-  else registrarMinutaHistorico(reuniao);
+  if(minutaHistoricoIdAtivo) await salvarEdicaoMinutaHistorico();
+  else await registrarMinutaHistorico(reuniao);
 }
 
 async function copiarMinutaReuniao(){

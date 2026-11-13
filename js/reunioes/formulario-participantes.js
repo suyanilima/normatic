@@ -67,7 +67,7 @@ function renderParticipantesEdicaoReuniao(){
   }).join('');
 }
 
-function confirmarEdicaoReuniao(){
+async function confirmarEdicaoReuniao(){
   const reuniao = reunioes.find(item => item.id === reuniaoEditandoId);
   if(!reuniao) return;
   const ids = ['edit-r-data','edit-r-horario','edit-r-frequencia','edit-r-formato','edit-r-pauta'];
@@ -105,7 +105,7 @@ function confirmarEdicaoReuniao(){
   reuniao.convidados = [...participantesReuniaoEdicao];
   reuniao.membros = membrosReuniaoEdicao.map(membro => ({...membro, nome:limitarTexto(formatarNomeProprio(membro.nome), 50)}));
   reuniao.participantes = [...reuniao.membros.filter(membro => membro.nome).map(membro => membro.nome), ...participantesReuniaoEdicao];
-  if(!salvarReunioes()){
+  if(!await salvarReunioes()){
     Object.assign(reuniao, anterior);
     return;
   }
@@ -255,14 +255,14 @@ function fecharModalExcluirReuniao(){
   excluindoReuniaoId = null;
 }
 
-function confirmarExclusaoReuniao(){
+async function confirmarExclusaoReuniao(){
   const indice = reunioes.findIndex(item => item.id === excluindoReuniaoId);
   if(indice < 0){
     fecharModalExcluirReuniao();
     return;
   }
   const removida = reunioes.splice(indice, 1)[0];
-  if(!salvarReunioes()){
+  if(!await salvarReunioes()){
     reunioes.splice(indice, 0, removida);
     return;
   }

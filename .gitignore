@@ -1,5 +1,6 @@
 tmp/
 node_modules/
+.vercel/
 .DS_Store
 Thumbs.db
 *.log
@@ -9,3 +10,6 @@ arquivo/entregas/
 arquivo/referencias/
 assets/norma-logo.png
 assets/favicon.png
+.env
+.env.*
+!.env.example

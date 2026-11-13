@@ -260,10 +260,21 @@ function obterHtmlEditorMinuta(id){
   const editor = document.getElementById(id);
   if(!editor) return '';
   if(!editor.childNodes) return textoAtaParaHtml(editor.innerText || '');
+  return serializarHtmlSeguroMinuta(editor);
+}
+
+function sanitizarHtmlMinuta(html){
+  const template=document.createElement('template');
+  template.innerHTML=String(html || '');
+  return serializarHtmlSeguroMinuta(template.content);
+}
+
+function serializarHtmlSeguroMinuta(editor){
   const tags = {B:'strong',STRONG:'strong',I:'em',EM:'em',U:'u',BR:'br',DIV:'div',P:'p',SPAN:'span',MARK:'mark',UL:'ul',LI:'li',TABLE:'table',TBODY:'tbody',THEAD:'thead',TR:'tr',TD:'td',TH:'th'};
   function serializar(no){
     if(no.nodeType === 3) return escapeHtml(no.nodeValue);
     if(no.nodeType !== 1) return '';
+    if(['SCRIPT','STYLE','IFRAME','OBJECT','EMBED','LINK','META'].includes(no.tagName)) return '';
     const filhos = [...no.childNodes].map(serializar).join('');
     const tag = tags[no.tagName];
     if(!tag) return filhos;

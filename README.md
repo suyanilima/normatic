@@ -45,7 +45,7 @@ Não houve migração ou exclusão de dados. Mudar a origem do endereço muda o 
 
 `farol.html` apenas redireciona links antigos para a plataforma, preservando a aba. As cópias anteriores e o pacote original, quando disponíveis localmente, ficam em `arquivo/referencias/`. Os ZIPs anteriores ficam em `arquivo/entregas/`. Esses arquivos históricos são ignorados pelo Git e não acompanham novos clones.
 
-Não foram implementados Supabase, autenticação definitiva, e-mails automáticos, Google Agenda ou publicação. A preferência de convite é preservada, mas não envia convites. A edição manual de atas funciona sem serviços; o ponto de IA preexistente permanece indisponível sem configuração, sem gerar conteúdo simulado.
+A integração com Supabase e login de equipe está ativada, utilizando dados compartilhados e sem importação automática dos registros locais. Siga [o guia do Supabase](docs/SUPABASE.md) para configurar uma nova instalação. E-mails automáticos, Google Agenda e publicação não foram implementados. A preferência de convite é preservada, mas não envia convites. A edição manual de atas funciona sem serviços; o ponto de IA preexistente permanece indisponível sem configuração, sem gerar conteúdo simulado.
 
 ## Testar e gerar arquivos com recursos incorporados
 
@@ -71,4 +71,4 @@ O build grava os três HTMLs em **`dist/`**: `prototipo-normatic.html` contém a
 
 `tools/empacotar.ps1` gera o ZIP atual em `dist/entregas/`, com o código, testes e ferramentas. O pacote não acumula backups, dependências instaladas ou outros ZIPs. Os protótipos podem ser recriados com o build após extrair o pacote. Os dados cadastrados continuam no navegador; não foram movidos por essa organização.
 
-As seis suítes verificam regras, persistência, CRUD, filtros, agenda, unidades, atas, exportações, recursos, navegação unificada e preservação de rascunhos. Há testes de CSS para 390, 768, 1024 e 1440 px, mas eles não substituem inspeção visual em navegador real. Veja [a organização e a validação da plataforma](docs/PLATAFORMA-UNIFICADA.md).
+As dez suítes verificam permissões, transações e integração Supabase em PostgreSQL local, além de regras, persistência, CRUD, filtros, agenda, unidades, atas, exportações, recursos, navegação unificada e preservação de rascunhos. Há testes de CSS para 390, 768, 1024 e 1440 px, mas eles não substituem inspeção visual em navegador real. Veja [a organização e a validação da plataforma](docs/PLATAFORMA-UNIFICADA.md).
