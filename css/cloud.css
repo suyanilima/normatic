@@ -7,10 +7,12 @@
 .cloud-login-card label { margin-top: 16px; }
 .cloud-login-card button { width: 100%; padding: 12px; border: 0; border-radius: 8px; background: var(--gov-blue); color: white; font: inherit; cursor: pointer; }
 .cloud-access-message { min-height: 24px; }
-.cloud-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 0 16px; font-size: 12px; }
-.cloud-toolbar button { border: 1px solid var(--border); border-radius: 8px; background: #fff; color: var(--gov-blue); padding: 8px 10px; font: inherit; cursor: pointer; }
-.cloud-toolbar [role=status] { flex-basis: 100%; }
-.cloud-toolbar button:disabled,.cloud-login-card button:disabled { opacity: .6; cursor: wait; }
+.plataforma-sidebar { display: flex; flex-direction: column; }
+.cloud-account { margin-top: auto; padding-top: 20px; }
+.cloud-account button { width: 100%; text-align: left; border: 0; border-top: 1px solid var(--border); border-radius: 8px; background: transparent; color: var(--ink); padding: 12px 14px; font: inherit; font-weight: 600; cursor: pointer; }
+.cloud-account button:hover { background: var(--gov-blue-bg); color: var(--gov-blue); }
+.cloud-account [role=status] { display: block; font-size: 12px; overflow-wrap: anywhere; }
+.cloud-account button:disabled,.cloud-login-card button:disabled { opacity: .6; cursor: wait; }
 .cloud-boot-error { padding: 24px; }
 .cloud-mfa { position: fixed; inset: 0; z-index: 5000; overflow-y: auto; }
 .cloud-mfa .cloud-login-card { margin: auto; box-sizing: border-box; }

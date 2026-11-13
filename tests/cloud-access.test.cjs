@@ -35,7 +35,9 @@ const resources={interceptors:[requestInterceptor(request=>{
     assert.ok(d.getElementById('content').textContent.includes('Projeto compartilhado'));
     assert.ok(!d.getElementById('content').textContent.includes('Projeto somente local'));
     assert.equal(w.localStorage.getItem('farol:dados:v1'),JSON.stringify(local));
-    assert.ok(d.querySelector('[data-cloud-action=backup]'));
+    assert.ok(d.querySelector('.plataforma-sidebar > .cloud-account [data-cloud-action=logout]'));
+    assert.equal(d.querySelector('.cloud-toolbar'),null);
+    assert.equal(d.querySelector('[data-cloud-action=backup]'),null);
     assert.deepEqual(current.errors.map(e=>e.message),[]);
     console.log('Login: bloqueio antes da autorização, conta não autorizada, sessão compartilhada e preservação local verificados no DOM.');
   } finally {current?.dom.window.close();}

@@ -34,14 +34,13 @@
   }
   function toolbar() {
     if(!cloud.enabled || global.parent!==global) return;
-    const bar=document.createElement('section');bar.className='cloud-toolbar';
-    bar.innerHTML='<span>Dados da equipe</span><button type="button" data-cloud-action="refresh">Atualizar dados</button><button type="button" data-cloud-action="backup">Baixar backup local</button><button type="button" data-cloud-action="import">Importar dados deste navegador</button><button type="button" data-cloud-action="logout">Sair</button><span role="status" aria-live="polite"></span>';
-    (document.querySelector('main') || document.body).prepend(bar);
+    const bar=document.createElement('section');bar.className='cloud-account';
+    bar.innerHTML='<button type="button" data-cloud-action="logout">Sair</button><span role="status" aria-live="polite"></span>';
+    (document.querySelector('.plataforma-sidebar') || document.body).append(bar);
     global.addEventListener('normatic:cloud-saving',event=>{
       document.documentElement.classList.toggle('cloud-saving',event.detail);
       document.querySelectorAll('main,.plataforma-sidebar').forEach(area=>{area.inert=event.detail;});
     });
-    if(!['admin','editor'].includes(cloud.role)) bar.querySelector('[data-cloud-action=import]').disabled=true;
     bar.addEventListener('click',async event=>{
       const action=event.target.dataset.cloudAction;if(!action || event.target.disabled)return;
       const button=event.target,status=bar.querySelector('[role=status]');button.disabled=true;
@@ -50,18 +49,6 @@
           const {error}=await cloud.database().auth.signOut();if(error)throw error;
           location.reload();return;
         }
-        if(action==='backup') {
-          const data=await cloud.captureLocal();
-          const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob);
-          const link=document.createElement('a');link.href=url;link.download='normatic-backup-local-'+new Date().toISOString().slice(0,10)+'.json';link.click();URL.revokeObjectURL(url);
-          status.textContent='Backup local gerado.';return;
-        }
-        if(action==='import') {
-          if(!confirm('Importar os dados deste navegador para a equipe? Essa ação só é permitida se o banco estiver vazio. Baixe um backup local antes de continuar.')) return;
-          await cloud.importLocal();status.textContent='Dados importados. As cópias locais foram preservadas.';
-        } else { await cloud.reload();status.textContent='Dados da equipe atualizados.'; }
-        await global.refresh?.();global.carregarUnidades?.();global.carregarHistoricoMinutas?.();global.carregarReunioes?.();
-        const frame=document.getElementById('normativos-frame');await frame?.contentWindow?.carregar?.();
       } catch(error) {status.textContent=message(error);}
       finally {button.disabled=false;}
     });
