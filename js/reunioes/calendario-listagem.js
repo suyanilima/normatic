@@ -47,8 +47,8 @@ function renderCalendarioReunioes(){
     if(data.getMonth()!==calendarioReunioesMes.getMonth())classes.push('fora-mes');
     if(chave===hoje)classes.push('hoje');
     if(chave===calendarioReunioesDia)classes.push('selecionado');
-    const eventosHtml=eventos.slice(0,2).map(reuniao=>`<button class="calendario-evento ${classeSituacaoCalendario(reuniao)}" type="button" onclick="event.stopPropagation();verResumoReuniao('${reuniao.id}')" title="${escapeHtml(`${reuniao.horario||''} · ${reuniao.frequencia||''} · ${reuniao.pauta||'Sem pauta'}`)}"><strong>${escapeHtml(reuniao.horario||'--:--')}</strong> ${escapeHtml(reuniao.frequencia||'Reunião')}</button>`).join('');
-    dias.push(`<div class="${classes.join(' ')}" role="button" tabindex="0" onclick="selecionarDiaCalendarioReunioes('${chave}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selecionarDiaCalendarioReunioes('${chave}')}" aria-label="${data.toLocaleDateString('pt-BR',{day:'numeric',month:'long'})}, ${eventos.length} reunião${eventos.length===1?'':'ões'}"><span class="calendario-dia-numero">${data.getDate()}</span>${eventosHtml}${eventos.length>2?`<span class="calendario-eventos-restantes">+${eventos.length-2} reunião${eventos.length-2===1?'':'ões'}</span>`:''}</div>`);
+    const eventosHtml=eventos.slice(0,2).map(reuniao=>`<button class="calendario-evento ${classeSituacaoCalendario(reuniao)}" type="button" onclick="event.stopPropagation();verResumoReuniao(${argumentoJsHtml(reuniao.id)})" title="${escapeHtml(`${reuniao.horario||''} · ${reuniao.frequencia||''} · ${reuniao.pauta||'Sem pauta'}`)}"><strong>${escapeHtml(reuniao.horario||'--:--')}</strong> ${escapeHtml(reuniao.frequencia||'Reunião')}</button>`).join('');
+    dias.push(`<div class="${classes.join(' ')}" role="button" tabindex="0" onclick="selecionarDiaCalendarioReunioes(${argumentoJsHtml(chave)})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selecionarDiaCalendarioReunioes(${argumentoJsHtml(chave)})}" aria-label="${data.toLocaleDateString('pt-BR',{day:'numeric',month:'long'})}, ${eventos.length} reunião${eventos.length===1?'':'ões'}"><span class="calendario-dia-numero">${data.getDate()}</span>${eventosHtml}${eventos.length>2?`<span class="calendario-eventos-restantes">+${eventos.length-2} reunião${eventos.length-2===1?'':'ões'}</span>`:''}</div>`);
   }
   grade.innerHTML=dias.join('');
   renderAgendaDiaCalendario(porData[calendarioReunioesDia]||[]);
@@ -64,7 +64,7 @@ function renderAgendaDiaCalendario(eventos){
   if(contagem) contagem.textContent=`${eventos.length} ${eventos.length===1?'reunião':'reuniões'}`;
   agenda.innerHTML=eventos.length?eventos.map(reuniao=>{
     const situacao=obterSituacaoReuniao(reuniao);
-    return `<button class="calendario-agenda-item" type="button" onclick="fecharAgendaDiaCalendario();verResumoReuniao('${reuniao.id}')"><i class="${classeSituacaoCalendario(reuniao)}"></i><span><strong>${escapeHtml(reuniao.horario||'--:--')} · ${escapeHtml(reuniao.frequencia||'Reunião')}</strong><small>${escapeHtml(reuniao.pauta||'Sem pauta informada')}</small></span><em class="${classeSituacaoCalendario(reuniao)}">${escapeHtml(situacao)}</em></button>`;
+    return `<button class="calendario-agenda-item" type="button" onclick="fecharAgendaDiaCalendario();verResumoReuniao(${argumentoJsHtml(reuniao.id)})"><i class="${classeSituacaoCalendario(reuniao)}"></i><span><strong>${escapeHtml(reuniao.horario||'--:--')} · ${escapeHtml(reuniao.frequencia||'Reunião')}</strong><small>${escapeHtml(reuniao.pauta||'Sem pauta informada')}</small></span><em class="${classeSituacaoCalendario(reuniao)}">${escapeHtml(situacao)}</em></button>`;
   }).join(''):'<p>Nenhuma reunião neste dia.</p>';
 }
 
@@ -131,7 +131,7 @@ function renderReunioes(){
       : '—';
     return `
     <div class="reuniao-item">
-      <label class="selecao-registro" onclick="event.stopPropagation()"><input type="checkbox" ${typeof relatorioSelecao!=='undefined'&&relatorioSelecao.reunioes.has(item.id)?'checked':''} onchange="selecionarRegistroParaRelatorio('reunioes','${item.id}',this.checked)" aria-label="Selecionar reunião de ${fmtData(item.data)}"></label>
+      <label class="selecao-registro" onclick="event.stopPropagation()"><input type="checkbox" ${typeof relatorioSelecao!=='undefined'&&relatorioSelecao.reunioes.has(item.id)?'checked':''} onchange="selecionarRegistroParaRelatorio('reunioes',${argumentoJsHtml(item.id)},this.checked)" aria-label="Selecionar reunião de ${fmtData(item.data)}"></label>
       <div class="reuniao-data"><strong>${fmtData(item.data)}</strong><span>${escapeHtml(item.horario)}</span></div>
       <div><span class="reuniao-frequencia">${escapeHtml(item.frequencia)}</span><span class="reuniao-periodicidade">${FREQUENCIAS_REUNIAO[item.frequencia]}</span><span class="reuniao-formato">${escapeHtml(rotuloFormatoReuniao(item.formato))}</span></div>
       <div class="reuniao-sei-celula">${escapeHtml(item.numeroEventoSei || 'Não informado')}</div>
@@ -140,16 +140,16 @@ function renderReunioes(){
       <div class="reuniao-celula reuniao-participantes-celula" title="${escapeHtml(participantes.join(' • '))}">${participantesResumo}</div>
       <div class="reuniao-situacao"><span class="${classeSituacao}">${escapeHtml(situacao)}</span></div>
       <div class="actions reuniao-acoes">
-        <button class="actions-toggle" type="button" onclick="toggleAcoes(event,'reuniao-${item.id}')" aria-label="Ações da reunião">⋮</button>
-        <div class="actions-dropdown" id="acoes-reuniao-${item.id}">
-          <button type="button" onclick="verResumoReuniao('${item.id}')">Resumo</button>
-          <button type="button" onclick="abrirMinutaReuniao('${item.id}')">Gerar ata</button>
-          <button type="button" onclick="remarcarReuniao('${item.id}')">Remarcar</button>
-          <button type="button" onclick="cancelarReuniao('${item.id}')">Cancelar reunião</button>
-          <button type="button" onclick="editarReuniao('${item.id}')">Editar</button>
-          <button type="button" onclick="notificarReuniao('${item.id}')">Notificar</button>
+        <button class="actions-toggle" type="button" onclick="toggleAcoes(event,${argumentoJsHtml("reuniao-"+item.id)})" aria-label="Ações da reunião">⋮</button>
+        <div class="actions-dropdown" id="acoes-reuniao-${escapeHtml(item.id)}">
+          <button type="button" onclick="verResumoReuniao(${argumentoJsHtml(item.id)})">Resumo</button>
+          <button type="button" onclick="abrirMinutaReuniao(${argumentoJsHtml(item.id)})">Gerar ata</button>
+          <button type="button" onclick="remarcarReuniao(${argumentoJsHtml(item.id)})">Remarcar</button>
+          <button type="button" onclick="cancelarReuniao(${argumentoJsHtml(item.id)})">Cancelar reunião</button>
+          <button type="button" onclick="editarReuniao(${argumentoJsHtml(item.id)})">Editar</button>
+          <button type="button" onclick="notificarReuniao(${argumentoJsHtml(item.id)})">Notificar</button>
           <div class="divider"></div>
-          <button class="del" type="button" onclick="excluirReuniao('${item.id}')">Excluir</button>
+          <button class="del" type="button" onclick="excluirReuniao(${argumentoJsHtml(item.id)})">Excluir</button>
         </div>
       </div>
     </div>

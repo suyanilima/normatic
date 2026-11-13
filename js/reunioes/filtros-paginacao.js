@@ -20,7 +20,7 @@ function popularFiltroAnoReunioes(){
   if(!seletor) return;
   const atual = seletor.value;
   const anos = [...new Set(reunioes.map(item => (item.data || '').slice(0,4)).filter(Boolean))].sort((a,b) => b.localeCompare(a));
-  seletor.innerHTML = '<option value="">Todos</option>' + anos.map(ano => `<option value="${ano}">${ano}</option>`).join('');
+  seletor.innerHTML = '<option value="">Todos</option>' + anos.map(ano => `<option value="${escapeHtml(ano)}">${escapeHtml(ano)}</option>`).join('');
   if(anos.includes(atual)) seletor.value = atual;
 }
 

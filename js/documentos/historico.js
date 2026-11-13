@@ -16,7 +16,7 @@ function verHistorico(id){
     lista.innerHTML = historico.map(h => `
       <div class="historico-item">
         <div class="historico-item-head">
-          <span class="historico-tipo ${h.tipo}">${HIST_LABELS[h.tipo] || 'Alteração'}</span>
+          <span class="historico-tipo ${['criacao','edicao','renovacao'].includes(h.tipo) ? h.tipo : 'edicao'}">${Object.hasOwn(HIST_LABELS,h.tipo) ? escapeHtml(HIST_LABELS[h.tipo]) : 'Alteração'}</span>
           <span class="historico-data">${fmtDataHora(h.dataHora)}</span>
         </div>
         <div class="historico-texto">${escapeHtml(h.texto)}</div>

@@ -58,7 +58,7 @@ function renderHistoricoMinutas(){
     return `<article class="minuta-historico-item">
       <div><strong>${escapeHtml(reuniao.frequencia || 'Reunião')}</strong><span>${escapeHtml(fmtData(reuniao.data))} às ${escapeHtml(reuniao.horario || '--:--')}</span><small>Gerada em ${escapeHtml(dataGeracao)}</small></div>
       <p>${escapeHtml(reuniao.pauta || 'Sem pauta informada')}</p>
-      <div class="minuta-historico-acoes"><button type="button" onclick="abrirMinutaHistorico('${item.id}')">Abrir</button><button class="danger" type="button" onclick="excluirMinutaHistorico('${item.id}')">Excluir</button></div>
+      <div class="minuta-historico-acoes"><button type="button" onclick="abrirMinutaHistorico(${argumentoJsHtml(item.id)})">Abrir</button><button class="danger" type="button" onclick="excluirMinutaHistorico(${argumentoJsHtml(item.id)})">Excluir</button></div>
     </article>`;
   }).join('');
 }

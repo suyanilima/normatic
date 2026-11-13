@@ -188,7 +188,7 @@ function renderSetoresDocumentos(){
     <em>${totalDocumentos} documento${totalDocumentos===1?'':'s'}</em>
   </button>`;
   grade.innerHTML=cardTodas+[...setoresAtivos.values()].map(({setor,quantidade})=>
-    `<button type="button" class="reuniao-tipo-btn documento-unidade-opcao" onclick="abrirUnidadeDocumentos('SETOR:${escapeHtml(setor.codigo)}')">
+    `<button type="button" class="reuniao-tipo-btn documento-unidade-opcao" onclick="abrirUnidadeDocumentos(${argumentoJsHtml("SETOR:"+setor.codigo)})">
       <span class="documento-unidade-identificacao"><strong>${escapeHtml(setor.codigo)}</strong><span>${escapeHtml(setor.nome)}</span></span>
       <em>${quantidade} documento${quantidade===1?'':'s'}</em>
     </button>`

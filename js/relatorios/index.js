@@ -24,7 +24,7 @@ function garantirModalRelatorio(){
   document.body.appendChild(overlay);overlay.addEventListener('click',e=>{if(e.target===overlay)fecharRelatorio();});
   // Os filtros pertencem à listagem; este modal recebe sua seleção e configura as colunas.
 }
-function secaoRelatorio(tipo,titulo,filtros,campos){return `<section class="relatorio-secao" id="relatorio-secao-${tipo}"><div class="relatorio-secao-head"><div><h4>Campos do relatório</h4><small>Marque somente as informações necessárias.</small></div><div class="relatorio-campos-acoes"><button type="button" onclick="marcarCamposRelatorio('${tipo}',true)">Selecionar todos</button><button type="button" onclick="marcarCamposRelatorio('${tipo}',false)">Limpar</button></div></div><div class="relatorio-campos">${camposRelatorio(tipo,campos)}</div></section>`;}
+function secaoRelatorio(tipo,titulo,filtros,campos){return `<section class="relatorio-secao" id="relatorio-secao-${tipo}"><div class="relatorio-secao-head"><div><h4>Campos do relatório</h4><small>Marque somente as informações necessárias.</small></div><div class="relatorio-campos-acoes"><button type="button" onclick="marcarCamposRelatorio(${argumentoJsHtml(tipo)},true)">Selecionar todos</button><button type="button" onclick="marcarCamposRelatorio(${argumentoJsHtml(tipo)},false)">Limpar</button></div></div><div class="relatorio-campos">${camposRelatorio(tipo,campos)}</div></section>`;}
 function abrirRelatorio(origem='documentos', contexto=null){
   garantirModalRelatorio();relatorioFocoAnterior=document.activeElement;
   if(!relatorioSelecao[origem].size){toast(`Selecione ao menos um ${origem==='documentos'?'documento':'registro de reunião'} antes de exportar.`,'alerta');return;}
@@ -62,9 +62,9 @@ function renderRegistrosRelatorio(tipo){
   const lista=document.getElementById(`relatorio-lista-${tipo}`);if(!lista)return;const registros=registrosFiltradosRelatorio(tipo);
   lista.innerHTML=registros.length?registros.map(item=>{
     const marcado=relatorioSelecao[tipo].has(item.id);
-    if(tipo==='documentos')return `<label class="relatorio-registro"><input type="checkbox" ${marcado?'checked':''} onchange="selecionarRegistroRelatorio('documentos','${item.id}',this.checked)"><span><strong>${escapeHtml(item.nome)}</strong><small>${escapeHtml(item.tipo||'Sem tipo')}</small></span><small>${escapeHtml(statusLabel(item.status))}</small></label>`;
+    if(tipo==='documentos')return `<label class="relatorio-registro"><input type="checkbox" ${marcado?'checked':''} onchange="selecionarRegistroRelatorio('documentos',${argumentoJsHtml(item.id)},this.checked)"><span><strong>${escapeHtml(item.nome)}</strong><small>${escapeHtml(item.tipo||'Sem tipo')}</small></span><small>${escapeHtml(statusLabel(item.status))}</small></label>`;
     const unidade=unidadesPersonalizadas.find(u=>u.codigo===item.frequencia)?.nome||item.frequencia;
-    return `<label class="relatorio-registro"><input type="checkbox" ${marcado?'checked':''} onchange="selecionarRegistroRelatorio('reunioes','${item.id}',this.checked)"><span><strong>${escapeHtml(item.pauta||'Reunião sem pauta')}</strong><small>${escapeHtml(unidade||'Sem unidade')}</small></span><small>${fmtData(item.data)}</small></label>`;
+    return `<label class="relatorio-registro"><input type="checkbox" ${marcado?'checked':''} onchange="selecionarRegistroRelatorio('reunioes',${argumentoJsHtml(item.id)},this.checked)"><span><strong>${escapeHtml(item.pauta||'Reunião sem pauta')}</strong><small>${escapeHtml(unidade||'Sem unidade')}</small></span><small>${fmtData(item.data)}</small></label>`;
   }).join(''):'<div class="relatorio-vazio">Nenhum registro encontrado com estes filtros.</div>';atualizarContadorRelatorio(tipo);
 }
 function aplicarFiltrosRelatorio(tipo){relatorioSelecao[tipo]=new Set(registrosFiltradosRelatorio(tipo).map(i=>i.id));renderRegistrosRelatorio(tipo);}

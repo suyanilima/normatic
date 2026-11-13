@@ -71,6 +71,12 @@ function escapeHtml(s){
   return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
+// Primeiro serializa como string JavaScript, depois protege o atributo HTML.
+// escapeHtml isoladamente não protege aspas interpretadas por um handler.
+function argumentoJsHtml(valor){
+  return escapeHtml(JSON.stringify(String(valor ?? '')).replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029'));
+}
+
 function atualizarContadorCampo(campo){
   if(!campo || campo.readOnly || campo.disabled || campo.type === 'hidden') return;
   const limite = Number(campo.maxLength);

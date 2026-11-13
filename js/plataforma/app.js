@@ -66,7 +66,7 @@ function cabecalho(titulo) {
 function listaCompromissos() {
   const query = filtroCompromissos.toLocaleLowerCase('pt-BR');
   const rows = DATA.agenda.filter(item => [item.titulo,item.responsavel,item.observacoes,item.data].join(' ').toLocaleLowerCase('pt-BR').includes(query)).sort((a,b)=>(a.data+a.hora).localeCompare(b.data+b.hora));
-  return `<section class="card"><div class="compromissos-filtro"><label for="compromisso-busca">Pesquisar compromissos</label><input id="compromisso-busca" type="search" maxlength="100" value="${esc(filtroCompromissos)}" placeholder="Título, responsável, data ou observações" oninput="filtrarCompromissos(this.value)"></div><p class="muted">${rows.length} compromisso(s)</p><div class="simple-list">${rows.map(item=>`<article class="simple-task"><div class="simple-task-info"><strong>${esc(item.titulo)}</strong><p class="muted">${dt(item.data)} · ${esc(item.hora)}${item.hora_fim?'–'+esc(item.hora_fim):''} · ${esc(item.responsavel||'Sem responsável')}</p></div><div class="actions"><button class="secondary" onclick="viewCalendarRecord('agenda','${item.id}')">Consultar</button>${actions('agenda',item.id)}</div></article>`).join('') || '<p class="empty-state">Nenhum compromisso encontrado.</p>'}</div></section>`;
+  return `<section class="card"><div class="compromissos-filtro"><label for="compromisso-busca">Pesquisar compromissos</label><input id="compromisso-busca" type="search" maxlength="100" value="${esc(filtroCompromissos)}" placeholder="Título, responsável, data ou observações" oninput="filtrarCompromissos(this.value)"></div><p class="muted">${rows.length} compromisso(s)</p><div class="simple-list">${rows.map(item=>`<article class="simple-task"><div class="simple-task-info"><strong>${esc(item.titulo)}</strong><p class="muted">${dt(item.data)} · ${esc(item.hora)}${item.hora_fim?'–'+esc(item.hora_fim):''} · ${esc(item.responsavel||'Sem responsável')}</p></div><div class="actions"><button class="secondary" onclick="viewCalendarRecord('agenda',${argumentoJsHtml(item.id)})">Consultar</button>${actions('agenda',item.id)}</div></article>`).join('') || '<p class="empty-state">Nenhum compromisso encontrado.</p>'}</div></section>`;
 }
 function filtrarCompromissos(value) {
   const input = document.getElementById('compromisso-busca'), caret = input?.selectionStart;
@@ -84,7 +84,7 @@ render = function() {
   document.getElementById('documental-titulo').hidden = page !== 'dashboard';
   content.hidden = reuniao || documental;
   subnav.hidden = !gestao;
-  subnav.innerHTML = [['reunioes','Reuniões'],['compromissos','Compromissos'],['cadastro-reuniao','Unidades e nova reunião']].map(([id,label])=>`<button type="button" class="secondary ${page===id?'active':''}" ${page===id?'aria-current="page"':''} onclick="go('${id}')">${label}</button>`).join('');
+  subnav.innerHTML = [['reunioes','Reuniões'],['compromissos','Compromissos'],['cadastro-reuniao','Unidades e nova reunião']].map(([id,label])=>`<button type="button" class="secondary ${page===id?'active':''}" ${page===id?'aria-current="page"':''} onclick="go(${argumentoJsHtml(id)})">${label}</button>`).join('');
   if(documental) { cabecalho('Normativos'); abrirDocumentos(page === 'novo-normativo' ? 'cadastro' : 'acompanhamento'); }
   else if(reuniao) {
     cabecalho(page === 'minutas' ? 'Atas' : 'Reuniões e compromissos');
@@ -115,7 +115,7 @@ render = function() {
   document.getElementById('add-compromisso').hidden = !gestao;
   document.getElementById('nav').innerHTML = MENU.map(([id,label])=>{
     const current = page===id || (id==='normativos' && documental) || (id==='reunioes' && gestao);
-    return `<button type="button" ${current?'class="active" aria-current="page"':''} onclick="go('${id}')">${label}</button>`;
+    return `<button type="button" ${current?'class="active" aria-current="page"':''} onclick="go(${argumentoJsHtml(id)})">${label}</button>`;
   }).join('');
 };
 go = function(target,options={}) {

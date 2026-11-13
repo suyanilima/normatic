@@ -65,7 +65,7 @@ function render(){
 
   lista.innerHTML = documentosPagina.map(d => `
     <div class="row">
-      <label class="selecao-registro" onclick="event.stopPropagation()"><input type="checkbox" ${typeof relatorioSelecao!=='undefined'&&relatorioSelecao.documentos.has(d.id)?'checked':''} onchange="selecionarRegistroParaRelatorio('documentos','${d.id}',this.checked)" aria-label="Selecionar ${escapeHtml(d.nome)}"></label>
+      <label class="selecao-registro" onclick="event.stopPropagation()"><input type="checkbox" ${typeof relatorioSelecao!=='undefined'&&relatorioSelecao.documentos.has(d.id)?'checked':''} onchange="selecionarRegistroParaRelatorio('documentos',${argumentoJsHtml(d.id)},this.checked)" aria-label="Selecionar ${escapeHtml(d.nome)}"></label>
       <div class="doc-name-wrap">
         <div class="type-icon">${TYPE_INITIALS[d.tipo] || '--'}</div>
         <div>
@@ -81,15 +81,15 @@ function render(){
       <div class="doc-date">${d.data ? fmtData(d.data) : '-'}</div>
       <div>${d.semNormativo || d.tipo === 'Sem normativo' ? '-' : d.status ? `<span class="tag ${d.status==='Vigente'?'valido':d.status==='Alerta'?'alerta':'vencido'}">${statusLabel(d.status)}</span>` : '-'}</div>
       <div class="actions">
-        <button class="actions-toggle" onclick="toggleAcoes(event,'${d.id}')" aria-label="Ações">⋮</button>
-        <div class="actions-dropdown" id="acoes-${d.id}">
-          <button onclick="verResumo('${d.id}')">Resumo</button>
-          ${d.semNormativo || d.tipo === 'Sem normativo' ? '' : `<button onclick="notificarGestor('${d.id}')">Notificar gestor</button>`}
-          <button onclick="editar('${d.id}')">Editar</button>
-          ${d.semNormativo || d.tipo === 'Sem normativo' ? '' : `<button class="renew" onclick="renovar('${d.id}')">Renovar vigência</button>`}
-          <button onclick="verHistorico('${d.id}')">Histórico de edições</button>
+        <button class="actions-toggle" onclick="toggleAcoes(event,${argumentoJsHtml(d.id)})" aria-label="Ações">⋮</button>
+        <div class="actions-dropdown" id="acoes-${escapeHtml(d.id)}">
+          <button onclick="verResumo(${argumentoJsHtml(d.id)})">Resumo</button>
+          ${d.semNormativo || d.tipo === 'Sem normativo' ? '' : `<button onclick="notificarGestor(${argumentoJsHtml(d.id)})">Notificar gestor</button>`}
+          <button onclick="editar(${argumentoJsHtml(d.id)})">Editar</button>
+          ${d.semNormativo || d.tipo === 'Sem normativo' ? '' : `<button class="renew" onclick="renovar(${argumentoJsHtml(d.id)})">Renovar vigência</button>`}
+          <button onclick="verHistorico(${argumentoJsHtml(d.id)})">Histórico de edições</button>
           <div class="divider"></div>
-          <button class="del" onclick="excluir('${d.id}')">Excluir</button>
+          <button class="del" onclick="excluir(${argumentoJsHtml(d.id)})">Excluir</button>
         </div>
       </div>
     </div>
@@ -236,7 +236,7 @@ function popularFiltroAno(){
     if(base) anos.add(base.slice(0,4));
   });
   const anosOrdenados = Array.from(anos).sort((a,b)=> b.localeCompare(a));
-  sel.innerHTML = '<option value="">Todos</option>' + anosOrdenados.map(a=>`<option value="${a}">${a}</option>`).join('');
+  sel.innerHTML = '<option value="">Todos</option>' + anosOrdenados.map(a=>`<option value="${escapeHtml(a)}">${escapeHtml(a)}</option>`).join('');
   if(anosOrdenados.includes(atual)) sel.value = atual;
 }
 
