@@ -43,7 +43,7 @@ Não houve migração ou exclusão de dados. Mudar a origem do endereço muda o 
 
 `index.html` é a plataforma. `normativos.html` reutiliza o motor documental como componente incorporado da mesma origem, sem segundo menu. Isso preserva as funções e os estados documentais sem colisões com o motor de atividades. O componente é mantido durante a navegação para preservar rascunhos. Os diálogos e menus documentais se ajustam à área visível da plataforma.
 
-`farol.html` apenas redireciona links antigos para a plataforma, preservando a aba. As cópias anteriores e o pacote original estão em `arquivo/referencias/`. Os ZIPs anteriores ficam em `arquivo/entregas/`. Esses arquivos são históricos, não a entrada atual da aplicação.
+`farol.html` apenas redireciona links antigos para a plataforma, preservando a aba. As cópias anteriores e o pacote original, quando disponíveis localmente, ficam em `arquivo/referencias/`. Os ZIPs anteriores ficam em `arquivo/entregas/`. Esses arquivos históricos são ignorados pelo Git e não acompanham novos clones.
 
 Não foram implementados Supabase, autenticação definitiva, e-mails automáticos, Google Agenda ou publicação. A preferência de convite é preservada, mas não envia convites. A edição manual de atas funciona sem serviços; o ponto de IA preexistente permanece indisponível sem configuração, sem gerar conteúdo simulado.
 
