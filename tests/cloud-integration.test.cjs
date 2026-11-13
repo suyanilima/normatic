@@ -15,7 +15,7 @@ function set(w,selector,value){const field=w.document.querySelector(selector);as
   const {db,asUser,snapshot,commit}=await setup();let current,fail=false;
   try {
     await asUser(IDS.admin);
-    const client={auth:{getSession:async()=>({data:{session:{}}}),onAuthStateChange:()=>{}},rpc:async(name,args)=>{
+    const client={auth:{mfa:{getAuthenticatorAssuranceLevel:async()=>({data:{currentLevel:'aal2'}})},getSession:async()=>({data:{session:{}}}),onAuthStateChange:()=>{}},rpc:async(name,args)=>{
       if(fail)return {error:{message:'Falha de rede controlada'}};
       try{return {data:await(name==='normatic_snapshot'?snapshot():commit(args.expected_revision,args.collections))};}catch(error){return {error};}
     }};

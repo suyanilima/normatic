@@ -11,7 +11,7 @@ const resources={interceptors:[requestInterceptor(request=>{
   const file=url.pathname.slice(1);
   if(file==='js/cloud/config.js') return new Response('window.NORMATIC_SUPABASE_CONFIG={enabled:true,url:"http://mock.test",publishableKey:"public-test"}');
   if(file==='js/vendor/supabase.umd.js') return new Response(`window.supabase={createClient:()=>({
-    auth:{onAuthStateChange:()=>{},getSession:async()=>({data:{session:null}}),signInWithPassword:async({email})=>{window.mockEmail=email;return {data:{session:{}},error:null}}},
+    auth:{mfa:{getAuthenticatorAssuranceLevel:async()=>({data:{currentLevel:'aal2'}})},onAuthStateChange:()=>{},getSession:async()=>({data:{session:null}}),signInWithPassword:async({email})=>{window.mockEmail=email;return {data:{session:{}},error:null}}},
     rpc:async()=>window.mockEmail==='equipe@example.test'?{data:${JSON.stringify(state)}}:{error:{code:'42501',message:'Conta sem acesso à equipe.'}}
   })};`);
   return new Response(fs.readFileSync(path.join(__dirname,'..',file)),{headers:{'Content-Type':file.endsWith('.css')?'text/css':file.endsWith('.html')?'text/html':'application/javascript'}});

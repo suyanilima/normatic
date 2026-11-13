@@ -12,4 +12,10 @@
 .cloud-toolbar [role=status] { flex-basis: 100%; }
 .cloud-toolbar button:disabled,.cloud-login-card button:disabled { opacity: .6; cursor: wait; }
 .cloud-boot-error { padding: 24px; }
+.cloud-mfa { position: fixed; inset: 0; z-index: 5000; overflow-y: auto; }
+.cloud-mfa .cloud-login-card { margin: auto; box-sizing: border-box; }
+.cloud-mfa img { display: block; width: 200px; max-width: 100%; height: auto; margin: 16px auto; }
+.cloud-mfa code { display: block; overflow-wrap: anywhere; user-select: all; font-size: 14px; }
+.cloud-mfa input,.cloud-mfa select { box-sizing: border-box; width: 100%; }
+.cloud-mfa .cloud-mfa-exit { margin-top: 10px; background: #eef2f7; color: var(--gov-blue); }
 .cloud-saving::after { content: 'Salvando…'; position: fixed; inset: 0; z-index: 4000; display: grid; place-items: center; background: rgba(247,248,250,.72); color: var(--gov-blue-dark); font: 600 16px system-ui,sans-serif; }

@@ -7,10 +7,11 @@
   async function authorize() {
     if(!cloud.enabled || cloud.ready) return;
     const client=cloud.database();
+    document.documentElement.classList.add('cloud-locked');
     client.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT' && cloud.ready) location.reload();});
     const {data,error}=await client.auth.getSession();
     if(!error && data.session) {
-      try { await cloud.reload(); return; } catch(_) { /* Exibe o formulário para trocar de conta ou tentar novamente. */ }
+      try { await global.NormaticMFA.ensure(client); await cloud.reload(); return; } catch(_) { /* Exibe o formulário para trocar de conta ou tentar novamente. */ }
     }
     document.documentElement.classList.add('cloud-locked');
     const panel=document.createElement('section'); panel.className='cloud-login';
@@ -24,6 +25,7 @@
           const {error}=await client.auth.signInWithPassword({email:panel.querySelector('[name=email]').value.trim(),password:panel.querySelector('[name=password]').value});
           panel.querySelector('[name=password]').value='';
           if(error) throw error;
+          await global.NormaticMFA.ensure(client);
           await cloud.reload();panel.remove();resolve();
         } catch(error) { status.textContent=message(error); }
         finally {button.disabled=false;}

@@ -4,6 +4,8 @@ Normativos e atividades agora compartilham uma página principal e um único men
 
 ## Executar
 
+O acesso da equipe usa senha e aplicativo autenticador. Para exigir a segunda etapa também no banco, siga [a ativação do MFA](docs/MFA.md) e aplique a segunda migração SQL.
+
 Com Node.js instalado, abra o terminal na pasta do projeto:
 
 ```sh

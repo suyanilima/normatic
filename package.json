@@ -6,7 +6,7 @@
   "scripts": {
     "pretest": "npm run build",
     "test": "node tests/regras.test.cjs && node tests/farol-storage.test.cjs && node tests/integracao.test.cjs && node tests/arquivos.test.cjs && node tests/layout.test.cjs && node tests/unificada.test.cjs && npm run test:cloud",
-    "test:cloud": "node tests/supabase-sql.test.cjs && node tests/cloud-repository.test.cjs && node tests/cloud-access.test.cjs && node tests/cloud-integration.test.cjs",
+    "test:cloud": "node tests/supabase-sql.test.cjs && node tests/cloud-repository.test.cjs && node tests/cloud-access.test.cjs && node tests/cloud-integration.test.cjs && node tests/mfa.test.cjs",
     "check:supabase": "node tools/check-supabase.cjs",
     "build": "node tools/build-standalone.cjs",
     "build:site": "node tools/build-site.cjs",
