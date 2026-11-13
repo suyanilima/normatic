@@ -42,7 +42,7 @@ function selecionarModoCadastro(modo){
     camposNormativos.classList.toggle('oculto', semNormativo);
   }
 
-  if(baseLegal && semNormativo) baseLegal.value = '';
+  if(baseLegal && semNormativo) definirReferencialDocumento('f');
 
   if(baseLegalNumero && semNormativo) baseLegalNumero.value = '';
 
@@ -77,7 +77,7 @@ async function cadastrar(){
   const semNormativo = modoCadastro === 'semNormativo';
   const tipo = semNormativo ? 'Sem normativo' : document.getElementById('f-tipo').value;
   const fundamentacaoObrigatoria = tipo === 'Normativo';
-  const baseLegal = semNormativo ? 'Sem normativo' : document.getElementById('f-baselegal').value;
+  const baseLegal = semNormativo ? 'Sem normativo' : obterReferencialDocumento('f');
   const baseLegalNumero = semNormativo ? '' : limitarTexto(document.getElementById('f-baselegal-num').value.trim(), LIMITES_CAMPOS.baseLegalNumero);
   const sei = semNormativo ? '' : normalizarNumeroSei(document.getElementById('f-sei').value);
   const dataVigencia = semNormativo ? '' : document.getElementById('f-data-vigencia').value;
@@ -98,7 +98,7 @@ async function cadastrar(){
       { id:'f-tipo', nome:'Tipo' },
       { id:'f-sei', nome:'N° SEI' },
       ...(fundamentacaoObrigatoria ? [
-        { id:'f-baselegal', nome:'Fundamentação legal' },
+        { id:'f-baselegal', nome:'Referenciais normativos' },
         { id:'f-baselegal-num', nome:'Número da fundamentação legal' }
       ] : [])
     ]),
@@ -162,7 +162,12 @@ async function cadastrar(){
   // Vencimento calculado automaticamente: data de vigência (última renovação) + prazo de validade
   const data = semNormativo ? prazoRegularizacao : calcularVencimento(dataVigencia, validade);
 
+  if(!semNormativo && !validarOutroReferencial('f')) return;
+  const classificacao = lerTemaDocumento('f');
+  if(!classificacao) return;
+
   const doc = {
+    ...classificacao,
     id:uid(), nome, tipo, sei, dataVigencia, validade, data, descricao, unidade,
     baseLegal, baseLegalNumero, semNormativo, prazoRegularizacao,
     gestorNome, gestorSetor, gestorEmail, gestorWhatsapp,
@@ -179,8 +184,9 @@ async function cadastrar(){
     return;
   }
 
+  definirTemaDocumento('f');
   document.getElementById('f-nome').value='';
-  document.getElementById('f-baselegal').value='';
+  definirReferencialDocumento('f');
   document.getElementById('f-baselegal-num').value='';
   document.getElementById('f-sei').value='';
   document.getElementById('f-data-vigencia').value='';

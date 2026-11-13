@@ -1,10 +1,15 @@
 {
-  "name": "norma-prototipo",
+  "name": "normatic-prototipo",
   "version": "1.0.0",
   "private": true,
-  "description": "Protótipo front-end do Norma",
+  "description": "Protótipo front-end do Normatic",
   "scripts": {
-    "test": "node tests/regras.test.cjs",
-    "build": "node tools/build-standalone.cjs"
+    "pretest": "npm run build",
+    "test": "node tests/regras.test.cjs && node tests/farol-storage.test.cjs && node tests/integracao.test.cjs && node tests/arquivos.test.cjs && node tests/layout.test.cjs && node tests/unificada.test.cjs",
+    "build": "node tools/build-standalone.cjs",
+    "start": "node tools/serve.cjs"
+  },
+  "devDependencies": {
+    "jsdom": "^29.1.1"
   }
 }

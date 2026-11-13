@@ -1,0 +1,17 @@
+.plataforma-unificada .gestao-navegacao { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
+.plataforma-unificada .gestao-navegacao .active { background: var(--gov-blue); color: #fff; }
+.plataforma-unificada .gestao-navegacao button { width: auto; min-height: 40px; }
+.plataforma-unificada .documental-area { min-width: 0; margin-bottom: 24px; }
+.normativos-frame { display: block; width: 100%; min-width: 0; height: 620px; border: 0; background: transparent; }
+.plataforma-unificada .brand-logo { width: 160px; height: 48px; }
+.plataforma-unificada .agenda-filtros, .compromissos-filtro { display: grid; grid-template-columns: minmax(0,320px); gap: 6px; margin-bottom: 16px; }
+.plataforma-unificada .top > .actions { justify-content: flex-end; }
+.modulo-normatic.documento-incorporado { padding: 0; min-height: 0; }
+.modulo-normatic.documento-incorporado .wrap { width: 100%; max-width: none; margin: 0; padding: 0; }
+.documento-incorporado #view-dashboard .dashboard-cabecalho { margin-bottom: 8px; }
+.documento-incorporado #view-dashboard .dashboard-cabecalho h2, .documento-incorporado #view-dashboard .dashboard-cabecalho p { display: none; }
+@media(max-width:640px) {
+  .plataforma-unificada .top { flex-wrap: wrap; }
+  .plataforma-unificada .top > .actions { width: 100%; justify-content: flex-start; }
+  .plataforma-unificada .compromissos-filtro { grid-template-columns: minmax(0,1fr); }
+}

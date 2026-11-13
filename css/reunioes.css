@@ -1103,8 +1103,8 @@
 .minuta-escolha-filtros {
   display: grid;
   width: 100%;
-  grid-template-columns: minmax(220px,1.8fr) repeat(4,minmax(125px,1fr)) minmax(125px,auto);
-  gap: 14px;
+  grid-template-columns: minmax(180px,1.6fr) repeat(4,minmax(0,1fr)) auto;
+  gap: 12px;
   margin: 0;
 }
 
@@ -1148,8 +1148,8 @@
 
 .ata-lista-cabecalho,.minuta-reuniao-opcao {
   display: grid;
-  grid-template-columns: 120px 165px minmax(260px,1fr) 200px 64px;
-  column-gap: clamp(20px,3vw,40px);
+  grid-template-columns: 104px minmax(80px,.65fr) minmax(0,2fr) 130px 40px;
+  column-gap: 16px;
   align-items: center;
   padding-right: 20px;
   padding-left: 20px;
@@ -1175,9 +1175,9 @@
 .minuta-reuniao-opcao {
   position: relative;
   width: 100%;
-  min-height: 88px;
-  padding-top: 16px;
-  padding-bottom: 16px;
+  min-height: 68px;
+  padding-top: 10px;
+  padding-bottom: 10px;
   border: 0;
   border-bottom: 1px solid var(--border);
   border-radius: 0;
@@ -1908,7 +1908,7 @@
 
 @media (min-width:641px) and (max-width:900px) {
   .ata-lista-cabecalho,.minuta-reuniao-opcao {
-    grid-template-columns: 90px 125px minmax(180px,1fr) 140px 52px;
+    grid-template-columns: 90px minmax(70px,.6fr) minmax(0,1fr) 110px 36px;
     column-gap: 12px;
     padding-right: 14px;
     padding-left: 14px;
@@ -2007,20 +2007,22 @@
 .reunioes-blocos.modo-calendario .reunioes-filtros-card {
   position: relative;
   z-index: 1;
-  border-bottom: 0;
-  border-radius: var(--radius) var(--radius) 0 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   box-shadow: 0 5px 14px rgba(15,35,70,.035)
 }
 
 .reunioes-blocos.modo-calendario .reunioes-calendario-card {
-  margin-top: -16px;
-  padding-top: 18px;
-  border-radius: 0 0 var(--radius) var(--radius);
+  margin-top: 0;
+  padding-top: 16px;
+  border-radius: var(--radius);
   box-shadow: 0 8px 22px rgba(15,35,70,.05)
 }
 
 .reunioes-filtros {
-  grid-template-columns: minmax(220px,1.8fr) repeat(2,minmax(130px,1fr)) minmax(125px,auto) auto;
+  grid-template-columns: minmax(180px,2fr) minmax(110px,1fr) minmax(90px,.65fr) auto auto;
+  align-items: end;
+  gap: 12px;
   margin: 0;
 }
 
@@ -2050,10 +2052,10 @@
 
 .reunioes-tabela-head,.reuniao-item {
   display: grid;
-  grid-template-columns: 28px 100px 105px 105px 70px minmax(160px,1fr) minmax(190px,1.2fr) 96px 56px;
-  gap: 16px;
-  min-width: 1080px;
-  align-items: start;
+  grid-template-columns: 24px 86px 96px 90px 48px minmax(100px,1.2fr) minmax(100px,1fr) 96px 36px;
+  gap: 10px;
+  min-width: 0;
+  align-items: center;
 }
 
 .reunioes-tabela-head {
@@ -2072,10 +2074,10 @@
 }
 
 .reuniao-item {
-  padding: 18px 16px;
+  padding: 12px;
   border-bottom: 1px solid var(--border);
   background: #fff;
-  min-width: 1080px;
+  min-width: 0;
 }
 
 .reuniao-item:last-child {
@@ -2768,8 +2770,8 @@
 
 @media (min-width:701px) {
   .reuniao-item {
-    height: 88px;
-    min-height: 88px;
+    height: auto;
+    min-height: 76px;
     align-items: center;
   }
 
@@ -2917,3 +2919,54 @@
     grid-column: auto;
   }
 }
+
+/* A listagem se adapta à largura útil após o menu lateral, sem ocultar campos. */
+.reuniao-item > *, .minuta-reuniao-opcao > * { min-width: 0; }
+.reuniao-sei-celula { overflow-wrap: anywhere; }
+.minuta-reuniao-acoes { min-width: 0; justify-content: center; }
+.minuta-reuniao-conteudo strong { display: block; max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.reunioes-filtros-card, .ata-filtros-card, .ata-tabela-card, .reunioes-calendario-card { padding: 16px; }
+.minuta-escolha-busca { min-width: 0; }
+.minuta-escolha-busca label { margin: 0 0 6px; min-height: 20px; line-height: 20px; }
+.minuta-escolha-busca :is(input, select) { height: 40px; min-height: 40px; }
+@media (max-width: 1200px) {
+  .minuta-escolha-filtros { grid-template-columns: repeat(3,minmax(0,1fr)); align-items: end; }
+}
+@media (max-width: 1150px) {
+  .reunioes-filtros { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .reunioes-filtros > .toolbar-field:first-child { grid-column: 1/-1; }
+  .reunioes-tabela-head { display: none; }
+  .reunioes-tabela { overflow: visible; }
+  .reuniao-item { position: relative; height: auto; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px 16px; padding: 14px; }
+  .reuniao-item > .selecao-registro { position: absolute; top: 16px; left: 14px; }
+  .reuniao-item > .reuniao-data { padding-left: 28px; }
+  .reuniao-item > .reuniao-acoes { position: absolute; top: 10px; right: 12px; }
+  .reuniao-item > .reuniao-pauta, .reuniao-item > .reuniao-participantes-celula { grid-column: 1/-1; max-height: none; }
+  .reuniao-item > .reuniao-pauta { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .reuniao-item > div:nth-child(3) { padding-right: 28px; }
+  .reuniao-item > div:nth-child(3)::before { content: 'Reunião'; }
+  .reuniao-item > .reuniao-sei-celula::before { content: 'Evento SEI'; }
+  .reuniao-item > .reuniao-link-celula::before { content: 'Link'; }
+  .reuniao-item > .reuniao-pauta::before { content: 'Pauta'; }
+  .reuniao-item > .reuniao-participantes-celula::before { content: 'Participantes'; }
+  .reuniao-item > .reuniao-situacao::before { content: 'Situação'; }
+  .reuniao-item > div:not(.actions)::before { display: block; margin-bottom: 4px; color: var(--ink-soft); font-size: 10px; font-weight: 600; text-transform: uppercase; }
+}
+@media (max-width: 640px) {
+  .minuta-escolha-filtros { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .minuta-escolha-filtros > .minuta-escolha-busca:first-child { grid-column: 1/-1; }
+  .minuta-reuniao-opcao { grid-template-columns: 96px minmax(0,1fr) 36px; gap: 6px 12px; min-height: 0; padding: 12px; }
+  .minuta-reuniao-data { grid-column: 1; grid-row: 1/3; }
+  .minuta-reuniao-conteudo { grid-column: 2; grid-row: 1; }
+  .minuta-reuniao-opcao > .ata-situacao { grid-column: 2; grid-row: 2; font-size: 10px; padding: 3px 7px; max-width: 100%; }
+  .minuta-reuniao-opcao > .ata-reuniao-pauta { grid-column: 1/-1; grid-row: 3; padding: 2px 0 0; }
+  .minuta-reuniao-acoes { position: static; grid-column: 3; grid-row: 1/3; }
+  .reuniao-item { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .reunioes-intro-card { flex-wrap: wrap; gap: 12px; }
+}
+@media (max-width: 420px) {
+  .reunioes-filtros { grid-template-columns: minmax(0,1fr); }
+  .reunioes-filtros > .toolbar-field:first-child { grid-column: auto; }
+  .reuniao-item { grid-template-columns: minmax(0,1fr); }
+}
+

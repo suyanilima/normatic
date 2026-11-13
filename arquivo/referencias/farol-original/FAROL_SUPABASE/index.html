@@ -1,0 +1,2398 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width,initial-scale=1" name="viewport"/>
+  <title>
+   FAROL | Gestão de Projetos
+  </title>
+  <style>
+   
+:root {
+    --bg:#f6f8f7;
+    --dark:#132b24;
+    --green:#167052;
+    --text:#1c302a;
+    --muted:#73827b;
+    --line:#e3e9e5;
+    --white:#fff
+}
+* {
+    box-sizing:border-box
+}
+body {
+    margin:0;
+    font:14px Inter,system-ui,Segoe UI,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text)
+}
+button,input,select,textarea {
+    font:inherit
+}
+button {
+    cursor:pointer
+}
+aside {
+    position:fixed;
+    inset:0 auto 0 0;
+    width:230px;
+    background:var(--dark);
+    color:white;
+    padding:28px 15px
+}
+aside h1 {
+    margin:0 13px;
+    font-size:27px;
+    letter-spacing:1px
+}
+aside p {
+    margin:3px 13px 36px;
+    color:#9fc0b0;
+    font-size:12px
+}
+nav button {
+    display:block;
+    width:100%;
+    border:0;
+    background:none;
+    text-align:left;
+    color:#c6d7cf;
+    padding:13px 15px;
+    border-radius:10px;
+    margin:3px 0
+}
+nav button:hover,nav button.active {
+    background:#2c4c40;
+    color:#fff
+}
+main {
+    margin-left:230px;
+    padding:34px;
+    max-width:1600px
+}
+.top {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:24px
+}
+.top h2 {
+    font-size:29px;
+    letter-spacing:-.8px;
+    margin:0
+}
+.sub {
+    font-size:13px;
+    color:var(--muted);
+    margin:5px 0
+}
+.primary {
+    background:var(--green);
+    color:#fff;
+    border:0;
+    padding:11px 16px;
+    border-radius:10px;
+    font-weight:650
+}
+.secondary {
+    background:#edf2ee;
+    border:0;
+    padding:9px 12px;
+    border-radius:9px;
+    color:#27453a
+}
+.danger {
+    color:#b52d3d
+}
+.grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:15px
+}
+.card {
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:20px;
+    margin-bottom:16px;
+    box-shadow:0 3px 18px #0e2b2005
+}
+.metric {
+    font-size:32px;
+    font-weight:750;
+    margin-top:8px
+}
+.muted {
+    color:var(--muted);
+    font-size:12px
+}
+.item {
+    border:1px solid var(--line);
+    border-radius:11px;
+    padding:14px;
+    margin:10px 0;
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px
+}
+.item h3 {
+    margin:0 0 8px;
+    font-size:15px
+}
+.item p {
+    margin:5px 0
+}
+.actions,.toolbar {
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    align-items:center
+}
+.toolbar {
+    margin-bottom:16px
+}
+.toolbar select,.toolbar input {
+    width:auto;
+    max-width:230px
+}
+.tag {
+    display:inline-block;
+    padding:4px 9px;
+    border-radius:30px;
+    font-size:11px;
+    font-weight:650;
+    margin:3px 4px 3px 0;
+    background:#edf2ef;
+    color:#405b4d
+}
+.tag.red {
+    background:#fce7e7;
+    color:#9f2838
+}
+.tag.orange {
+    background:#fff0d9;
+    color:#955a10
+}
+.tag.green {
+    background:#dff4e8;
+    color:#196746
+}
+.tag.blue {
+    background:#e2efff;
+    color:#275a91
+}
+.tag.purple {
+    background:#f0e7fa;
+    color:#744a9a
+}
+.tag.gray {
+    background:#eef0f2;
+    color:#56616b
+}
+.progress {
+    height:7px;
+    background:#e8eeea;
+    border-radius:12px;
+    overflow:hidden;
+    margin-top:10px
+}
+.progress span {
+    display:block;
+    background:var(--green);
+    height:100%
+}
+.board {
+    display:grid;
+    grid-template-columns:repeat(3,minmax(210px,1fr));
+    gap:12px
+}
+.lane {
+    background:#edf2ee;
+    border-radius:13px;
+    padding:12px;
+    min-height:150px
+}
+.lane h4 {
+    margin:2px 4px 12px
+}
+.task-card {
+    background:white;
+    border:1px solid #e2e9e3;
+    border-radius:11px;
+    padding:13px;
+    margin-bottom:10px
+}
+.task-card h4 {
+    margin:0 0 8px;
+    font-size:14px
+}
+.task-card p {
+    margin:5px 0
+}
+.task-card .actions {
+    margin-top:10px
+}
+.task-card button {
+    font-size:12px
+}
+.task-head {
+    display:flex;
+    gap:10px;
+    align-items:flex-start
+}
+.task-main {
+    flex:1;
+    min-width:0
+}
+.complete-toggle {
+    flex:0 0 30px;
+    width:30px;
+    height:30px;
+    border:2px solid #9fb2a8;
+    border-radius:50%;
+    background:#fff;
+    color:#617c6c;
+    font-size:23px;
+    line-height:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:0
+}
+.complete-toggle:hover {
+    border-color:#167052;
+    color:#167052
+}
+.complete-toggle.checked {
+    background:#167052;
+    border-color:#167052;
+    color:#fff;
+    font-size:18px
+}
+.is-done h4 {
+    text-decoration:line-through;
+    color:#7d8a83
+}
+.complete-action {
+    font-weight:700
+}
+.color-legend {
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:5px;
+    margin:12px 0 18px
+}
+.color-legend strong {
+    font-size:12px;
+    margin-right:5px
+}
+.calendar {
+    display:grid;
+    grid-template-columns:repeat(7,minmax(0,1fr));
+    gap:5px
+}
+.day {
+    background:#fff;
+    border:1px solid var(--line);
+    min-height:95px;
+    border-radius:8px;
+    padding:7px
+}
+.weekday {
+    text-align:center;
+    color:var(--muted);
+    font-size:12px;
+    padding:8px
+}
+.event {
+    font-size:11px;
+    background:#e4f3e9;
+    color:#285e42;
+    padding:5px;
+    border-radius:5px;
+    margin-top:4px;
+    cursor:pointer;
+    overflow-wrap:anywhere
+}
+input,select,textarea {
+    border:1px solid #d7e0da;
+    background:#fff;
+    border-radius:9px;
+    padding:10px;
+    color:var(--text);
+    width:100%
+}
+label {
+    display:block;
+    font-size:12px;
+    font-weight:650;
+    margin:9px 0 5px
+}
+dialog {
+    width:min(620px,calc(100% - 24px));
+    border:0;
+    border-radius:16px;
+    padding:24px;
+    box-shadow:0 30px 90px #102c2355
+}
+dialog::backdrop {
+    background:#102a2288
+}
+.fields {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:5px 15px
+}
+.wide {
+    grid-column:1/-1
+}
+.modal-actions {
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-top:20px
+}
+#notice {
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    max-width:430px;
+    background:#142e26;
+    color:#fff;
+    padding:14px 18px;
+    border-radius:10px;
+    display:none;
+    z-index:30
+}
+#busy {
+    display:none;
+    color:var(--muted)
+}
+@media(max-width:850px) {
+    aside {
+        position:static;
+        width:100%;
+        padding:15px
+    }
+    aside h1 {
+        font-size:20px
+    }
+    aside p {
+        margin-bottom:10px
+    }
+    nav {
+        display:flex;
+        overflow:auto
+    }
+    nav button {
+        white-space:nowrap;
+        width:auto
+    }
+    main {
+        margin:0;
+        padding:17px
+    }
+    .board {
+        grid-template-columns:1fr
+    }
+    .fields {
+        grid-template-columns:1fr
+    }
+    .top h2 {
+        font-size:23px
+    }
+    .calendar {
+        overflow-x:auto
+    }
+    .day {
+        min-width:48px;
+        min-height:80px
+    }
+}
+@media(max-width:800px) {
+    aside {
+        position:static;
+        width:100%;
+        padding:15px
+    }
+    aside p {
+        margin:0 13px 10px
+    }
+    nav {
+        display:flex;
+        overflow-x:auto;
+        gap:4px
+    }
+    nav button {
+        white-space:nowrap;
+        width:auto
+    }
+    main {
+        margin-left:0;
+        padding:18px
+    }
+    .board {
+        grid-template-columns:1fr
+    }
+    .fields {
+        grid-template-columns:1fr
+    }
+    .calendar {
+        gap:2px
+    }
+    .day {
+        min-height:75px;
+        padding:4px
+    }
+    .top {
+        align-items:flex-start;
+        flex-wrap:wrap
+    }
+}
+.simple-list {
+    border:1px solid var(--line);
+    border-radius:12px;
+    overflow:hidden
+}
+.simple-task {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:12px 14px;
+    border-bottom:1px solid var(--line);
+    background:#fff
+}
+.simple-task:last-child {
+    border-bottom:0
+}
+.simple-task-info {
+    min-width:0;
+    flex:1
+}
+.task-meta {
+    display:flex;
+    align-items:center;
+    gap:7px;
+    flex-wrap:wrap;
+    color:var(--muted);
+    font-size:12px;
+    margin-top:5px
+}
+.person-section {
+    margin:12px 0
+}
+.event.priority-low {
+    background:#dff4e8;
+    color:#196746;
+    border-left:3px solid #268b5b
+}
+.event.priority-medium {
+    background:#e2efff;
+    color:#275a91;
+    border-left:3px solid #448ed0
+}
+.event.priority-high {
+    background:#fff0d9;
+    color:#955a10;
+    border-left:3px solid #e7a43b
+}
+.event.priority-urgent {
+    background:#fce7e7;
+    color:#9f2838;
+    border-left:3px solid #d84b55
+}
+@media(max-width:850px) {
+    .simple-task {
+        align-items:flex-start;
+        flex-direction:column
+    }
+    .simple-task .actions {
+        width:100%
+    }
+}
+/* FAROL: ajustes para dispositivos móveis, sem alterações no backend */
+html {
+    min-width:0;
+    -webkit-text-size-adjust:100%
+}
+body {
+    min-width:0;
+    overflow-x:hidden
+}
+button {
+    touch-action:manipulation
+}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible {
+    outline:3px solid #7fcbb0;
+    outline-offset:2px
+}
+.card,.item,.simple-list,.simple-task,.task-card,.top,.grid>*,main {
+    min-width:0
+}
+.item h3,.task-card h4,.simple-task-info,.event {
+    overflow-wrap:anywhere
+}
+@media(max-width:850px) {
+    aside {
+        position:sticky;
+        top:0;
+        z-index:15;
+        width:100%;
+        padding:10px 12px 8px;
+        background:var(--dark);
+        box-shadow:0 3px 12px #10271d1c
+    }
+    aside h1 {
+        margin:0;
+        font-size:20px;
+        line-height:1.2
+    }
+    aside p {
+        margin:2px 0 8px;
+        font-size:11px
+    }
+    nav {
+        display:flex;
+        gap:5px;
+        overflow-x:auto;
+        overscroll-behavior-x:contain;
+        scrollbar-width:none;
+        padding-bottom:3px;
+        -webkit-overflow-scrolling:touch
+    }
+    nav::-webkit-scrollbar {
+        display:none
+    }
+    nav button {
+        flex:0 0 auto;
+        width:auto;
+        white-space:nowrap;
+        margin:0;
+        padding:11px 13px;
+        min-height:42px;
+        font-size:13px
+    }
+    main {
+        margin:0;
+        padding:16px 12px max(24px,env(safe-area-inset-bottom));
+        width:100%;
+        max-width:none
+    }
+    .top {
+        gap:10px;
+        margin-bottom:15px;
+        align-items:flex-start;
+        flex-wrap:wrap
+    }
+    .top h2 {
+        font-size:23px;
+        line-height:1.2
+    }
+    .top .actions {
+        width:100%;
+        display:grid;
+        grid-template-columns:minmax(0,1fr) auto;
+        gap:8px
+    }
+    .top .actions button {
+        min-height:44px;
+        white-space:normal
+    }
+    .grid {
+        grid-template-columns:repeat(2,minmax(0,1fr));
+        gap:9px
+    }
+    .card {
+        padding:14px;
+        border-radius:13px;
+        margin-bottom:12px
+    }
+    .metric {
+        font-size:27px
+    }
+    .item,.simple-task {
+        padding:12px;
+        gap:10px
+    }
+    .item {
+        flex-direction:column;
+        align-items:stretch
+    }
+    .item>.actions,.simple-task>.actions {
+        width:100%;
+        justify-content:flex-start
+    }
+    .actions button,.toolbar button {
+        min-height:40px
+    }
+    .simple-task {
+        flex-direction:column;
+        align-items:stretch
+    }
+    .simple-task .actions {
+        display:flex;
+        gap:6px
+    }
+    .simple-task .actions button {
+        flex:1 1 auto
+    }
+    .toolbar {
+        align-items:stretch;
+        gap:8px
+    }
+    .toolbar select,.toolbar input {
+        max-width:none;
+        width:100%;
+        min-width:0;
+        flex:1 1 140px;
+        min-height:44px
+    }
+    .board {
+        grid-template-columns:1fr
+    }
+    .fields {
+        grid-template-columns:minmax(0,1fr);
+        gap:4px
+    }
+    .wide {
+        grid-column:auto
+    }
+    dialog {
+        width:calc(100% - 20px);
+        max-width:620px;
+        max-height:calc(100dvh - 24px);
+        overflow-y:auto;
+        overscroll-behavior:contain;
+        padding:18px 15px;
+        border-radius:14px
+    }
+    dialog h3 {
+        margin:0 0 12px;
+        font-size:19px
+    }
+    dialog input,dialog select,dialog textarea {
+        min-height:44px;
+        font-size:16px
+    }
+    .modal-actions {
+        position:sticky;
+        bottom:-18px;
+        background:#fff;
+        padding:12px 0 max(4px,env(safe-area-inset-bottom));
+        margin-top:12px;
+        z-index:1
+    }
+    .modal-actions button {
+        min-height:44px;
+        flex:1
+    }
+    #notice {
+        left:12px;
+        right:12px;
+        bottom:calc(12px + env(safe-area-inset-bottom));
+        max-width:none
+    }
+    .calendar {
+        grid-template-columns:repeat(7,minmax(0,1fr));
+        gap:3px;
+        overflow:visible
+    }
+    .weekday {
+        padding:7px 0;
+        font-size:10px
+    }
+    .day {
+        min-width:0;
+        min-height:75px;
+        padding:4px 2px;
+        border-radius:6px
+    }
+    .event {
+        font-size:10px;
+        padding:3px 2px;
+        line-height:1.25
+    }
+    .task-meta {
+        gap:5px
+    }
+}
+@media(max-width:420px) {
+    main {
+        padding:12px 9px 24px
+    }
+    .top .actions {
+        grid-template-columns:1fr 1fr
+    }
+    .top .actions button {
+        font-size:12px;
+        padding:10px 7px
+    }
+    .grid {
+        gap:7px
+    }
+    .grid .card {
+        padding:12px
+    }
+    .metric {
+        font-size:24px
+    }
+    .card {
+        padding:12px
+    }
+    .tag {
+        font-size:10px;
+        padding:4px 7px
+    }
+    .day {
+        min-height:65px
+    }
+    .event {
+        font-size:9px
+    }
+}
+@media(prefers-reduced-motion:reduce) {
+    *,*::before,*::after {
+        scroll-behavior:auto!important;
+        animation-duration:.01ms!important;
+        transition-duration:.01ms!important
+    }
+}
+/* FAROL: interface inspirada no Lovable, totalmente responsiva */
+:root {
+    --bg:#f8faf9;
+    --dark:#166044;
+    --green:#176348;
+    --text:#22342d;
+    --muted:#82908a;
+    --line:#e2e9e5;
+    --white:#fff
+}
+body {
+    font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+    background:#f8faf9;
+    font-size:13px
+}
+aside {
+    background:#fff;
+    color:#283d34;
+    border-right:1px solid #e4ebe6;
+    width:224px;
+    padding:30px 16px 16px;
+    display:flex;
+    flex-direction:column;
+    z-index:20
+}
+.brand {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:2px 8px 0
+}
+.brand-mark {
+    height:39px;
+    width:39px;
+    background:#176348;
+    border-radius:8px;
+    color:white;
+    display:grid;
+    place-items:center;
+    font-size:25px
+}
+.brand h1 {
+    font-size:25px;
+    color:#176348;
+    margin:0;
+    letter-spacing:-1px;
+    line-height:1.1
+}
+.brand p {
+    font-size:8px;
+    letter-spacing:.7px;
+    color:#7a8880;
+    margin:5px 0 0;
+    font-weight:750
+}
+.nav-caption {
+    font-size:10px;
+    color:#85928c;
+    font-weight:750;
+    margin:50px 12px 14px;
+    letter-spacing:.4px
+}
+nav button {
+    color:#65756d;
+    padding:13px 12px;
+    font-weight:550;
+    border-radius:6px;
+    font-size:13px;
+    margin:2px 0
+}
+nav button:hover {
+    background:#f0f6f2;
+    color:#176348
+}
+nav button.active {
+    background:#e2f0e8;
+    color:#176348;
+    font-weight:750
+}
+.sidebar-foot {
+    margin-top:auto;
+    border-top:1px solid #e5ebe7;
+    padding:18px 3px 0;
+    display:flex;
+    align-items:center;
+    gap:9px;
+    color:#253d32
+}
+.sidebar-foot strong,.sidebar-foot small {
+    display:block;
+    font-size:10px
+}
+.sidebar-foot small {
+    color:#8a9890;
+    font-size:9px;
+    margin-top:3px
+}
+.foot-icon {
+    width:34px;
+    height:34px;
+    display:grid;
+    place-items:center;
+    background:#f1f4f2;
+    border:1px solid #e4e9e5;
+    border-radius:7px;
+    font-size:23px
+}
+.online-dot {
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:#26734d;
+    margin-left:auto
+}
+main {
+    margin-left:224px;
+    max-width:none;
+    padding:0;
+    min-height:100vh
+}
+.breadcrumb {
+    height:61px;
+    background:#fff;
+    border-bottom:1px solid #e4ebe7;
+    display:flex;
+    align-items:center;
+    gap:17px;
+    padding:0 clamp(20px,5vw,85px);
+    font-size:11px;
+    color:#89958e
+}
+.breadcrumb span {
+    font-size:21px;
+    color:#73857b
+}
+.breadcrumb strong {
+    color:#37483f;
+    font-weight:600
+}
+.page-inner {
+    max-width:1500px;
+    margin:0 auto;
+    padding:42px clamp(20px,5vw,85px) 24px
+}
+.eyebrow {
+    font-size:10px;
+    font-weight:800;
+    color:#277353;
+    letter-spacing:.2px;
+    margin-bottom:9px
+}
+.top {
+    margin-bottom:26px
+}
+.top h2 {
+    font-size:29px;
+    letter-spacing:-.9px;
+    color:#20342a;
+    font-weight:760
+}
+.sub {
+    font-size:12px;
+    color:#88958d;
+    margin-top:7px
+}
+.primary {
+    background:#176348;
+    border-radius:6px;
+    padding:11px 16px;
+    font-weight:650;
+    box-shadow:0 1px 3px #143a241b
+}
+.primary:hover {
+    background:#0f5038
+}
+.secondary {
+    background:#fff;
+    color:#43584c;
+    border:1px solid #e0e7e2;
+    border-radius:6px;
+    padding:9px 12px;
+    box-shadow:0 1px 2px #19372b0c
+}
+.secondary:hover {
+    background:#f5faf7
+}
+.card {
+    border-radius:7px;
+    box-shadow:0 1px 3px #1b392b08;
+    padding:22px;
+    background:#fff
+}
+.grid {
+    gap:14px
+}
+.grid>.card {
+    min-height:145px
+}
+.metric {
+    font-size:35px;
+    letter-spacing:-1.3px;
+    color:#20382d;
+    font-weight:720
+}
+.muted {
+    color:#82918a
+}
+.item {
+    border-radius:6px
+}
+.progress {
+    height:6px;
+    background:#eaf1ec
+}
+.progress span {
+    background:#237756
+}
+.tag {
+    border-radius:5px
+}
+.toolbar {
+    gap:10px
+}
+.toolbar input,.toolbar select {
+    max-width:300px;
+    border-radius:6px
+}
+.simple-list {
+    border-radius:7px
+}
+.simple-task {
+    padding:17px
+}
+.task-card {
+    border-radius:7px
+}
+.day {
+    border-radius:0;
+    min-height:105px;
+    padding:8px
+}
+.calendar {
+    gap:0;
+    border:1px solid #e2e9e5;
+    border-right:0;
+    border-bottom:0
+}
+.calendar .day {
+    border-top:0;
+    border-left:0
+}
+.weekday {
+    border-bottom:1px solid #e2e9e5;
+    padding:13px 3px;
+    font-size:10px;
+    text-transform:uppercase
+}
+.event {
+    border-radius:4px
+}
+.app-footer {
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    border-top:1px solid #e1e8e3;
+    padding:20px 0;
+    margin-top:50px;
+    font-size:10px;
+    color:#87968c
+}
+.app-footer b {
+    color:#176348
+}
+dialog {
+    border:1px solid #e3e9e5;
+    border-radius:9px;
+    box-shadow:0 22px 75px #0c241d40
+}
+dialog::backdrop {
+    background:#12251d75
+}
+dialog h3 {
+    font-size:17px;
+    margin-top:0
+}
+label {
+    color:#41554a
+}
+input,select,textarea {
+    border-radius:6px
+}
+.fields {
+    gap:8px 15px
+}
+@media(max-width:850px) {
+    aside {
+        position:sticky;
+        top:0;
+        width:100%;
+        display:block;
+        padding:9px 12px;
+        background:#fff;
+        border-right:0;
+        border-bottom:1px solid #e4ebe7;
+        box-shadow:0 2px 8px #1c36250b
+    }
+    .brand {
+        padding:0 4px 7px;
+        gap:8px
+    }
+    .brand-mark {
+        height:30px;
+        width:30px;
+        font-size:20px
+    }
+    .brand h1 {
+        font-size:20px
+    }
+    .brand p {
+        font-size:7px;
+        margin-top:2px
+    }
+    .nav-caption,.sidebar-foot {
+        display:none
+    }
+    nav {
+        display:flex;
+        gap:4px;
+        overflow-x:auto;
+        scrollbar-width:none;
+        padding-bottom:2px
+    }
+    nav button {
+        flex:0 0 auto;
+        color:#64766c;
+        min-height:39px;
+        font-size:12px;
+        padding:9px 12px
+    }
+    nav button.active {
+        background:#e2f0e8;
+        color:#176348
+    }
+    main {
+        margin:0;
+        min-height:calc(100dvh - 110px)
+    }
+    .breadcrumb {
+        height:40px;
+        padding:0 15px;
+        font-size:10px
+    }
+    .page-inner {
+        padding:23px 14px 16px
+    }
+    .top {
+        gap:12px
+    }
+    .top h2 {
+        font-size:25px
+    }
+    .top .actions {
+        display:flex;
+        width:100%;
+        gap:8px
+    }
+    .top .actions button {
+        flex:1 1 0;
+        min-width:0;
+        min-height:43px
+    }
+    .grid {
+        grid-template-columns:repeat(2,minmax(0,1fr));
+        gap:9px
+    }
+    .grid>.card {
+        min-height:120px
+    }
+    .card {
+        padding:14px
+    }
+    .metric {
+        font-size:28px
+    }
+    .app-footer {
+        margin-top:30px;
+        flex-wrap:wrap
+    }
+    .calendar {
+        grid-template-columns:repeat(7,minmax(0,1fr));
+        overflow:visible
+    }
+    .day {
+        min-width:0;
+        min-height:74px;
+        padding:3px
+    }
+    .event {
+        font-size:9px;
+        padding:3px 2px
+    }
+    dialog {
+        max-height:calc(100dvh - 20px);
+        overflow:auto
+    }
+    .fields {
+        grid-template-columns:1fr
+    }
+    .simple-task {
+        padding:12px
+    }
+}
+@media(max-width:430px) {
+    .page-inner {
+        padding:18px 10px
+    }
+    .top .actions button {
+        font-size:11px;
+        padding:10px 6px
+    }
+    .grid>.card {
+        padding:12px;
+        min-height:110px
+    }
+    .metric {
+        font-size:26px
+    }
+    .day {
+        min-height:62px
+    }
+    .weekday {
+        font-size:9px
+    }
+    .app-footer {
+        font-size:9px
+    }
+}
+.demo-banner {
+    background:#e9f5ee;
+    border:1px solid #cce6d6;
+    color:#1e5b3f;
+    border-radius:12px;
+    padding:12px 16px;
+    margin:14px 0 20px;
+    font-size:13px;
+    line-height:1.5;
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:8px
+}
+.demo-banner button {
+    margin-left:auto;
+    white-space:nowrap
+}
+@media(max-width:650px) {
+    .demo-banner {
+        align-items:flex-start
+    }
+    .demo-banner button {
+        margin-left:0;
+        width:100%
+    }
+}
+/* Uniformização visual inspirada na Visão geral fornecida */
+:root {
+    --bg:#f7faf8;
+    --text:#263b31;
+    --green:#176348;
+    --line:#e0e8e3;
+    --muted:#85968d
+}
+.page-inner {
+    max-width:1600px;
+    padding-top:58px
+}
+.eyebrow {
+    display:none
+}
+.top {
+    margin-bottom:30px
+}
+.top h2 {
+    font-size:30px;
+    letter-spacing:-.8px
+}
+.sub {
+    font-size:13px
+}
+.card {
+    border:1px solid var(--line);
+    border-radius:7px;
+    box-shadow:0 1px 2px #24402e08
+}
+.card h3 {
+    font-size:15px;
+    font-weight:700;
+    margin:0 0 16px
+}
+.grid {
+    gap:14px
+}
+.grid+.grid {
+    margin-top:16px
+}
+.item {
+    border:1px solid var(--line);
+    border-radius:7px;
+    padding:15px;
+    background:white
+}
+.item b,.simple-task b {
+    font-size:13px
+}
+.item p {
+    font-size:12px
+}
+.primary,.secondary {
+    transition:background .15s ease,box-shadow .15s ease
+}
+.toolbar {
+    padding:8px 0 16px;
+    gap:10px
+}
+.toolbar label {
+    margin:0
+}
+.toolbar input,.toolbar select {
+    min-height:40px
+}
+.section-heading {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:15px
+}
+.section-heading h3 {
+    margin:0
+}
+.section-heading .muted {
+    margin:5px 0 0
+}
+.project-entry {
+    margin-bottom:16px
+}
+.project-entry>.item {
+    margin:0 0 14px
+}
+.project-entry .progress {
+    max-width:480px
+}
+.project-entry .toolbar {
+    margin-bottom:0
+}
+.task-table {
+    border:1px solid var(--line);
+    border-radius:7px;
+    overflow:hidden;
+    background:white
+}
+.task-table .simple-task {
+    border-bottom:1px solid var(--line);
+    padding:17px
+}
+.task-table .simple-task:last-child {
+    border-bottom:0
+}
+.task-table .simple-task-info>b {
+    font-size:14px
+}
+.task-table .task-meta {
+    margin-top:8px
+}
+.task-table .actions button {
+    font-size:12px
+}
+.status-tabs {
+    display:flex;
+    gap:20px;
+    overflow-x:auto;
+    border-bottom:1px solid var(--line);
+    margin:0 0 18px
+}
+.status-tabs button {
+    background:none;
+    border:0;
+    border-bottom:2px solid transparent;
+    color:#7d8c84;
+    padding:12px 2px;
+    white-space:nowrap
+}
+.status-tabs button.active {
+    color:var(--green);
+    border-bottom-color:var(--green);
+    font-weight:700
+}
+.empty-state {
+    text-align:center;
+    padding:55px 18px;
+    color:var(--muted)
+}
+.empty-state .empty-icon {
+    margin:0 auto 12px;
+    background:#e4f2e9;
+    color:var(--green);
+    border-radius:50%;
+    width:48px;
+    height:48px;
+    display:grid;
+    place-items:center;
+    font-size:23px
+}
+.empty-state h3 {
+    color:var(--text);
+    margin:0 0 7px
+}
+.person-entry .item {
+    margin:0
+}
+.person-entry {
+    margin-bottom:12px
+}
+.person-entry .progress {
+    max-width:400px
+}
+.calendar-shell {
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 260px;
+    gap:22px
+}
+.calendar-main {
+    min-width:0
+}
+.calendar-side {
+    border-left:1px solid var(--line);
+    padding-left:20px
+}
+.calendar-side h3 {
+    font-size:14px
+}
+.calendar-side .muted {
+    line-height:1.6
+}
+.calendar-main .day {
+    min-height:105px
+}
+.calendar-main .weekday {
+    font-size:11px
+}
+@media(max-width:1100px) {
+    .calendar-shell {
+        grid-template-columns:1fr
+    }
+    .calendar-side {
+        border-left:0;
+        border-top:1px solid var(--line);
+        padding:16px 0 0
+    }
+}
+@media(max-width:850px) {
+    .page-inner {
+        padding:24px 14px 16px
+    }
+    .top {
+        margin-bottom:18px
+    }
+    .top h2 {
+        font-size:25px
+    }
+    .grid+.grid {
+        margin-top:10px
+    }
+    .status-tabs {
+        gap:16px
+    }
+    .calendar-main .day {
+        min-height:74px
+    }
+    .task-table .simple-task {
+        padding:12px
+    }
+    .task-table .actions {
+        flex-wrap:wrap
+    }
+}
+@media(max-width:420px) {
+    .page-inner {
+        padding:18px 10px
+    }
+    .calendar-main .day {
+        min-height:62px
+    }
+    .status-tabs {
+        gap:12px
+    }
+    .status-tabs button {
+        font-size:11px
+    }
+    .task-table .actions button {
+        flex:1 1 38%
+    }
+}
+/* Visual enxuto e rolagem interna: evita páginas intermináveis */
+.sub,.eyebrow,.nav-caption,.sidebar-foot,.app-footer,.demo-banner {
+    display:none!important
+}
+.page-inner {
+    padding-top:48px
+}
+.top {
+    margin-bottom:22px
+}
+.top h2 {
+    font-size:30px
+}
+.card-scroll,.page-scroll {
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    scrollbar-width:thin;
+    scrollbar-color:#cbd5ce transparent
+}
+.scroll-card {
+    display:flex;
+    flex-direction:column;
+    min-height:0;
+    height:clamp(340px,54vh,550px)
+}
+.scroll-card .card-scroll {
+    min-height:0;
+    flex:1;
+    padding-right:6px
+}
+.scroll-card .item:first-child {
+    margin-top:0
+}
+.page-scroll {
+    max-height:clamp(370px,64vh,740px);
+    padding-right:7px
+}
+.page-scroll>.card:last-child {
+    margin-bottom:0
+}
+.task-table.page-scroll {
+    max-height:clamp(370px,64vh,740px)
+}
+.task-table.page-scroll .simple-task {
+    min-width:0
+}
+.calendar-side {
+    max-height:clamp(320px,62vh,650px);
+    overflow-y:auto;
+    scrollbar-width:thin
+}
+.reset-link {
+    background:none;
+    border:0;
+    color:#83938a;
+    font-size:10px;
+    text-align:left;
+    padding:10px 8px;
+    margin-top:10px
+}
+.reset-link:hover {
+    color:#176348;
+    text-decoration:underline
+}
+@media(max-width:850px) {
+    .page-inner {
+        padding-top:22px
+    }
+    .top {
+        margin-bottom:16px
+    }
+    .scroll-card {
+        height:clamp(290px,46vh,440px)
+    }
+    .page-scroll,.task-table.page-scroll {
+        max-height:clamp(340px,58vh,600px)
+    }
+    .calendar-side {
+        max-height:320px
+    }
+    .reset-link {
+        display:none
+    }
+}
+@media(max-width:600px) {
+    .grid:has(.scroll-card) {
+        grid-template-columns:minmax(0,1fr)
+    }
+    .scroll-card {
+        height:340px
+    }
+    .top h2 {
+        font-size:25px
+    }
+}
+/* Refinamento fiel à referência editada */
+.brand {
+    padding:2px 8px 0;
+    display:block
+}
+.brand h1 {
+    font-size:26px;
+    letter-spacing:-1px
+}
+.brand p {
+    font-size:9px;
+    letter-spacing:1.1px;
+    margin-top:5px
+}
+nav {
+    margin-top:36px
+}
+nav button {
+    padding:14px 13px;
+    margin:2px 0;
+    font-weight:550
+}
+.top h2 {
+    font-size:30px
+}
+.dashboard-person {
+    display:block;
+    padding:15px;
+    margin:10px 0
+}
+.dashboard-person .person-summary {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px
+}
+.dashboard-person .person-copy {
+    min-width:0;
+    flex:1
+}
+.dashboard-person .person-copy p {
+    margin:4px 0 0
+}
+.dashboard-person .progress {
+    width:100%;
+    max-width:none;
+    margin-top:12px
+}
+.dashboard-person .secondary {
+    flex:0 0 auto
+}
+.scroll-card .card-scroll {
+    padding-right:9px
+}
+@media(max-width:850px) {
+    nav {
+        margin-top:7px
+    }
+    .brand {
+        padding:0 4px 8px
+    }
+    .brand h1 {
+        font-size:21px
+    }
+}
+@media(max-width:420px) {
+    .dashboard-person .person-summary {
+        align-items:flex-start
+    }
+    .dashboard-person .secondary {
+        font-size:11px;
+        padding:8px
+    }
+}
+/* Barra de fundo ocupa toda a largura; preenchimento indica porcentagem concluída */
+.project-entry .progress,.person-entry .progress,.dashboard-person .progress,.full-progress {
+    width:100%;
+    max-width:none;
+    display:block;
+    flex:none;
+    min-width:0
+}
+.project-entry .full-progress,.person-entry .full-progress {
+    margin:0 0 16px
+}
+.progress>span {
+    max-width:100%;
+    border-radius:inherit
+}
+@media(max-width:850px) {
+    .project-entry .full-progress,.person-entry .full-progress {
+        margin-bottom:14px
+    }
+}
+/* Lista de tarefas por projeto: até seis itens visíveis, depois rolagem interna */
+.project-task-scroll {
+    max-height:clamp(320px, 58vh, 550px);
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    scrollbar-width:thin;
+    scrollbar-color:#c7d3cb transparent;
+    padding-right:8px;
+    margin-top:12px
+}
+.project-task-scroll .simple-list {
+    margin:0
+}
+.project-task-scroll .simple-task:first-child {
+    margin-top:0
+}
+@media(max-width:850px) {
+    .project-task-scroll {
+        max-height:420px;
+        padding-right:5px
+    }
+}
+@media(max-width:480px) {
+    .project-task-scroll {
+        max-height:390px
+    }
+}
+/* Agenda: visualizar sem editar, com painel do dia e rolagem interna */
+.calendar-shell aside.calendar-side {
+    position:static;
+    inset:auto;
+    width:auto;
+    height:auto;
+    background:transparent;
+    color:var(--text);
+    padding:0 0 0 18px;
+    box-shadow:none;
+    border-left:1px solid var(--line)
+}
+.calendar-day-number {
+    border:0;
+    background:transparent;
+    color:var(--text);
+    font-weight:650;
+    padding:3px 6px;
+    cursor:pointer;
+    border-radius:5px
+}
+.calendar-day-number:hover,.calendar-selected .calendar-day-number {
+    background:#dcefe4;
+    color:#176348
+}
+.calendar .day {
+    min-width:0;
+    min-height:110px;
+    overflow:hidden
+}
+.calendar .event {
+    display:block;
+    width:100%;
+    text-align:left;
+    border:0;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+    overflow:hidden;
+    font:inherit;
+    font-size:11px;
+    cursor:pointer
+}
+.calendar-more {
+    display:block;
+    width:100%;
+    border:0;
+    background:transparent;
+    color:#176348;
+    font-size:11px;
+    font-weight:650;
+    text-align:left;
+    padding:5px 2px;
+    cursor:pointer
+}
+.calendar-day-list {
+    max-height:480px;
+    overflow-y:auto;
+    scrollbar-width:thin;
+    padding-right:5px
+}
+.calendar-day-entry {
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+    width:100%;
+    text-align:left;
+    padding:12px;
+    margin:7px 0;
+    border:1px solid var(--line);
+    border-radius:7px;
+    background:#fff;
+    color:var(--text);
+    cursor:pointer;
+    overflow-wrap:anywhere
+}
+.calendar-day-entry span {
+    font-size:12px;
+    color:var(--muted)
+}
+.calendar-day-entry:hover {
+    background:#f4faf6
+}
+@media(max-width:1100px) {
+    .calendar-shell aside.calendar-side {
+        border-left:0;
+        border-top:1px solid var(--line);
+        padding:14px 0 0
+    }
+}
+@media(max-width:850px) {
+    .calendar .day {
+        min-height:78px;
+        padding:3px
+    }
+    .calendar .event {
+        font-size:9px;
+        padding:3px
+    }
+    .calendar-more {
+        font-size:9px
+    }
+    .calendar-day-number {
+        padding:3px
+    }
+    .calendar-day-list {
+        max-height:320px
+    }
+}
+@media(max-width:420px) {
+    .calendar .day {
+        min-height:67px
+    }
+    .calendar .event {
+        font-size:8px
+    }
+    .calendar .event:nth-of-type(n+3) {
+        display:none
+    }
+    .calendar-more {
+        font-size:9px
+    }
+}
+
+
+    /* A lista de projetos usa a rolagem normal da página. */
+    .projetos-sem-rolagem { overflow: visible; max-height: none; }
+    .paginacao-projetos { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px; margin: 24px 0 36px; }
+    .paginacao-projetos button { min-width: 38px; min-height: 38px; }
+    .paginacao-projetos .pagina-ativa { background: var(--green); border-color: var(--green); color: #fff; }
+    .paginacao-projetos button:disabled { opacity: .45; cursor: not-allowed; }
+  
+/* Exclusão de compromissos diretamente na lista do dia da Agenda. */
+.calendar-entry-actions { display:flex; align-items:stretch; gap:7px; margin-bottom:8px; }
+.calendar-entry-actions .calendar-day-entry { flex:1; min-width:0; margin:0; }
+.calendar-delete-button { flex:0 0 auto; align-self:center; padding:8px 10px; border:1px solid #f1c7c7; border-radius:6px; background:#fff6f6; color:#a32d35; font-size:11px; font-weight:650; }
+.calendar-delete-button:hover { background:#ffe9e9; }
+
+/* Oculta ações que não se aplicam ao registro visualizado. */
+#details .modal-actions button[hidden] { display: none; }
+
+/* Cadastro de um compromisso em várias datas, sem alterar os registros existentes. */
+.agenda-modo { grid-column:1/-1; padding:12px; background:#f5f9f6; border:1px solid #e0e8e3; border-radius:8px; }
+.agenda-modo-opcoes { display:flex; gap:16px; flex-wrap:wrap; margin:8px 0; }
+.agenda-modo-opcoes label { display:flex; align-items:center; gap:6px; margin:0; cursor:pointer; }
+.agenda-modo-opcoes input { width:auto; }
+.agenda-datas { grid-column:1/-1; }
+.agenda-data-linha { display:grid; grid-template-columns:minmax(130px,1.5fr) minmax(85px,1fr) minmax(85px,1fr) auto; gap:9px; align-items:end; padding:12px; margin-bottom:9px; border:1px solid #e0e8e3; border-radius:8px; }
+.agenda-data-linha label { margin-top:0; }
+.agenda-data-linha button { margin-bottom:1px; }
+@media(max-width:650px) { .agenda-data-linha { grid-template-columns:1fr 1fr; } .agenda-data-linha>div:first-child { grid-column:1/-1; } }
+</style>
+ </head>
+ <body>
+  <aside>
+   <div class="brand">
+    <div>
+     <h1>
+      FAROL
+     </h1>
+     <p>
+      GESTÃO DE PROJETOS
+     </p>
+    </div>
+   </div>
+   <div class="nav-caption">
+    ESPAÇO DE TRABALHO
+   </div>
+   <nav id="nav">
+   </nav>
+   <div class="sidebar-foot">
+    <span class="foot-icon">
+     ▱
+    </span>
+    <span>
+     <strong>
+      Meu espaço de trabalho
+     </strong>
+     <small>
+      Projetos e equipe em foco
+     </small>
+    </span>
+    <span class="online-dot">
+    </span>
+   </div>
+  </aside>
+  <main>
+   <div class="breadcrumb">
+    Meu espaço de trabalho
+    <span>
+     ›
+    </span>
+    <strong id="crumb">
+     Visão geral
+    </strong>
+   </div>
+   <div class="page-inner">
+    <div class="eyebrow">
+     SEU TRABALHO, EM FOCO
+    </div>
+    <div class="top">
+     <div>
+      <h2 id="title">
+       Dashboard
+      </h2>
+      <p class="sub" hidden="" id="subtitle">
+      </p>
+     </div>
+     <div class="actions">
+      <button class="secondary" onclick="syncAll()">
+       ↻ Google Agenda
+      </button>
+      <button class="primary" id="add" onclick="newRecord()">
+       + Novo
+      </button>
+     </div>
+    </div>
+    <div id="busy">
+     Carregando...
+    </div>
+    <div id="content">
+    </div>
+   </div>
+  </main>
+  <dialog id="modal">
+   <h3 id="modalTitle">
+   </h3>
+   <form id="editor">
+    <div class="fields" id="fields">
+    </div>
+    <div class="modal-actions">
+     <button class="secondary" onclick="document.getElementById('modal').close()" type="button">
+      Cancelar
+     </button>
+     <button class="primary" type="submit">
+      Salvar
+     </button>
+    </div>
+   </form>
+  </dialog>
+  <dialog id="details">
+   <h3 id="detailsTitle">
+   </h3>
+   <div id="detailsBody">
+   </div>
+   <div class="modal-actions">
+    <button id="detailsEdit" class="secondary" type="button" hidden>Editar</button>
+    <button id="detailsDelete" class="secondary danger" type="button" hidden>Excluir</button>
+    <button class="secondary" onclick="document.getElementById('details').close()">
+     Fechar
+    </button>
+   </div>
+  </dialog>
+  <div id="notice">
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="./config.js"></script>
+<script>
+    const MENU = [['dashboard', 'Visão geral'], ['projetos', 'Projetos'], ['tarefas', 'Tarefas'], ['agenda', 'Agenda'], ['responsaveis', 'Responsáveis']];
+    const COLORS = [['green', 'Baixa'], ['blue', 'Média'], ['orange', 'Alta'], ['red', 'Urgente']];
+    const PRIORITY_ORDER = {
+        Urgente: 0, Alta: 1, 'Média': 2, Baixa: 3
+    };
+    const CONFIG = {
+        projetos: {
+            label: 'projeto', fields: [['nome', 'Nome', 'text', 1], ['objetivo', 'Descrição', 'textarea'], ['responsavel', 'Responsável', 'person'], ['prioridade', 'Prioridade', 'select', ['Baixa', 'Média', 'Alta', 'Urgente']], ['status', 'Status', 'select', ['Ativo', 'Em andamento', 'Pausado', 'Concluído']], ['prazo', 'Prazo', 'date']]
+        },
+        tarefas: {
+            label: 'tarefa', fields: [['titulo', 'Título', 'text', 1], ['projeto_id', 'Projeto (opcional)', 'project'], ['responsavel', 'Responsável', 'person'], ['prioridade', 'Prioridade', 'select', ['Baixa', 'Média', 'Alta', 'Urgente']], ['status', 'Status', 'select', ['A fazer', 'Em andamento', 'Concluída']], ['prazo', 'Prazo', 'date'], ['enviar_convite', 'Enviar convite pelo Google Agenda', 'select', ['Não', 'Sim']], ['observacoes', 'Observações', 'textarea']]
+        },
+        agenda: {
+            label: 'compromisso', fields: [['titulo', 'Título', 'text', 1], ['data', 'Data', 'date', 1], ['hora', 'Início', 'time', 1], ['hora_fim', 'Fim', 'time'], ['responsavel', 'Responsável', 'person'], ['enviar_convite', 'Enviar convite pelo Google Agenda', 'select', ['Não', 'Sim']], ['observacoes', 'Observações', 'textarea']]
+        },
+        responsaveis: {
+            label: 'responsável', fields: [['nome', 'Nome', 'text', 1], ['email', 'E-mail', 'email'], ['ativo', 'Ativo', 'select', ['Sim', 'Não']]]
+        }
+    };
+    let DATA = {
+        projetos: [], tarefas: [], agenda: [], responsaveis: []
+    }, page = 'dashboard', editing = null, editTable = null, openProject = null, taskFilter = 'Todos', month = new Date().getMonth(), year = new Date().getFullYear();
+    let paginaProjetos = 1;
+    const PROJETOS_POR_PAGINA = 10;
+    // FAROL Supabase: configure em config.js (chave publica anon/publishable).
+    const sb = window.supabase.createClient(window.FAROL_CONFIG.url, window.FAROL_CONFIG.anonKey, {
+      auth: {persistSession:true, autoRefreshToken:true, detectSessionInUrl:true}
+    });
+    let farolSession = null;
+    const TABLES = ['projetos','tarefas','agenda','responsaveis'];
+    const COLUMNS = {
+      projetos:['id','nome','objetivo','status','responsavel','prazo','prioridade'],
+      tarefas:['id','titulo','projeto_id','responsavel','prioridade','status','prazo','observacoes','lembrete_minutos','calendar_event_id','enviar_convite'],
+      agenda:['id','titulo','data','hora','hora_fim','tipo','responsavel','observacoes','lembrete_minutos','calendar_event_id','enviar_convite'],
+      responsaveis:['id','nome','email','ativo']
+    };
+    function cleanRow(table, input) {
+      return Object.fromEntries(COLUMNS[table].filter(k => input[k] !== undefined).map(k => [k, input[k] === '' ? null : input[k]]));
+    }
+    function checkError(result) { if(result.error) throw result.error; return result.data; }
+    async function requireAuth() {
+      const {data:{session}} = await sb.auth.getSession();
+      farolSession=session;
+      if(!session) {
+        const email=prompt('FAROL — informe seu e-mail autorizado para receber o link de acesso:');
+        if(!email) throw Error('Faça login para usar o FAROL.');
+        const result=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname}});
+        checkError(result);
+        alert('Confira seu e-mail para acessar o FAROL.');
+        throw Error('Aguardando autenticação por e-mail.');
+      }
+    }
+    async function syncGoogle(table,record,action='upsert') {
+      if(!['agenda','tarefas'].includes(table) || (record.enviar_convite!=='Sim' && !record.calendar_event_id)) return {status:'ignorado'};
+      try {
+        const {data,error}=await sb.functions.invoke('google-sync',{body:{table,record,action}});
+        if(error) throw error;
+        return data || {status:'ignorado'};
+      } catch(e) {return {status:'erro',message:e.message||String(e)};}
+    }
+    async function api(fn,...args) {
+      if(fn==='getData') {
+        const results=await Promise.all(TABLES.map(n=>sb.from(n).select('*').order('id')));
+        return Object.fromEntries(TABLES.map((n,i)=>[n,checkError(results[i])]));
+      }
+      if(fn==='saveRecord') {
+        const [table,obj]=args;
+        if(!TABLES.includes(table)) throw Error('Tabela inválida');
+        const row=cleanRow(table,{...obj,id:obj.id||crypto.randomUUID()});
+        if(table==='tarefas') {row.status ||= 'A fazer';row.prioridade ||= 'Média';}
+        if(table==='projetos') {row.status ||= 'Ativo';row.prioridade ||= 'Média';}
+        if(table==='responsaveis') row.ativo ||= 'Sim';
+        if(['agenda','tarefas'].includes(table)) row.enviar_convite ||= 'Não';
+        const record=checkError(await sb.from(table).upsert(row).select().single());
+        const calendar=await syncGoogle(table,record);
+        return {id:record.id,record,calendar};
+      }
+      if(fn==='saveAgendaEmLote') {
+        const [common,dates]=args;
+        if(!dates.length || dates.length>100) throw Error('Informe entre 1 e 100 datas.');
+        const rows=dates.map(d=>cleanRow('agenda',{...common,...d,id:crypto.randomUUID(),enviar_convite:common.enviar_convite||'Não'}));
+        const keys=rows.map(r=>r.data+'|'+r.hora);
+        if(new Set(keys).size!==keys.length || rows.some(r=>!r.data||!r.hora||!r.hora_fim||r.hora_fim<=r.hora)) throw Error('Datas ou horários inválidos/duplicados');
+        const records=checkError(await sb.from('agenda').insert(rows).select());
+        const avisos=[];
+        // Sincroniza sequencialmente para respeitar limites do Google.
+        for(const record of records){const result=await syncGoogle('agenda',record);if(result.status==='erro') avisos.push(record.data+': '+result.message);}
+        return {records,avisos};
+      }
+      if(fn==='setTaskStatus') {
+        const [id,status]=args;
+        const record=checkError(await sb.from('tarefas').update({status}).eq('id',id).select().single());
+        const calendar=await syncGoogle('tarefas',record);
+        return {ok:true,record,calendar};
+      }
+      if(fn==='deleteRecord') {
+        const [table,id]=args;
+        const record=checkError(await sb.from(table).select('*').eq('id',id).single());
+        if(table==='projetos') {
+          const {count,error}=await sb.from('tarefas').select('id',{count:'exact',head:true}).eq('projeto_id',id);
+          if(error) throw error;
+          if(count) throw Error('Desvincule as tarefas antes de excluir o projeto.');
+        }
+        checkError(await sb.from(table).delete().eq('id',id));
+        if(['agenda','tarefas'].includes(table)) await syncGoogle(table,record,'delete');
+        return true;
+      }
+      if(fn==='syncCalendar') {
+        const data=await api('getData');const r={criados:0,atualizados:0,removidos:0,ignorados:0,fail:[]};
+        for(const table of ['tarefas','agenda']) for(const record of data[table]) {
+          const result=await syncGoogle(table,record);
+          if(result.status==='erro') r.fail.push(record.titulo+': '+result.message);
+          else if(result.status==='criado') r.criados++;
+          else if(result.status==='atualizado') r.atualizados++;
+          else if(result.status==='removido') r.removidos++;
+          else r.ignorados++;
+        } return r;
+      }
+      throw Error('Operação desconhecida: '+fn);
+    }
+    let refreshPending=false;
+    function setupRealtime() {
+      sb.channel('farol-live').on('postgres_changes',{event:'*',schema:'public'},()=>{
+        if(refreshPending) return;
+        refreshPending=true;
+        setTimeout(async()=>{refreshPending=false;try{DATA=await api('getData');render();}catch(e){console.error(e)}},450);
+      }).subscribe();
+    }
+
+    function esc(x) {
+        return String(x ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+    function dt(x) { if (!x)
+        return 'Sem prazo'; const a = String(x).slice(0, 10).split('-'); return a.length === 3 ? `${a[2]}/${a[1]}/${a[0]}` : esc(x); }
+    function today() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+    function notify(s) { const e = document.getElementById('notice'); e.textContent = s; e.style.display = 'block'; clearTimeout(window.noticeTimer); window.noticeTimer = setTimeout(() => e.style.display = 'none', 6000); }
+    function done(t) { return t.status === 'Concluída'; }
+    function taskStatus(t) { const v = String(t?.status || '').trim(); return v === 'Pendente' ? 'A fazer' : (v || 'A fazer'); }
+    function projectOf(t) { return DATA.projetos.find(p => p.id === t.projeto_id || (!t.projeto_id && p.nome === t.projeto)); }
+    function colorTag(t) { return ''; }
+    function priority(t) { const name = t.prioridade || 'Média', c = COLORS.find(x => x[1] === name)?.[0] || 'blue'; return `<span class="tag ${c}">${esc(name)}</span>`; }
+    async function refresh() { document.getElementById('busy').style.display = 'block'; try {
+        DATA = await api('getData');
+        render();
+    }
+    catch (e) {
+        notify('Erro ao carregar: ' + (e.message || e));
+    }
+    finally {
+        document.getElementById('busy').style.display = 'none';
+    } }
+    function go(p) { page = p; openProject = null; render(); }
+    function render() { document.getElementById('nav').innerHTML = MENU.map(([p, t]) => `<button class="${p === page ? 'active' : ''}" onclick="go('${p}')">${t}</button>`).join(''); document.getElementById('title').textContent = MENU.find(x => x[0] === page)?.[1] || page; document.getElementById('crumb').textContent = document.getElementById('title').textContent; document.getElementById('subtitle').textContent = ({ dashboard: 'Seu trabalho, em foco.', projetos: 'Do planejamento à entrega, cada projeto em foco.', tarefas: 'Organize prioridades. Faça acontecer.', agenda: 'Seu tempo e suas entregas, em sintonia.', responsaveis: 'As pessoas que fazem os projetos acontecerem.' })[page]; document.getElementById('add').textContent = ({ projetos: '+ Novo projeto', tarefas: '+ Nova tarefa', agenda: '+ Novo compromisso', responsaveis: '+ Novo responsável' })[page] || '+ Novo'; document.getElementById('add').style.display = page === 'dashboard' ? 'none' : ''; document.getElementById('content').innerHTML = ({ dashboard: dashboard, projetos: projects, tarefas: tasks, agenda: calendar, responsaveis: people })[page](); }
+    function metric(v, l) { return `<div class="card"><div class="muted">${l}</div><div class="metric">${v}</div></div>`; }
+    function dashboard() { const pending = DATA.tarefas.filter(t => !done(t)), late = pending.filter(t => t.prazo && t.prazo < today()), names = [...new Set([...DATA.responsaveis.map(r => r.nome), ...DATA.tarefas.map(t => t.responsavel).filter(Boolean)])]; return `<div class="grid">${metric(DATA.projetos.filter(p => p.status !== 'Concluído').length, 'Projetos ativos')}${metric(pending.length, 'Tarefas em aberto')}${metric(DATA.tarefas.filter(done).length, 'Concluídas')}${metric(late.length, 'Atrasadas')}</div><div class="grid"><section class="card scroll-card"><h3>Responsáveis</h3><div class="card-scroll">${names.map(n => { const ts = DATA.tarefas.filter(t => t.responsavel === n), c = ts.filter(done).length; return `<div class="item dashboard-person"><div class="person-summary"><div class="person-copy"><b>${esc(n)}</b><p class="muted">${c} de ${ts.length} concluídas</p></div><button class="secondary" onclick="showResponsibleTasks(decodeURIComponent('${encodeURIComponent(n)}'))">Visualizar tarefas</button></div></div>`; }).join('') || '<div class="empty-state"><div class="empty-icon">♙</div><h3>Nenhum responsável</h3><p>Cadastre alguém para acompanhar as tarefas.</p></div>'}</div></section><section class="card scroll-card"><h3>Prioridades</h3><div class="card-scroll">${pending.slice().sort((a, b) => (PRIORITY_ORDER[a.prioridade] ?? 4) - (PRIORITY_ORDER[b.prioridade] ?? 4)).slice(0, 7).map(t => `<div class="item"><div><b>${esc(t.titulo)}</b><p class="muted">${esc(t.responsavel || 'Sem responsável')} · ${dt(t.prazo)}</p>${priority(t)}</div><button class="secondary" onclick="viewTask('${t.id}')">Visualizar</button></div>`).join('') || '<div class="empty-state"><div class="empty-icon">✓</div><h3>Nenhuma pendência</h3><p>Suas tarefas prioritárias aparecerão aqui.</p></div>'}</div></section></div>`; }
+    function actions(n, id) { return `<div class="actions"><button class="secondary" onclick="edit('${n}','${id}')">Editar</button><button class="secondary danger" onclick="removeRecord('${n}','${id}')">Excluir</button></div>`; }
+    function taskCard(t) { const isDone = done(t); return `<article class="task-card ${isDone ? 'is-done' : ''}"><div class="task-head"><button type="button" class="complete-toggle ${isDone ? 'checked' : ''}" title="${isDone ? 'Reabrir tarefa' : 'Marcar como concluída'}" aria-label="${isDone ? 'Reabrir tarefa' : 'Concluir tarefa'}" onclick="changeStatus('${t.id}','${isDone ? 'A fazer' : 'Concluída'}')">${isDone ? '✓' : '○'}</button><div class="task-main"><h4>${esc(t.titulo)}</h4>${priority(t)}${colorTag(t)}<p class="muted">${esc(t.responsavel || 'Não atribuído')} · ${dt(t.prazo)}</p></div></div><div class="actions"><button type="button" class="${isDone ? 'secondary' : 'primary'} complete-action" onclick="changeStatus('${t.id}','${isDone ? 'A fazer' : 'Concluída'}')">${isDone ? '↶ Reabrir tarefa' : '✓ Concluir tarefa'}</button>${taskStatus(t) === 'A fazer' ? `<button class="secondary" onclick="changeStatus('${t.id}','Em andamento')">Iniciar</button>` : ''}<button class="secondary" onclick="edit('tarefas','${t.id}')">Editar</button></div></article>`; }
+    function board(ts) { return `<div class="board">${[['A fazer', 'A fazer'], ['Em andamento', 'Em andamento'], ['Concluída', 'Concluído']].map(([s, title]) => `<div class="lane"><h4>${title} · ${ts.filter(t => taskStatus(t) === s).length}</h4>${ts.filter(t => taskStatus(t) === s).map(taskCard).join('') || '<p class="muted">Nenhuma tarefa</p>'}</div>`).join('')}</div>`; }
+    function projectTaskRows(ts) { return `<div class="simple-list">${ts.map(t => `<div class="simple-task"><div class="simple-task-info"><b>${esc(t.titulo)}</b><div class="task-meta">${priority(t)}<span class="tag">${esc(taskStatus(t))}</span><span>${esc(t.responsavel || 'Sem responsável')}</span><span>${dt(t.prazo)}</span></div></div><div class="actions"><button class="secondary" onclick="viewTask('${t.id}')">Visualizar</button><button class="secondary" onclick="edit('tarefas','${t.id}')">Editar</button><button class="secondary" onclick="changeStatus('${t.id}','${done(t) ? 'A fazer' : 'Concluída'}')">${done(t) ? 'Reabrir' : 'Concluir'}</button><button class="secondary danger" onclick="removeRecord('tarefas','${t.id}')">Excluir</button></div></div>`).join('') || '<p class="muted">Nenhuma tarefa neste projeto.</p>'}</div>`; }
+    function showResponsibleTasks(name) { ocultarAcoesCompromisso();
+        const tasks = DATA.tarefas.filter(t => (t.responsavel || 'Não atribuído') === name);
+        document.getElementById('detailsTitle').textContent = 'Tarefas de ' + name;
+        document.getElementById('detailsBody').innerHTML = tasks.length ? projectTaskRows(tasks) : '<p class="muted">Nenhuma tarefa atribuída.</p>';
+        document.getElementById('details').showModal();
+    }
+    function viewTask(id) { ocultarAcoesCompromisso(); const t = DATA.tarefas.find(x => x.id === id); if (!t)
+        return; const p = projectOf(t); document.getElementById('detailsTitle').textContent = t.titulo; document.getElementById('detailsBody').innerHTML = `<p><b>Projeto:</b> ${esc(p?.nome || 'Sem projeto')}</p><p><b>Status:</b> ${esc(taskStatus(t))}</p><p><b>Prioridade:</b> ${priority(t)}</p><p><b>Responsável:</b> ${esc(t.responsavel || 'Não atribuído')}</p><p><b>Prazo:</b> ${dt(t.prazo)}</p><p><b>Observações:</b> ${esc(t.observacoes || 'Nenhuma')}</p>`; document.getElementById('details').showModal(); }
+    function projects() {
+        const totalPaginas = Math.max(1, Math.ceil(DATA.projetos.length / PROJETOS_POR_PAGINA));
+        paginaProjetos = Math.min(paginaProjetos, totalPaginas);
+        const inicio = (paginaProjetos - 1) * PROJETOS_POR_PAGINA;
+        const projetosVisiveis = DATA.projetos.slice(inicio, inicio + PROJETOS_POR_PAGINA);
+        const paginacao = totalPaginas > 1
+            ? `<div class="paginacao-projetos" aria-label="Páginas dos projetos">
+                <button class="secondary" onclick="mudarPaginaProjetos(${paginaProjetos - 1})" ${paginaProjetos === 1 ? 'disabled' : ''}>Anterior</button>
+                ${Array.from({ length: totalPaginas }, (_, i) => `<button class="secondary ${paginaProjetos === i + 1 ? 'pagina-ativa' : ''}" onclick="mudarPaginaProjetos(${i + 1})">${i + 1}</button>`).join('')}
+                <button class="secondary" onclick="mudarPaginaProjetos(${paginaProjetos + 1})" ${paginaProjetos === totalPaginas ? 'disabled' : ''}>Próxima</button>
+               </div>` : '';
+        return `<div class="section-heading"><div><h3>Projetos cadastrados</h3></div><span class="muted">${DATA.projetos.length} projetos</span></div><div class="projetos-sem-rolagem">${projetosVisiveis.map(p => { const ts = DATA.tarefas.filter(t => projectOf(t)?.id === p.id), c = ts.filter(done).length; return `<section class="card project-entry"><div class="item"><div style="flex:1;min-width:0"><h3>${esc(p.nome)}</h3><p class="muted">${esc(p.objetivo || 'Sem descrição')} · Responsável: ${esc(p.responsavel || 'Não atribuído')}</p>${priority(p)}<span class="tag">${esc(p.status || 'Ativo')}</span><span class="tag">${c}/${ts.length} concluídas</span></div>${actions('projetos', p.id)}</div><div class="toolbar"><button class="secondary" onclick="toggleProject('${p.id}')">${openProject === p.id ? 'Ocultar tarefas' : 'Visualizar tarefas'}</button><button class="primary" onclick="newRecord('tarefas',{projeto_id:'${p.id}'})">+ Nova tarefa</button></div>${openProject === p.id ? `<div class="project-task-scroll">${projectTaskRows(ts)}</div>` : ''}</section>`; }).join('') || '<section class="card empty-state"><div class="empty-icon">▣</div><h3>Nenhum projeto cadastrado</h3><p>Crie seu primeiro projeto para começar.</p><button class="primary" onclick="newRecord(&quot;projetos&quot;)">+ Novo projeto</button></section>'}</div>${paginacao}`;
+    }
+    function mudarPaginaProjetos(numero) {
+        const total = Math.max(1, Math.ceil(DATA.projetos.length / PROJETOS_POR_PAGINA));
+        paginaProjetos = Math.max(1, Math.min(numero, total));
+        openProject = null;
+        render();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function toggleProject(id) { openProject = openProject === id ? null : id; render(); }
+    let taskStatusFilter = 'Todos';
+    function tasks() { const names = ['Todos', 'Sem projeto', ...DATA.projetos.map(p => p.id)]; const ts = DATA.tarefas.filter(t => (taskFilter === 'Todos' || (taskFilter === 'Sem projeto' ? !projectOf(t) : projectOf(t)?.id === taskFilter)) && (taskStatusFilter === 'Todos' || taskStatus(t) === taskStatusFilter)); return `<div class="status-tabs">${[['Todos', 'Todas as tarefas'], ['A fazer', 'A fazer'], ['Em andamento', 'Em andamento'], ['Concluída', 'Concluídas']].map(([key, label]) => `<button class="${taskStatusFilter === key ? 'active' : ''}" onclick="taskStatusFilter='${key}';render()">${label} <span class="muted">${key === 'Todos' ? DATA.tarefas.length : DATA.tarefas.filter(t => taskStatus(t) === key).length}</span></button>`).join('')}</div><div class="toolbar"><label for="projectFilter">Projeto</label><select id="projectFilter" onchange="taskFilter=this.value;render()">${names.map(n => `<option value="${esc(n)}" ${taskFilter === n ? 'selected' : ''}>${esc(DATA.projetos.find(p => p.id === n)?.nome || n)}</option>`).join('')}</select></div><div class="task-table page-scroll">${ts.length ? projectTaskRows(ts).replace('<div class="simple-list">', '').replace(/<\/div>$/, '') : '<div class="empty-state"><div class="empty-icon">✓</div><h3>Nenhuma tarefa por aqui</h3><p>As tarefas cadastradas aparecerão nesta lista.</p><button class="primary" onclick="newRecord(&quot;tarefas&quot;)">+ Nova tarefa</button></div>'}</div>`; }
+    let openPerson = null;
+    function togglePerson(id) { openPerson = openPerson === id ? null : id; render(); }
+    function people() { return `<div class="section-heading"><div><h3>Responsáveis</h3></div><span class="muted">${DATA.responsaveis.length} responsáveis</span></div><div class="page-scroll">${DATA.responsaveis.map(p => { const ts = DATA.tarefas.filter(t => t.responsavel === p.nome), c = ts.filter(done).length; return `<section class="card person-entry"><div class="item"><div style="flex:1;min-width:0"><b>${esc(p.nome)}</b><p class="muted">${esc(p.email || 'Sem e-mail')} · ${ts.length} tarefas · ${c} concluídas</p></div><div class="actions"><button class="secondary" onclick="togglePerson('${p.id}')">${openPerson === p.id ? 'Ocultar tarefas' : 'Visualizar tarefas'}</button>${actions('responsaveis', p.id)}</div></div>${openPerson === p.id ? projectTaskRows(ts) : ''}</section>`; }).join('') || '<section class="card empty-state"><div class="empty-icon">♙</div><h3>Uma equipe, muitas possibilidades</h3><p>Cadastre responsáveis para os projetos e tarefas.</p><button class="primary" onclick="newRecord(&quot;responsaveis&quot;)">+ Adicionar responsável</button></section>'}</div>`; }
+    let selectedCalendarDay = null;
+    function calendarEvents(date) { return [...DATA.agenda.filter(a => a.data === date).map(a => ({ n: 'agenda', id: a.id, title: a.titulo, at: a.hora || 'Compromisso', prio: 'Média' })), ...DATA.projetos.filter(p => p.prazo === date).map(p => ({ n: 'projetos', id: p.id, title: p.nome, at: 'Projeto', prio: p.prioridade || 'Média' })), ...DATA.tarefas.filter(t => t.prazo === date).map(t => ({ n: 'tarefas', id: t.id, title: t.titulo, at: 'Tarefa', prio: t.prioridade || 'Média' }))]; }
+    function calendarPriority(e) { return 'priority-' + (({ 'Baixa': 'low', 'Média': 'medium', 'Alta': 'high', 'Urgente': 'urgent' })[e.prio] || 'medium'); }
+    function selectCalendarDay(date) { selectedCalendarDay = date; render(); }
+    // As ações de edição e exclusão só aparecem ao visualizar compromissos da agenda.
+    function ocultarAcoesCompromisso() {
+        const editar = document.getElementById('detailsEdit');
+        const excluir = document.getElementById('detailsDelete');
+        editar.hidden = true;
+        excluir.hidden = true;
+        editar.onclick = null;
+        excluir.onclick = null;
+    }
+
+    function configurarAcoesCompromisso(id) {
+        const editar = document.getElementById('detailsEdit');
+        const excluir = document.getElementById('detailsDelete');
+        editar.hidden = false;
+        excluir.hidden = false;
+        editar.onclick = () => {
+            document.getElementById('details').close();
+            edit('agenda', id);
+        };
+        excluir.onclick = () => {
+            document.getElementById('details').close();
+            removeRecord('agenda', id);
+        };
+    }
+
+    function viewCalendarRecord(n, id) { ocultarAcoesCompromisso(); const r = DATA[n]?.find(x => x.id === id); if (!r)
+        return notify('Registro não encontrado'); if (n === 'tarefas')
+        return viewTask(id); const fields = n === 'projetos' ? [['Descrição', r.objetivo], ['Responsável', r.responsavel], ['Prioridade', r.prioridade], ['Status', r.status], ['Prazo', dt(r.prazo)]] : [['Data', dt(r.data)], ['Horário', r.hora], ['Término', r.hora_fim], ['Responsável', r.responsavel], ['Observações', r.observacoes]]; document.getElementById('detailsTitle').textContent = r.nome || r.titulo || 'Detalhes'; document.getElementById('detailsBody').innerHTML = fields.map(([k, v]) => `<p><b>${k}:</b> ${esc(v || 'Não informado')}</p>`).join(''); if (n === 'agenda') configurarAcoesCompromisso(id); document.getElementById('details').showModal(); }
+    function calendar() { const first = new Date(year, month, 1), last = new Date(year, month + 1, 0).getDate(); let cells = ''; for (let i = 0; i < first.getDay(); i++)
+        cells += '<div class="calendar-pad" aria-hidden="true"></div>'; for (let d = 1; d <= last; d++) {
+        const date = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`, events = calendarEvents(date);
+        cells += `<div class="day ${selectedCalendarDay === date ? 'calendar-selected' : ''}"><button type="button" class="calendar-day-number" onclick="selectCalendarDay('${date}')" aria-label="Visualizar dia ${d}">${d}</button>${events.slice(0, 3).map(e => `<button type="button" class="event ${calendarPriority(e)}" onclick="viewCalendarRecord('${e.n}','${e.id}')" title="Visualizar ${esc(e.title)}">${esc(e.at)} · ${esc(e.title)}</button>`).join('')}${events.length > 3 ? `<button type="button" class="calendar-more" onclick="selectCalendarDay('${date}')">+ ${events.length - 3} mais · Ver dia</button>` : ''}</div>`;
+    } const selected = selectedCalendarDay && selectedCalendarDay.startsWith(`${year}-${String(month + 1).padStart(2, '0')}-`) ? selectedCalendarDay : null; const dayEvents = selected ? calendarEvents(selected) : []; return `<section class="card"><div class="toolbar"><button class="secondary" onclick="changeMonth(-1)">←</button><b>${first.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</b><button class="secondary" onclick="changeMonth(1)">→</button></div><div class="calendar-shell"><div class="calendar-main"><div class="calendar">${['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map(x => `<div class="weekday">${x}</div>`).join('')}${cells}</div></div><aside class="calendar-side"><h3>${selected ? `Dia ${dt(selected)}` : 'Selecione um dia'}</h3><p class="muted">${selected ? `${dayEvents.length} registro(s) neste dia` : 'Clique no número de um dia para visualizar todas as atividades.'}</p><div class="calendar-day-list">${dayEvents.length ? dayEvents.map(e => `<div class="calendar-entry-actions"><button type="button" class="calendar-day-entry" onclick="viewCalendarRecord('${e.n}','${e.id}')"><strong>${esc(e.title)}</strong><span>${esc(e.at)} · ${esc(e.prio)}</span></button></div>`).join('') : selected ? '<p class="muted">Nenhuma atividade neste dia.</p>' : ''}</div></aside></div></section>`; }
+    function changeMonth(n) { month += n; if (month < 0) {
+        month = 11;
+        year--;
+    } if (month > 11) {
+        month = 0;
+        year++;
+    } render(); }
+    function newRecord(n, defaults = {}) { openEditor(n || page, { prioridade: 'Média', ...(n === 'tarefas' || page === 'tarefas' ? { status: 'A fazer' } : {}), ...defaults }); }
+    function edit(n, id) { const item = DATA[n].find(x => x.id === id); if (!item)
+        return notify('Registro não encontrado'); openEditor(n, item); }
+    // Monta datas independentes para uma reunião com horários diferentes.
+    function atualizarModoAgenda() {
+        const varias = document.querySelector('input[name="modo_agenda"]:checked')?.value === 'varias';
+        const grupo = document.getElementById('agendaDatasMultiplas');
+        if (!grupo) return;
+        grupo.hidden = !varias;
+        for (const nome of ['data', 'hora', 'hora_fim']) {
+            const campo = document.querySelector(`#fields [name="${nome}"]`);
+            if (campo) {
+                campo.closest('div').hidden = varias;
+                campo.required = !varias && nome !== 'hora_fim';
+            }
+        }
+    }
+    function adicionarDataAgenda(data = '', inicio = '09:00', fim = '10:00') {
+        const lista = document.getElementById('agendaListaDatas');
+        if (!lista) return;
+        const linha = document.createElement('div');
+        linha.className = 'agenda-data-linha';
+        linha.innerHTML = `<div><label>Data</label><input type="date" class="agenda-data" required></div>
+            <div><label>Início</label><input type="time" class="agenda-inicio" required></div>
+            <div><label>Término</label><input type="time" class="agenda-fim" required></div>
+            <button type="button" class="secondary" onclick="this.closest('.agenda-data-linha').remove()">Remover</button>`;
+        linha.querySelector('.agenda-data').value = data;
+        linha.querySelector('.agenda-inicio').value = inicio;
+        linha.querySelector('.agenda-fim').value = fim;
+        lista.appendChild(linha);
+    }
+    function prepararMultiplasDatasAgenda() {
+        const fields = document.getElementById('fields');
+        fields.insertAdjacentHTML('beforeend', `<div class="agenda-modo">
+            <strong>Agendamento</strong><div class="agenda-modo-opcoes">
+            <label><input type="radio" name="modo_agenda" value="unica" checked onchange="atualizarModoAgenda()"> Uma data</label>
+            <label><input type="radio" name="modo_agenda" value="varias" onchange="atualizarModoAgenda()"> Várias datas</label>
+            </div></div><div id="agendaDatasMultiplas" class="agenda-datas" hidden>
+            <strong>Datas e horários personalizados</strong><div id="agendaListaDatas"></div>
+            <button type="button" class="secondary" onclick="adicionarDataAgenda()">+ Adicionar outra data</button></div>`);
+        const data = fields.querySelector('[name="data"]')?.value || '';
+        const inicio = fields.querySelector('[name="hora"]')?.value || '09:00';
+        const fim = fields.querySelector('[name="hora_fim"]')?.value || '10:00';
+        adicionarDataAgenda(data, inicio, fim);
+        adicionarDataAgenda('', inicio, fim);
+    }
+    function openEditor(n, r) { editTable = n; editing = r.id || null; const cfg = CONFIG[n]; if (!cfg)
+        return notify('Módulo inválido'); document.getElementById('modalTitle').textContent = (editing ? 'Editar ' : 'Novo ') + cfg.label; document.getElementById('fields').innerHTML = cfg.fields.map(([key, title, type, opts]) => { const v = r[key] ?? '', sel = (choices) => `<select name="${key}"><option value="">Selecione</option>${choices.map(([id, name]) => `<option value="${esc(id)}" ${String(v) === String(id) ? 'selected' : ''}>${esc(name)}</option>`).join('')}</select>`; let field; if (type === 'textarea')
+        field = `<textarea name="${key}" rows="3">${esc(v)}</textarea>`;
+    else if (type === 'select')
+        field = sel(opts.map(x => [x, x]));
+    else if (type === 'colors')
+        field = sel(COLORS);
+    else if (type === 'project')
+        field = sel(DATA.projetos.map(p => [p.id, p.nome]));
+    else if (type === 'person')
+        field = sel(DATA.responsaveis.filter(p => p.ativo !== 'Não').map(p => [p.nome, p.nome]));
+    else
+        field = `<input name="${key}" type="${type}" value="${esc(v)}" ${opts === 1 ? 'required' : ''}>`; return `<div class="${type === 'textarea' ? 'wide' : ''}"><label>${title}</label>${field}</div>`; }).join(''); if (n === 'agenda' && !editing) prepararMultiplasDatasAgenda(); document.getElementById('modal').showModal(); }
+    // Atualiza a interface antes da confirmação do servidor.
+    document.getElementById('editor').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const button = e.target.querySelector('[type=submit]');
+      if (button.disabled) return;
+      button.disabled = true;
+
+      const table = editTable;
+      const original = editing ? DATA[table].find(x => x.id === editing) : null;
+      const previous = original ? { ...original } : null;
+      const form = Object.fromEntries(new FormData(e.target).entries());
+      const variasDatas = table === 'agenda' && !editing && form.modo_agenda === 'varias';
+      delete form.modo_agenda;
+      if (editing) form.id = editing;
+
+      if (variasDatas) {
+        const linhas = [...document.querySelectorAll('#agendaListaDatas .agenda-data-linha')];
+        const datas = linhas.map(linha => ({
+          data: linha.querySelector('.agenda-data').value,
+          hora: linha.querySelector('.agenda-inicio').value,
+          hora_fim: linha.querySelector('.agenda-fim').value
+        }));
+        const chaves = datas.map(d => d.data + '|' + d.hora);
+        if (!datas.length || datas.some(d => !d.data || !d.hora || !d.hora_fim || d.hora_fim <= d.hora)
+            || new Set(chaves).size !== chaves.length) {
+          button.disabled = false;
+          return notify('Preencha as datas e os horários corretamente, sem datas e inícios duplicados.');
+        }
+        // Exibe imediatamente os compromissos, sem esperar cada gravação.
+        const temporarios = datas.map((data, i) => ({
+          ...form, ...data,
+          id: `temporario-lote-${Date.now()}-${i}`
+        }));
+        DATA.agenda.push(...temporarios);
+        document.getElementById('modal').close();
+        render();
+        notify(`Salvando ${datas.length} compromisso(s)...`);
+
+        try {
+          // Uma chamada ao Apps Script para todas as datas.
+          const resultado = await api('saveAgendaEmLote', form, datas);
+          const ids = new Set(temporarios.map(item => item.id));
+          DATA.agenda = DATA.agenda.filter(item => !ids.has(item.id));
+          DATA.agenda.push(...resultado.records);
+          render();
+          const avisos = resultado.avisos || [];
+          notify(`${resultado.records.length} compromisso(s) salvo(s).` +
+            (avisos.length ? ' Avisos do Google Agenda: ' + avisos.join('; ') : ''));
+        } catch (erro) {
+          const ids = new Set(temporarios.map(item => item.id));
+          DATA.agenda = DATA.agenda.filter(item => !ids.has(item.id));
+          // Se houve falha após a gravação, recarrega os dados para evitar duplicações.
+          try {
+            DATA = await api('getData');
+          } catch (_) {
+            // Mantém a interface utilizável mesmo se a atualização falhar.
+          }
+          render();
+          notify('Não foi possível confirmar o lote. Confira a agenda antes de tentar novamente: ' +
+            (erro.message || erro));
+        } finally {
+          button.disabled = false;
+        }
+        return;
+      }
+
+      const temporaryId = editing || `temporario-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      const optimistic = { ...(original || {}), ...form, id: temporaryId };
+      const index = DATA[table].findIndex(x => x.id === temporaryId);
+
+      if (index >= 0) DATA[table][index] = optimistic;
+      else DATA[table].push(optimistic);
+
+      document.getElementById('modal').close();
+      render();
+
+      try {
+        const result = await api('saveRecord', table, form);
+        const position = DATA[table].findIndex(x => x.id === temporaryId);
+        if (position >= 0) DATA[table][position] = result.record;
+        else DATA[table].push(result.record);
+        render();
+
+        const c = result.calendar;
+        notify(c?.status === 'erro'
+          ? 'Registro salvo, mas o Google Agenda falhou: ' + c.message
+          : c?.status === 'criado'
+            ? 'Registro salvo; convite solicitado ao Google Agenda'
+            : c?.status === 'atualizado'
+              ? 'Registro salvo e evento atualizado no Google Agenda'
+              : c?.status === 'removido'
+                ? 'Registro salvo e evento removido do Google Agenda'
+                : 'Registro salvo');
+      } catch (err) {
+        const position = DATA[table].findIndex(x => x.id === temporaryId);
+        if (previous) {
+          if (position >= 0) DATA[table][position] = previous;
+          else DATA[table].push(previous);
+        } else if (position >= 0) {
+          DATA[table].splice(position, 1);
+        }
+        render();
+        notify('Erro ao salvar; alteração desfeita: ' + (err.message || err));
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    const savingStatus = new Set();
+    async function changeStatus(id, status) { if (savingStatus.has(id))
+        return; const t = DATA.tarefas.find(x => x.id === id); if (!t)
+        return; const old = t.status; savingStatus.add(id); t.status = status; render(); if (document.getElementById('details').open)
+        document.getElementById('details').close(); try {
+        const result = await api('setTaskStatus', id, status);
+        notify(result.calendar?.status === 'erro' ? 'Status salvo, mas Google Agenda falhou: ' + result.calendar.message : status === 'Concluída' ? 'Tarefa concluída' : 'Status atualizado');
+    }
+    catch (e) {
+        t.status = old;
+        render();
+        notify('Erro ao salvar; alteração desfeita: ' + (e.message || e));
+    }
+    finally {
+        savingStatus.delete(id);
+    } }
+    const deletingRecords = new Set();
+
+    async function removeRecord(n, id) {
+      if (deletingRecords.has(`${n}:${id}`)) return;
+      if (!confirm('Excluir este registro?')) return;
+
+      const index = DATA[n].findIndex(x => x.id === id);
+      if (index < 0) return;
+
+      const removed = DATA[n][index];
+      const key = `${n}:${id}`;
+      deletingRecords.add(key);
+      DATA[n].splice(index, 1);
+      render();
+
+      try {
+        await api('deleteRecord', n, id);
+        notify('Registro excluído');
+      } catch (e) {
+        DATA[n].splice(Math.min(index, DATA[n].length), 0, removed);
+        render();
+        notify('Erro ao excluir; registro restaurado: ' + (e.message || e));
+      } finally {
+        deletingRecords.delete(key);
+      }
+    }
+
+    async function syncAll() { try {
+        notify('Sincronizando com o Google Agenda...');
+        const r = await api('syncCalendar');
+        notify(`Google Agenda: ${r.criados} criados, ${r.atualizados} atualizados, ${r.removidos} removidos, ${r.ignorados} ignorados, ${r.fail.length} erros.${r.fail.length ? ' ' + r.fail.slice(0, 2).join('; ') : ''}`);
+    }
+    catch (e) {
+        notify('Erro na sincronização: ' + (e.message || e));
+    } }
+    requireAuth().then(()=>{setupRealtime();return refresh();}).catch(e=>notify(e.message||String(e)));
+  </script>
+ </body>
+</html>

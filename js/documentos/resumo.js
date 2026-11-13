@@ -4,6 +4,8 @@ function verResumo(id){
   const doc = docs.find(d=>d.id===id);
   if(!doc) return;
   resumoAtualId = id;
+  document.getElementById('resumo-area-tematica').textContent = doc.areaTematica || 'Não informada';
+  document.getElementById('resumo-tema').textContent = doc.tema || 'Não informado';
   const status = calcularStatus(doc);
 
   document.getElementById('resumo-nome').textContent = doc.nome;

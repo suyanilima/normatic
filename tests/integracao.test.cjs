@@ -1,0 +1,191 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const { JSDOM, requestInterceptor, VirtualConsole } = require('jsdom');
+const root = path.resolve(__dirname, '..');
+const wait = () => new Promise(resolve => setImmediate(resolve));
+const fixtureMeeting = { id: 'reuniao-anterior', data: '2099-11-12', horario: '10:00', frequencia: 'CGTIC', formato: 'Presencial', pauta: 'Pauta preservada', membros: [], convidados: ['Convidado anterior (STI)'] };
+const localResources = { interceptors: [requestInterceptor(request => {
+    const parsed = new URL(request.url);
+    if (parsed.host !== 'plataforma.test') throw Error('Recurso externo inesperado: ' + request.url);
+    const file = path.join(root, decodeURIComponent(parsed.pathname));
+    assert.ok(file.startsWith(root + path.sep));
+    return new Response(fs.readFileSync(file), { headers: { 'Content-Type': file.endsWith('.css') ? 'text/css' : file.endsWith('.html') ? 'text/html' : 'application/javascript' } });
+})] };
+async function open(page, storage = {}) {
+  const errors = [];
+  const virtualConsole = new VirtualConsole();
+  virtualConsole.on('jsdomError', error => {
+    // jsPDF verifica canvas na inicialização; o desenho/PDF exige navegador real.
+    if (/HTMLCanvasElement.*getContext/.test(error.message)) return;
+    errors.push(error);
+  });
+  const dom = new JSDOM(fs.readFileSync(path.join(root, page.split('#')[0]), 'utf8'), {
+    url: 'http://plataforma.test/' + page, runScripts: 'dangerously', resources: localResources,
+    pretendToBeVisual: true, virtualConsole,
+    beforeParse(w) {
+      Object.entries(storage).forEach(([k,v]) => w.localStorage.setItem(k, typeof v === 'string' ? v : JSON.stringify(v)));
+      w.scrollTo = () => {};
+      w.HTMLElement.prototype.scrollIntoView = () => {};
+      // jsdom não faz layout; innerText precisa de um equivalente para o editor.
+      Object.defineProperty(w.HTMLElement.prototype, 'innerText', { get() { return this.textContent; }, set(value) { this.textContent = value; } });
+      w.HTMLDialogElement.prototype.showModal = function () { this.open = true; };
+      w.HTMLDialogElement.prototype.close = function () { this.open = false; };
+      w.confirm = () => true;
+      w.TextEncoder = TextEncoder;
+      w.TextDecoder = TextDecoder;
+    }
+  });
+  await new Promise(resolve => dom.window.addEventListener('load', resolve, { once: true }));
+  await wait(); await wait();
+  assert.deepEqual(errors.map(e => e.message), [], `Inicialização de ${page}`);
+  return { dom, w: dom.window, d: dom.window.document, errors };
+}
+const set = (d, selector, value) => { const input = d.querySelector(selector); assert.ok(input, selector); input.value = value; input.dispatchEvent(new input.ownerDocument.defaultView.Event('input', { bubbles: true })); };
+async function submit(d) { d.getElementById('editor').requestSubmit(); await wait(); await wait(); }
+function snapshot(w) { return Object.fromEntries(Array.from({ length: w.localStorage.length }, (_,i) => w.localStorage.key(i)).map(k => [k, w.localStorage.getItem(k)])); }
+
+module.exports = { open, wait, snapshot };
+if(require.main === module) (async () => {
+  let current;
+  try {
+    current = await open('normativos.html', { 'igov:reunioes': [fixtureMeeting], 'normatic:apresentacao-concluida': 'sim' });
+    let { w, d } = current;
+    assert.equal(d.getElementById('view-reunioes'), null);
+    assert.equal(d.getElementById('cadastro-reuniao-form'), null);
+    assert.equal(d.querySelector('.modulo-link'), null);
+    assert.equal(JSON.parse(w.localStorage.getItem('igov:reunioes'))[0].pauta, 'Pauta preservada');
+    w.setTab('cadastro'); w.selecionarModoCadastro('semNormativo');
+    set(d, '#f-nome', 'Documento de regularização'); set(d, '#f-gestor-nome', 'Gestor de teste');
+    set(d, '#f-gestor-setor', 'STI'); set(d, '#f-gestor-email', 'teste@example.test');
+    set(d, '#f-gestor-whatsapp', '68999999999'); set(d, '#f-desc', 'Registro isolado de teste');
+    set(d, '#f-prazo-regularizacao', '2099-12-01');
+    await w.cadastrar(); await wait();
+    let documents = JSON.parse(w.localStorage.getItem('igov:documentos') || '[]');
+    assert.equal(documents.length, 1, 'Cadastro de documento continua funcionando');
+    w.editar(documents[0].id); set(d, '#edit-nome', 'Documento revisado'); await w.confirmarEdicao();
+    assert.equal(JSON.parse(w.localStorage.getItem('igov:documentos'))[0].nome, 'Documento revisado');
+    w.abrirUnidadeDocumentos('SETOR:TODAS'); set(d, '#busca-nome', 'inexistente'); w.render();
+    assert.ok(d.getElementById('lista').textContent.includes('Nenhum documento encontrado'));
+    set(d, '#busca-nome', 'revisado'); w.render();
+    assert.ok(d.getElementById('lista').textContent.includes('Documento revisado'));
+    w.prepararRelatorioDocumentosFiltrados();
+    assert.ok(d.getElementById('relatorio-modal-overlay').classList.contains('open'));
+    w.fecharRelatorio();
+    w.verResumo(documents[0].id);
+    assert.ok(d.getElementById('resumo-modal-overlay').classList.contains('open'));
+    d.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'Escape' }));
+    assert.ok(!d.getElementById('resumo-modal-overlay').classList.contains('open'));
+    w.setTab('cadastro'); w.selecionarModoCadastro('documento');
+    set(d, '#f-nome', 'Normativo de teste'); set(d, '#f-tipo', 'Normativo');
+    set(d, '#f-sei', '00000000000000000000'); set(d, '#f-data-vigencia', '2099-01-01'); set(d, '#f-validade', '2');
+    w.definirReferencialDocumento('f', 'Resolução CNJ nº 396/2021'); set(d, '#f-baselegal-num', '123');
+    set(d, '#f-gestor-nome', 'Gestor de teste'); set(d, '#f-gestor-setor', 'STI');
+    set(d, '#f-gestor-email', 'teste@example.test'); set(d, '#f-gestor-whatsapp', '68999999999'); set(d, '#f-desc', 'Normativo isolado de teste');
+    await w.cadastrar(); await wait();
+    documents = JSON.parse(w.localStorage.getItem('igov:documentos'));
+    assert.equal(documents.length, 2, 'Cadastro de normativo com vigência e fundamentação');
+    const normative = documents.find(doc => doc.nome === 'Normativo de teste');
+    assert.equal(normative.data, '2101-01-01');
+    w.excluir(normative.id); await w.confirmarExclusao();
+    const saved = snapshot(w); current.dom.window.close();
+
+    current = await open('index.html#reunioes', saved); ({ w, d } = current);
+    assert.equal(d.querySelector('.modulo-link'), null);
+    assert.ok(d.getElementById('view-reunioes').classList.contains('active'));
+    assert.ok(d.getElementById('reunioes-lista').textContent.includes('Pauta preservada'));
+    assert.equal(d.getElementById('f-nome'), null, 'FAROL não duplica o cadastro de normativos');
+    w.go('responsaveis'); w.newRecord(); set(d, '[name=nome]', 'Pessoa de teste'); set(d, '[name=email]', 'pessoa@example.test');
+    await submit(d);
+    assert.ok(d.getElementById('content').textContent.includes('Pessoa de teste'));
+    w.go('projetos'); w.newRecord(); set(d, '[name=nome]', 'Projeto de teste'); set(d, '[name=responsavel]', 'Pessoa de teste');
+    await submit(d);
+    let data = await w.FarolStorage.api('getData'); assert.equal(data.projetos.length, 1);
+    const projectId = data.projetos[0].id;
+    w.go('tarefas'); w.newRecord(); set(d, '[name=titulo]', 'Tarefa de teste'); set(d, '[name=projeto_id]', projectId); set(d, '[name=responsavel]', 'Pessoa de teste'); set(d, '[name=prazo]', '2099-11-12');
+    await submit(d);
+    data = await w.FarolStorage.api('getData'); assert.equal(data.tarefas.length, 1);
+    const taskId = data.tarefas[0].id;
+    await w.changeStatus(taskId, 'Concluída');
+    assert.equal((await w.FarolStorage.api('getData')).tarefas[0].status, 'Concluída');
+    w.edit('tarefas', taskId); set(d, '[name=titulo]', 'Tarefa revisada'); await submit(d);
+    assert.ok(d.getElementById('content').textContent.includes('Tarefa revisada'));
+    w.eval("taskStatusFilter='A fazer'"); w.render();
+    assert.ok(!d.getElementById('content').textContent.includes('Tarefa revisada'), 'Filtro de status das tarefas');
+    w.eval("taskStatusFilter='Todos'"); w.render();
+    await assert.rejects(w.FarolStorage.api('deleteRecord', 'projetos', projectId), /Desvincule/);
+    w.go('agenda'); w.newRecord(); set(d, '[name=titulo]', 'Compromisso de teste'); set(d, '[name=data]', '2099-11-12'); set(d, '[name=hora]', '09:00'); set(d, '[name=hora_fim]', '10:00');
+    await submit(d);
+    assert.equal((await w.FarolStorage.api('getData')).agenda.length, 1);
+    w.newRecord(); set(d, '[name=titulo]', 'Compromisso em várias datas');
+    const multiple = d.querySelector('[name=modo_agenda][value=varias]'); multiple.checked = true;
+    multiple.dispatchEvent(new w.Event('change', { bubbles: true }));
+    set(d, '#agendaListaDatas .agenda-data-linha:nth-child(1) .agenda-data', '2099-11-14');
+    set(d, '#agendaListaDatas .agenda-data-linha:nth-child(2) .agenda-data', '2099-11-15');
+    await submit(d);
+    assert.equal((await w.FarolStorage.api('getData')).agenda.length, 3, 'Lote pela interface');
+    assert.equal(w.calendarEvents('2099-11-12').length, 3, 'Agenda unifica prazo de tarefa, compromisso e reunião');
+    w.viewCalendarRecord('reunioes', fixtureMeeting.id);
+    assert.ok(d.getElementById('resumo-reuniao-modal-overlay').classList.contains('open'));
+    assert.ok(!d.getElementById('resumo-reuniao-modal-overlay').closest('[hidden]'));
+    d.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'Escape' }));
+    w.go('reunioes'); w.newRecord(); w.selecionarTipoReuniao('CGTIC');
+    set(d, '#r-data', '2099-11-13'); set(d, '#r-horario', '14:00'); set(d, '#r-pauta', 'Nova pauta no FAROL');
+    w.cadastrarReuniao();
+    let meetings = JSON.parse(w.localStorage.getItem('igov:reunioes'));
+    assert.equal(meetings.length, 2, 'Cadastro novo preserva reunião anterior');
+    const meetingId = meetings.find(item=>item.id!==fixtureMeeting.id).id;
+    w.editarReuniao(meetingId); set(d, '#edit-r-pauta', 'Pauta revisada'); w.confirmarEdicaoReuniao();
+    assert.equal(JSON.parse(w.localStorage.getItem('igov:reunioes')).find(r=>r.id===meetingId).pauta, 'Pauta revisada');
+    w.remarcarReuniao(meetingId); set(d, '#remarcar-reuniao-data', '2099-11-16'); w.confirmarRemarcacaoReuniao();
+    assert.equal(JSON.parse(w.localStorage.getItem('igov:reunioes')).find(r=>r.id===meetingId).situacao, 'Reagendada');
+    set(d, '#reuniao-busca', 'inexistente'); w.filtrarReunioes();
+    assert.equal(w.obterReunioesFiltradas().length, 0);
+    w.limparFiltrosReunioes(); assert.equal(w.obterReunioesFiltradas().length, 2);
+    w.selecionarTodasReunioesVisiveis(true); w.abrirRelatorio('reunioes');
+    assert.ok(d.getElementById('relatorio-modal-overlay').classList.contains('open'));
+    w.fecharRelatorio();
+    w.abrirMinutaReuniao(meetingId); set(d, '#minuta-reuniao-transcricao', 'Decisão registrada na reunião.');
+    w.iniciarRevisaoManualMinuta(); w.gerarMinutaReuniao();
+    assert.equal(JSON.parse(w.localStorage.getItem('igov:minutas')).length, 1, 'Geração manual de ata preservada');
+    assert.ok(w.gerarXmlDocumentoAta().includes('Decisão registrada'), 'Conteúdo da exportação Word');
+    const downloads = [];
+    w.URL.createObjectURL = blob => { downloads.push(blob); return 'blob:teste'; };
+    w.URL.revokeObjectURL = () => {};
+    w.HTMLAnchorElement.prototype.click = function () {};
+    w.baixarMinutaWord(); assert.ok(downloads[0].size > 1000, 'DOCX gerado');
+    const OriginalPdf = w.jspdf.jsPDF; let exportedPdf;
+    w.jspdf.jsPDF = function (...args) { const pdf = new OriginalPdf(...args); pdf.save = () => { exportedPdf = pdf.output(); }; return pdf; };
+    w.imprimirMinutaPdf(); assert.ok(exportedPdf.startsWith('%PDF-'), 'PDF gerado');
+    w.concluirAta();
+    assert.equal(JSON.parse(w.localStorage.getItem('igov:minutas'))[0].concluida, true);
+    w.cancelarReuniao(meetingId); w.confirmarCancelamentoReuniao();
+    assert.equal(JSON.parse(w.localStorage.getItem('igov:reunioes')).find(r=>r.id===meetingId).situacao, 'Cancelada');
+    w.go('responsaveis'); data = await w.FarolStorage.api('getData');
+    w.edit('responsaveis', data.responsaveis[0].id); set(d, '[name=nome]', 'Pessoa revisada'); await submit(d);
+    assert.equal((await w.FarolStorage.api('getData')).tarefas[0].responsavel, 'Pessoa revisada');
+    await w.removeRecord('tarefas', taskId);
+    assert.equal((await w.FarolStorage.api('getData')).tarefas.length, 0);
+    w.excluirReuniao(meetingId); w.confirmarExclusaoReuniao();
+    assert.equal(JSON.parse(w.localStorage.getItem('igov:reunioes')).length, 1);
+    assert.equal(JSON.parse(w.localStorage.getItem('igov:documentos')).length, 1, 'FAROL não altera documentos');
+    assert.deepEqual(current.errors.map(e => e.message), []);
+    const persisted = snapshot(w); current.dom.window.close();
+    current = await open('index.html#projetos', persisted);
+    assert.ok(current.d.getElementById('content').textContent.includes('Projeto de teste'), 'Persistência após reabrir módulo');
+    current.dom.window.close();
+    current = await open('normativos.html', persisted);
+    ({ w, d } = current);
+    documents = JSON.parse(w.localStorage.getItem('igov:documentos'));
+    w.excluir(documents[0].id); await w.confirmarExclusao();
+    assert.equal(JSON.parse(w.localStorage.getItem('igov:documentos')).length, 0, 'Exclusão de documento');
+    current.dom.window.close();
+    current = await open('dist/prototipo-documentos.html', { 'normatic:apresentacao-concluida': 'sim' });
+    assert.equal(current.d.querySelector('.modulo-link'), null);
+    current.dom.window.close();
+    current = await open('dist/prototipo-normatic.html#agenda', persisted);
+    assert.equal(current.d.querySelector('.modulo-link'), null);
+    assert.ok(current.d.querySelector('.calendar'), 'Agenda na versão com recursos embutidos');
+    console.log('Integração DOM: documentos, navegação, CRUD FAROL, reuniões, pautas, agenda e atas verificados.');
+  } finally { current?.dom.window.close(); }
+})().catch(error => { console.error(error); process.exitCode = 1; });

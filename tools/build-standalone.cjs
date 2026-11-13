@@ -2,8 +2,11 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.resolve(__dirname, '..');
-const sourcePath = path.join(root, 'index.html');
-const outputPath = path.join(root, 'prototipo-norma.html');
+const generated = path.join(root, 'dist');
+fs.mkdirSync(generated, {recursive:true});
+for (const [source, output] of [['normativos.html', 'prototipo-documentos.html'], ['index.html', 'prototipo-normatic.html'], ['farol.html', 'prototipo-farol.html']]) {
+const sourcePath = path.join(root, source);
+const outputPath = path.join(generated, output);
 
 let html = fs.readFileSync(sourcePath, 'utf8');
 
@@ -53,5 +56,13 @@ if (/\b(?:href|src)="(?:assets|css|js)\//.test(html)) {
   throw new Error('Ainda existem dependências locais no HTML gerado.');
 }
 
+html = html.replaceAll('href="farol.html', 'href="prototipo-farol.html').replaceAll('href="index.html', 'href="prototipo-normatic.html');
+html = html.replaceAll('`farol.html#', '`prototipo-farol.html#');
+html = html.replaceAll("'index.html#", "'prototipo-normatic.html#");
+if(source === 'index.html') {
+  const documento = fs.readFileSync(path.join(generated,'prototipo-documentos.html')).toString('base64');
+  html = html.replace('<template id="normativos-embutidos"></template>',`<template id="normativos-embutidos" data-srcdoc="${documento}"></template>`);
+}
 fs.writeFileSync(outputPath, html, 'utf8');
-console.log(`Arquivo independente criado: ${outputPath}`);
+console.log(`Arquivo com recursos embutidos criado: ${outputPath}`);
+}

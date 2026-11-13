@@ -1,0 +1,107 @@
+/* Identidade compartilhada: os tokens principais continuam em base.css. */
+[hidden] { display: none !important; }
+.plataforma-sidebar {
+  position: fixed; inset: 73px auto 0 0; width: 220px; padding: 24px 16px;
+  background: #fff; color: var(--ink); border-right: 1px solid var(--border); z-index: 90;
+  overflow-y: auto;
+}
+.modulo-identidade { color: var(--gov-blue); font-size: 20px; font-weight: 750; margin: 0 8px 28px; }
+.modulo-identidade small { display: block; color: var(--ink-soft); font-size: 12px; font-weight: 500; margin-top: 4px; }
+.plataforma-sidebar nav, .plataforma-sidebar .navbar { display: flex; flex-direction: column; gap: 5px; padding: 0; margin: 0; border: 0; }
+.plataforma-sidebar nav button, .plataforma-sidebar .tabbtn, .modulo-link {
+  display: flex; align-items: center; justify-content: space-between; width: 100%; text-align: left;
+  border: 0; padding: 12px 14px; margin: 0; border-radius: 8px; background: transparent;
+  color: var(--ink); font: inherit; font-size: 14px; font-weight: 600; text-decoration: none;
+}
+.plataforma-sidebar nav button:hover, .plataforma-sidebar nav button.active, .plataforma-sidebar .tabbtn.active, .modulo-link:hover {
+  background: var(--gov-blue-bg); color: var(--gov-blue);
+}
+.modulo-link { margin-top: 24px; border-top: 1px solid var(--border); }
+.modulo-normatic .wrap { margin-left: 220px; width: calc(100% - 220px); max-width: 1600px; }
+.modulo-normatic .header-inner { max-width: none; grid-template-columns: 1fr auto; }
+.modulo-normatic .dashboard-indicadores { grid-template-columns: repeat(3,minmax(0,1fr)); }
+.modulo-normatic .dashboard-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+.modulo-normatic .dashboard-documentos-atencao-card { grid-column: auto; grid-row: auto; height: auto; min-height: 0; }
+.modulo-normatic .dashboard-situacao { grid-row: auto; }
+.modulo-normatic .dashboard-cabecalho { flex-wrap: wrap; align-items: center; }
+.modulo-normatic .dashboard-atualizacao { white-space: normal; font-size: 12px; }
+.modulo-normatic .dashboard-indicadores { gap: 12px; }
+.modulo-normatic .dashboard-indicador { min-height: 96px; padding: 14px 16px; border-radius: var(--radius); box-shadow: var(--shadow); }
+.modulo-normatic .dashboard-card { padding: 18px; border-radius: var(--radius); box-shadow: var(--shadow); }
+.modulo-normatic .dashboard-documentos-atencao-card .dashboard-lista { height: auto; max-height: 240px; flex: initial; grid-auto-rows: auto; padding-right: 4px; }
+.modulo-farol {
+  --bg: #F7F8FA; --dark: #0c326f; --green: #168821; --text: #414141; --muted: rgba(91,91,91,.8);
+  --line: #E3E6EC; --white: #fff; padding-top: 0; font: 500 14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+.modulo-farol > .plataforma-sidebar { inset: 0 auto 0 0; width: 220px; padding: 24px 16px; background: #fff; color: var(--ink); }
+.modulo-farol .brand h1 { color: var(--gov-blue); font-size: 24px; }
+.modulo-farol .brand p { color: var(--ink-soft); font-size: 11px; margin-bottom: 28px; }
+.modulo-farol .nav-caption { color: var(--ink-soft); margin: 16px 12px 10px; }
+.modulo-farol .sidebar-foot { background: var(--gov-blue-bg); color: var(--gov-blue-dark); border-color: var(--border); }
+.modulo-farol .sidebar-foot small { color: var(--ink-soft); }
+.modulo-farol > main { margin-left: 220px; padding: 28px 24px; max-width: 1600px; width: calc(100% - 220px); }
+.modulo-farol .breadcrumb { color: var(--ink-soft); height: 36px; padding: 0; border: 0; background: transparent; }
+.modulo-farol .eyebrow { color: var(--gov-blue); }
+.modulo-farol .page-inner { max-width: none; padding: 24px 0; }
+.modulo-farol .top h2 { font-size: 24px; letter-spacing: normal; color: var(--ink); }
+.modulo-farol .card, .modulo-farol dialog { border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); }
+.modulo-farol .card h3 { font-size: 16px; }
+.modulo-farol .scroll-card { height: auto; min-height: 0; }
+.modulo-farol .card-scroll { max-height: 300px; }
+.modulo-farol .primary { background: var(--gov-blue); border-radius: 8px; color: #fff; }
+.modulo-farol .primary:hover { background: var(--gov-blue-dark); }
+.modulo-farol :is(#content, .top, dialog) button.primary { width: auto; margin: 0; padding: 10px 14px; min-height: 40px; }
+.modulo-farol #content .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.modulo-farol #content .toolbar select { width: auto; max-width: 100%; }
+.modulo-farol .secondary { background: var(--gov-blue-bg); color: var(--gov-blue-dark); border: 1px solid var(--border); border-radius: 8px; }
+.modulo-farol .secondary.danger { color: var(--red); }
+.modulo-farol :is(input,select,textarea) { border-color: var(--border); border-radius: 8px; }
+.modulo-farol :is(input[type=checkbox],input[type=radio]) { width: auto; }
+.modulo-farol label { color: var(--ink); }
+.modulo-farol .status-tabs button.active { color: var(--gov-blue); border-color: var(--gov-blue); background: var(--gov-blue-bg); }
+.modulo-farol .calendar-side { position: static; inset: auto; width: auto; height: auto; background: var(--bg); color: var(--ink); padding: 16px; border: 1px solid var(--border); }
+.modulo-farol #notice { background: var(--gov-blue-dark); z-index: 1200; }
+.modulo-farol .calendar-main { min-width: 0; }
+.modulo-farol .calendar { min-width: 0; }
+.farol-reunioes { margin: 0; width: 100%; padding: 0 0 32px; }
+.farol-reunioes .view:not(.active) { display: none; }
+.farol-reunioes .view.active { display: block; }
+.farol-reunioes .view { padding: 0; }
+.farol-reunioes #cadastro-reuniao-form { display: block; }
+.farol-reunioes .reunioes-blocos { margin: 0; }
+.modulo-farol .module-meeting-summary { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+.modulo-farol .module-meeting-summary a { color: var(--gov-blue); }
+.modulo-farol dialog { max-height: 90vh; overflow-y: auto; }
+@media (max-width: 850px) {
+  .modulo-normatic { padding-top: 73px; }
+  .modulo-normatic .header-inner { min-height: 72px; grid-template-rows: auto; padding: 12px 16px; gap: 12px; }
+  .plataforma-sidebar, .modulo-farol > .plataforma-sidebar { position: static; inset: auto; width: 100%; padding: 16px; border-right: 0; border-bottom: 1px solid var(--border); }
+  .plataforma-sidebar nav, .plataforma-sidebar .navbar { flex-direction: row; flex-wrap: wrap; gap: 4px; overflow: visible; }
+  .plataforma-sidebar nav button, .plataforma-sidebar .tabbtn { width: auto; min-height: 44px; }
+  .modulo-identidade { margin: 0 8px 12px; }
+  .modulo-link { width: auto; margin: 12px 0 0; }
+  .modulo-normatic .wrap, .modulo-farol > main, .farol-reunioes { width: 100%; margin-left: 0; padding: 20px 16px; }
+  .modulo-farol .farol-reunioes { padding: 0 0 24px; }
+  .modulo-normatic .dashboard-grid { grid-template-columns: 1fr; }
+  .modulo-farol .brand p { margin-bottom: 12px; }
+  .modulo-farol .sidebar-foot, .modulo-farol .nav-caption { display: none; }
+  .modulo-farol .simple-task, .modulo-farol .item { flex-wrap: wrap; }
+  .modulo-farol .actions { max-width: 100%; }
+  .modulo-farol .calendar-shell { grid-template-columns: 1fr; }
+}
+@media (max-width: 520px) {
+  .modulo-normatic .dashboard-indicadores { grid-template-columns: 1fr; }
+  .modulo-farol .fields, .modulo-farol .grid { grid-template-columns: 1fr; }
+}
+@media (min-width: 521px) and (max-width: 700px) {
+  .modulo-normatic .dashboard-indicadores { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media (max-width: 1100px) {
+  .modulo-normatic .dashboard-grid { grid-template-columns: minmax(0,1fr); }
+}
+@media (max-width: 520px) {
+  .modulo-normatic .dashboard-documentos-situacao .dashboard-situacao-corpo { grid-template-columns: 88px minmax(0,1fr); gap: 12px; }
+  .modulo-normatic .dashboard-documentos-situacao .dashboard-anel { width: 84px; height: 84px; flex-basis: 84px; }
+  .modulo-normatic .dashboard-documentos-situacao .dashboard-legenda div { font-size: 12px; }
+  .modulo-normatic .dashboard-card-head { flex-wrap: wrap; }
+}

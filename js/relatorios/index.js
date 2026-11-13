@@ -22,8 +22,7 @@ function garantirModalRelatorio(){
     ${secaoRelatorio('reunioes','Reuniões',`<label>Buscar<input id="relatorio-reuniao-busca" type="search" placeholder="Pauta ou participante" oninput="aplicarFiltrosRelatorio('reunioes')"></label><label>Unidade<select id="relatorio-reuniao-tipo" onchange="aplicarFiltrosRelatorio('reunioes')"></select></label><label>Ano<select id="relatorio-reuniao-ano" onchange="aplicarFiltrosRelatorio('reunioes')"></select></label>`,RELATORIO_CAMPOS_REUNIOES)}
     <div class="modal-actions"><button type="button" onclick="fecharRelatorio()">Cancelar</button><button class="export-excel" type="button" onclick="gerarRelatorioSelecionado('csv')">Exportar Excel</button><button id="relatorio-exportar-pdf" class="export-pdf" type="button" onclick="gerarRelatorioSelecionado('pdf')">Exportar PDF</button></div></div>`;
   document.body.appendChild(overlay);overlay.addEventListener('click',e=>{if(e.target===overlay)fecharRelatorio();});
-  document.getElementById('relatorio-doc-tipo').innerHTML=opcoesRelatorio([...new Set(docs.map(item=>item.tipo).filter(Boolean))].sort());
-  document.getElementById('relatorio-doc-ano').innerHTML=opcoesRelatorio([...new Set(docs.map(item=>(item.dataVigencia||item.dataCriacao||item.data||'').slice(0,4)).filter(Boolean))].sort((a,b)=>b.localeCompare(a)));
+  // Os filtros pertencem à listagem; este modal recebe sua seleção e configura as colunas.
 }
 function secaoRelatorio(tipo,titulo,filtros,campos){return `<section class="relatorio-secao" id="relatorio-secao-${tipo}"><div class="relatorio-secao-head"><div><h4>Campos do relatório</h4><small>Marque somente as informações necessárias.</small></div><div class="relatorio-campos-acoes"><button type="button" onclick="marcarCamposRelatorio('${tipo}',true)">Selecionar todos</button><button type="button" onclick="marcarCamposRelatorio('${tipo}',false)">Limpar</button></div></div><div class="relatorio-campos">${camposRelatorio(tipo,campos)}</div></section>`;}
 function abrirRelatorio(origem='documentos', contexto=null){
@@ -96,7 +95,7 @@ function valorReuniaoRelatorio(r,c){
   const unidade=unidadesPersonalizadas.find(u=>u.codigo===r.frequencia)?.nome||r.frequencia;
   const v={data:r.data?fmtData(r.data):'',horario:r.horario||'',frequencia:unidade||'',periodicidade:FREQUENCIAS_REUNIAO[r.frequencia]||'',formato:rotuloFormatoReuniao(r.formato),situacao:typeof obterSituacaoReuniao==='function'?obterSituacaoReuniao(r):(r.situacao||'Agendada'),link:r.link||'',pauta:r.pauta||'',membros:normalizarMembros(r.membros,r.frequencia).filter(m=>m.nome).map(m=>`${m.nome} — ${m.cargo}`).join('\n'),convidados:normalizarParticipantes(r.convidados??r.participantes).join('\n'),resumo:r.resumo||'',minuta:minutasHistorico.some(m=>m.reuniao?.id===r.id)?'Ata gerada':'Sem ata'};return v[c]??'';
 }
-function obterLogoNormaDataUrl(){
+function obterLogoNormaticDataUrl(){
   const imagem=document.querySelector('.brand-logo');
   if(!imagem)return '';
   try{
@@ -137,13 +136,13 @@ function gerarRelatorioPdfReunioes(itens,campos){
   const JsPdf=window.jspdf?.jsPDF;
   if(!JsPdf){toast('Não foi possível carregar o gerador de PDF.','vencido');return;}
   const pdf=new JsPdf({orientation:'portrait',unit:'mm',format:'a4',compress:true});
-  const larguraPagina=210,margem=8,larguraUtil=larguraPagina-(margem*2),limitePagina=282,logo=obterLogoNormaDataUrl();
+  const larguraPagina=210,margem=8,larguraUtil=larguraPagina-(margem*2),limitePagina=282,logo=obterLogoNormaticDataUrl();
   const selecionado=new Set(campos),azul=[28,65,108],cinza=[82,82,82],borda=[190,190,190],fundo=[242,242,242];
   const texto=(valor,padrao='Não informado')=>String(valor||padrao);
   let pagina=1,y=35;
   function cabecalho(){
     if(logo){try{pdf.addImage(logo,'PNG',margem,6,42,10);}catch(e){}}
-    else{pdf.setTextColor(...azul);pdf.setFontSize(15);pdf.setFont('helvetica','bold');pdf.text('NORMA',margem,14);}
+    else{pdf.setTextColor(...azul);pdf.setFontSize(15);pdf.setFont('helvetica','bold');pdf.text('NORMATIC',margem,14);}
     pdf.setTextColor(35,35,35);pdf.setFontSize(14);pdf.setFont('helvetica','bold');pdf.text('Relatório de reuniões',margem,23);
     pdf.setTextColor(...cinza);pdf.setFontSize(6.5);pdf.setFont('helvetica','normal');
     pdf.text(`Emitido em ${new Date().toLocaleString('pt-BR')}`,margem,28);
@@ -205,20 +204,20 @@ function gerarRelatorioPdfReunioes(itens,campos){
     if(selecionado.has('convidados'))secao('Convidados',convidados.join('\n')||'Nenhum convidado informado.',10);
     y+=4;
   });
-  pdf.save(`relatorio_norma_reunioes_${todayStr()}.pdf`);
-  toast(`<b>PDF Norma exportado</b> — ${itens.length} reunião${itens.length===1?'':'ões'}.`,'valido');
+  pdf.save(`relatorio_normatic_reunioes_${todayStr()}.pdf`);
+  toast(`<b>PDF Normatic exportado</b> — ${itens.length} reunião${itens.length===1?'':'ões'}.`,'valido');
 }
 
 function gerarRelatorioPdf(cabecalhos,linhas,total,tipo='documentos'){
   const JsPdf=window.jspdf?.jsPDF;
   if(!JsPdf){toast('Não foi possível carregar o gerador de PDF.','vencido');return;}
   const pdf=new JsPdf({orientation:'portrait',unit:'mm',format:'a4',compress:true});
-  const larguraPagina=210,margem=8,larguraUtil=194,limitePagina=282,logo=obterLogoNormaDataUrl();
+  const larguraPagina=210,margem=8,larguraUtil=194,limitePagina=282,logo=obterLogoNormaticDataUrl();
   const azul=[28,65,108],cinza=[82,82,82],borda=[190,190,190],fundo=[242,242,242];
   let pagina=1,y=35;
   function cabecalhoPagina(){
     if(logo){try{pdf.addImage(logo,'PNG',margem,6,42,10);}catch(e){}}
-    else{pdf.setTextColor(...azul);pdf.setFontSize(15);pdf.setFont('helvetica','bold');pdf.text('NORMA',margem,14);}
+    else{pdf.setTextColor(...azul);pdf.setFontSize(15);pdf.setFont('helvetica','bold');pdf.text('NORMATIC',margem,14);}
     pdf.setTextColor(35,35,35);pdf.setFontSize(14);pdf.setFont('helvetica','bold');pdf.text('Relatório de documentos',margem,23);
     pdf.setTextColor(...cinza);pdf.setFontSize(6.5);pdf.setFont('helvetica','normal');pdf.text(`Emitido em ${new Date().toLocaleString('pt-BR')}`,margem,28);
     pdf.text(`Página ${pagina}`,larguraPagina-margem,23,{align:'right'});pdf.text(`Página ${pagina}`,larguraPagina/2,291,{align:'center'});
@@ -255,7 +254,7 @@ function gerarRelatorioPdf(cabecalhos,linhas,total,tipo='documentos'){
     if(indiceDescricao>=0)desenharSecao('Descrição',descricao);
     y+=4;
   });
-  pdf.save(`relatorio_norma_${tipo}_${todayStr()}.pdf`);toast(`<b>PDF Norma exportado</b> — ${total} registro${total===1?'':'s'}.`,'valido');
+  pdf.save(`relatorio_normatic_${tipo}_${todayStr()}.pdf`);toast(`<b>PDF Normatic exportado</b> — ${total} registro${total===1?'':'s'}.`,'valido');
 }
 function exportarRelatorio(){abrirRelatorio('documentos');}
 function exportarRelatorioReunioes(){

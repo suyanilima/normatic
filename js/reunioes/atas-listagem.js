@@ -9,6 +9,7 @@ function obterSituacaoAtaListagem(reuniao){
 }
 
 function renderEscolhaReuniaoMinuta(){
+  if(typeof fecharMenusAcoes === 'function') fecharMenusAcoes();
   const lista = document.getElementById('minuta-reunioes-disponiveis');
   const totalAtas = document.getElementById('atas-total');
   if(!lista) return;
@@ -47,15 +48,15 @@ function renderEscolhaReuniaoMinuta(){
     const acao = minutaExistente ? `abrirMinutaHistorico('${minutaExistente.id}')` : `abrirMinutaReuniao('${item.id}')`;
     const menu = minutaExistente
       ? `<button type="button" onclick="abrirMinutaHistorico('${minutaExistente.id}')">Editar ata</button>
-         <button type="button" onclick="abrirModalExportarAta('${minutaExistente.id}')">Exportar</button>
+         <button type="button" onclick="abrirModalExportarAta('${minutaExistente.id}')">Exportar ata</button>
          <div class="divider"></div><button class="del" type="button" onclick="excluirMinutaHistorico('${minutaExistente.id}')">Excluir ata</button>`
       : `<button type="button" onclick="abrirMinutaReuniao('${item.id}')">Gerar ata</button>`;
     return `<div class="minuta-reuniao-opcao${minutaExistente ? ' com-minuta' : ''}" role="button" tabindex="0" onclick="${acao}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();${acao}}">
       <span class="minuta-reuniao-data"><strong>${escapeHtml(fmtData(item.data))}</strong><small>${escapeHtml(item.horario)}</small></span>
-      <span class="minuta-reuniao-conteudo"><strong>${escapeHtml(item.frequencia)}</strong></span>
-      <span class="ata-reuniao-pauta">${escapeHtml(item.pauta || 'Sem pauta informada')}</span>
+      <span class="minuta-reuniao-conteudo"><strong title="${escapeHtml(item.frequencia)}">${escapeHtml(item.frequencia)}</strong></span>
+      <span class="ata-reuniao-pauta" title="${escapeHtml(item.pauta || 'Sem pauta informada')}">${escapeHtml(item.pauta || 'Sem pauta informada')}</span>
       <span class="ata-situacao ${situacaoAta.classe}">${situacaoAta.rotulo}</span>
-      <div class="actions minuta-reuniao-acoes" onclick="event.stopPropagation()" onkeydown="event.stopPropagation()"><button class="actions-toggle" type="button" onclick="toggleAcoes(event,'minuta-${item.id}')" aria-label="Ações da ata">⋮</button><div class="actions-dropdown" id="acoes-minuta-${item.id}">${menu}</div></div>
+      <div class="actions minuta-reuniao-acoes" onclick="event.stopPropagation()" onkeydown="event.stopPropagation()"><button class="actions-toggle" type="button" onclick="toggleAcoes(event,'minuta-${item.id}')" aria-label="Ações da ata" aria-haspopup="menu" aria-expanded="false" aria-controls="acoes-minuta-${item.id}">⋮</button><div class="actions-dropdown" id="acoes-minuta-${item.id}">${menu}</div></div>
     </div>`;
   }).join('');
   renderPaginacaoAtas(disponiveis.length);

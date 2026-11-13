@@ -38,21 +38,26 @@ document.addEventListener('keydown', event => {
   const aberto = document.querySelector('[id$="modal-overlay"].open');
   if(!aberto) return;
   const fechadores = {
-    'modal-overlay': fecharModal,
-    'delete-modal-overlay': fecharModalExcluir,
-    'delete-reuniao-modal-overlay': fecharModalExcluirReuniao,
-    'delete-minuta-modal-overlay': fecharModalExcluirMinuta,
-    'exportar-ata-modal-overlay': fecharModalExportarAta,
-    'edit-reuniao-modal-overlay': fecharModalEditarReuniao,
-    'cancelar-reuniao-modal-overlay': fecharCancelamentoReuniao,
-    'agenda-dia-reuniao-modal-overlay': fecharAgendaDiaCalendario,
-    'resumo-reuniao-modal-overlay': fecharResumoReuniao,
-    'edit-modal-overlay': fecharModalEditar,
-    'resumo-modal-overlay': fecharModalResumo,
-    'notificar-modal-overlay': fecharModalNotificar,
-    'historico-modal-overlay': fecharModalHistorico
+    'modal-overlay': 'fecharModal',
+    'delete-modal-overlay': 'fecharModalExcluir',
+    'delete-reuniao-modal-overlay': 'fecharModalExcluirReuniao',
+    'delete-minuta-modal-overlay': 'fecharModalExcluirMinuta',
+    'exportar-ata-modal-overlay': 'fecharModalExportarAta',
+    'edit-reuniao-modal-overlay': 'fecharModalEditarReuniao',
+    'cancelar-reuniao-modal-overlay': 'fecharCancelamentoReuniao',
+    'agenda-dia-reuniao-modal-overlay': 'fecharAgendaDiaCalendario',
+    'resumo-reuniao-modal-overlay': 'fecharResumoReuniao',
+    'unidade-modal-overlay': 'fecharCadastroUnidade',
+    'delete-unidade-modal-overlay': 'fecharExclusaoUnidade',
+    'remarcar-reuniao-modal-overlay': 'fecharRemarcacaoReuniao',
+    'tabela-minuta-modal-overlay': 'fecharConfiguracaoTabelaMinuta',
+    'edit-modal-overlay': 'fecharModalEditar',
+    'resumo-modal-overlay': 'fecharModalResumo',
+    'notificar-modal-overlay': 'fecharModalNotificar',
+    'historico-modal-overlay': 'fecharModalHistorico'
   };
-  fechadores[aberto.id]?.();
+  const fechar = window[fechadores[aberto.id]];
+  if(typeof fechar === 'function') fechar();
 });
 
 function inicializarLimpezaErrosCampos(){

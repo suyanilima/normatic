@@ -1,9 +1,10 @@
 /* ===== js/tabs.js ===== */
 /* ===== ABAS: alternância entre Controle, Cadastro e Sobre ===== */
 
-const TABS_PRINCIPAIS = ['dashboard', 'acompanhamento', 'reunioes', 'minutas', 'cadastro', 'sobre'];
+const TABS_PRINCIPAIS = ['dashboard', 'acompanhamento', 'cadastro'];
 
 function setTab(tab, opcoes = {}){
+  if(['reunioes','minutas'].includes(tab)) { window.location.href = `farol.html#${tab}`; return; }
   if(!TABS_PRINCIPAIS.includes(tab)) tab = 'dashboard';
   TABS_PRINCIPAIS.forEach(nome => {
     const ativo = tab === nome;
@@ -37,14 +38,14 @@ function inicializarNavbar(){
     painel?.setAttribute('aria-labelledby', `tab-${nome}`);
   });
   document.querySelector('.navbar')?.addEventListener('keydown', evento => {
-    if(!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(evento.key)) return;
+    if(!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(evento.key)) return;
     evento.preventDefault();
     const atual = TABS_PRINCIPAIS.indexOf(document.activeElement?.id?.replace('tab-', ''));
     let proximo = atual < 0 ? 0 : atual;
     if(evento.key === 'Home') proximo = 0;
     if(evento.key === 'End') proximo = TABS_PRINCIPAIS.length - 1;
-    if(evento.key === 'ArrowLeft') proximo = (proximo - 1 + TABS_PRINCIPAIS.length) % TABS_PRINCIPAIS.length;
-    if(evento.key === 'ArrowRight') proximo = (proximo + 1) % TABS_PRINCIPAIS.length;
+    if(['ArrowLeft','ArrowUp'].includes(evento.key)) proximo = (proximo - 1 + TABS_PRINCIPAIS.length) % TABS_PRINCIPAIS.length;
+    if(['ArrowRight','ArrowDown'].includes(evento.key)) proximo = (proximo + 1) % TABS_PRINCIPAIS.length;
     setTab(TABS_PRINCIPAIS[proximo]);
     document.getElementById(`tab-${TABS_PRINCIPAIS[proximo]}`)?.focus();
   });

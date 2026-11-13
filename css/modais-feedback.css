@@ -405,7 +405,7 @@ button.export-docs:hover,button.export-docs:focus-visible {
 }
 
 /* Apresentação inicial do sistema */
-#apresentacao-norma-overlay {
+#apresentacao-normatic-overlay {
   position: fixed;
   inset: 0;
   z-index: 500;
@@ -418,12 +418,12 @@ button.export-docs:hover,button.export-docs:focus-visible {
   -webkit-backdrop-filter: blur(6px);
 }
 
-#apresentacao-norma-overlay.open {
+#apresentacao-normatic-overlay.open {
   display: flex;
   animation: overlayIn .18s ease;
 }
 
-.apresentacao-norma {
+.apresentacao-normatic {
   position: relative;
   width: min(680px,calc(100vw - 32px));
   max-height: calc(100vh - 32px);
@@ -585,12 +585,12 @@ button.export-docs:hover,button.export-docs:focus-visible {
 }
 
 @media(max-width:560px) {
-  #apresentacao-norma-overlay {
+  #apresentacao-normatic-overlay {
     align-items: flex-start;
     padding: 12px;
   }
 
-  .apresentacao-norma {
+  .apresentacao-normatic {
     width: 100%;
     max-height: calc(100vh - 24px);
     padding: 26px 22px 22px;

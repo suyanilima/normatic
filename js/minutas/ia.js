@@ -9,6 +9,7 @@ async function solicitarDescricaoReuniaoIA(payload){
     return window.igovAI.gerarDescricaoReuniao(payload);
   }
   const base = String(window.IGOV_CONFIG?.apiBaseUrl || '').replace(/\/$/, '');
+  if(!base) throw new Error('A edição com IA não está configurada nesta etapa. Use Prosseguir para revisar manualmente.');
   const resposta = await fetch(`${base}/api/ia/reunioes/descricao`, {
     method:'POST',
     credentials:'same-origin',
@@ -17,16 +18,6 @@ async function solicitarDescricaoReuniaoIA(payload){
   });
   if(!resposta.ok) throw new Error(`Serviço de IA indisponível (${resposta.status}).`);
   return resposta.json();
-}
-
-function gerarConteudoTesteDaTranscricao(transcricao){
-  const trechos = transcricao.split(/(?<=[.!?])\s+|\n+/).map(item => item.trim()).filter(Boolean);
-  const termosProvidencia = /\b(irá|deverá|ficou definido|ficou acordado|encaminh|providência|responsável|prazo|solicitar|atualizar|apresentar)\b/i;
-  const providencias = trechos.filter(item => termosProvidencia.test(item));
-  return {
-    descricao: transcricao,
-    providencias: providencias.length ? providencias.join('\n') : 'Não foram identificadas providências no modo de teste.'
-  };
 }
 
 function iniciarRevisaoManualMinuta(){
@@ -98,17 +89,8 @@ async function gerarDescricaoReuniaoComIA(){
     mostrarPassoMinuta(2);
     toast('Conteúdo organizado para revisão.', 'valido');
   }catch(e){
-    const resultadoTeste = gerarConteudoTesteDaTranscricao(transcricao);
-    definirTextoEditorMinuta('minuta-reuniao-descricao', resultadoTeste.descricao);
-    definirTextoEditorMinuta('minuta-reuniao-providencias', resultadoTeste.providencias);
-    const avisoRevisao = document.getElementById('minuta-revisao-aviso');
-    avisoRevisao.textContent = 'Modo de teste: conteúdo provisório gerado sem IA. Revise antes de continuar.';
-    avisoRevisao.classList.add('modo-teste');
-    if(status) status.textContent = 'Modo de teste: conteúdo provisório gerado sem IA.';
-    passoMinutaLiberado = Math.max(passoMinutaLiberado, 2);
-    atualizarNavegacaoMinuta();
-    mostrarPassoMinuta(2);
-    toast('Modo de teste ativo: revise a ata provisória.', 'alerta');
+    if(status) status.textContent = e.message || 'Não foi possível editar com IA. Use Prosseguir para revisar manualmente.';
+    toast('A edição com IA não foi realizada. O texto original foi preservado; use Prosseguir.', 'alerta');
   }finally{
     botao.disabled = false;
     botao.textContent = 'Editar com IA';

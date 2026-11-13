@@ -30,6 +30,7 @@ function elemento(id = '') {
 
 const armazenados = new Map();
 const contexto = {
+  addEventListener() {},
   console,
   Date,
   Math,
@@ -64,6 +65,8 @@ contexto.window = contexto;
 contexto.globalThis = contexto;
 
 const arquivosDaAplicacao = [
+  'js/shared/setores.js',
+  'js/shared/controles.js',
   'js/shared/estado.js',
   'js/shared/validacao.js',
   'js/shared/datas-formatacao.js',
@@ -72,6 +75,8 @@ const arquivosDaAplicacao = [
   'js/shared/historico.js',
   'js/tabs.js',
   'js/documentos/unidades.js',
+  'js/documentos/referenciais.js',
+  'js/documentos/temas.js',
   'js/documentos/cadastro.js',
   'js/documentos/listagem.js',
   'js/documentos/renovacao.js',
@@ -159,7 +164,7 @@ assert.equal(regras.obterSituacaoReuniao({ situacao: 'Reagendada', data: '2000-0
 assert.equal(regras.obterSituacaoReuniao({ situacao: 'Cancelada', data: '2000-01-01', horario: '10:00' }), 'Cancelada');
 assert.equal(regras.normalizarLinkReuniao('ftp://servidor/reuniao'), '');
 assert.equal(regras.normalizarMembros([], 'CGTIC').length, 3);
-assert.equal(regras.normalizarMembros([], 'CGTIC')[0].nome, 'Edcley da Silva Firmino');
+assert.equal(regras.normalizarMembros([], 'CGTIC')[0].nome, 'Cleilton de Nazare Costa');
 assert.equal(regras.normalizarMembros([{ cargo: 'STI', nome: 'Ana' }], 'CGTIC')[0].nome, 'Ana');
 assert.equal(regras.normalizarMembros([], 'CGTIC')[0].cargo, 'Secretaria de Tecnologia da Informação');
 assert.equal(regras.normalizarMembros([], 'CGOVTIC').length, 5);

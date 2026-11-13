@@ -1,6 +1,6 @@
-/* ===== APRESENTAÇÃO INICIAL DO NORMA ===== */
-const APRESENTACAO_NORMA_KEY='norma:apresentacao-concluida';
-const APRESENTACAO_NORMA_ETAPAS=[
+/* ===== APRESENTAÇÃO INICIAL DO NORMATIC ===== */
+const APRESENTACAO_NORMATIC_KEY='normatic:apresentacao-concluida';
+const APRESENTACAO_NORMATIC_ETAPAS=[
   {
     numero:'01',
     kicker:'Documentos',
@@ -9,89 +9,90 @@ const APRESENTACAO_NORMA_ETAPAS=[
   },
   {
     numero:'02',
-    kicker:'Reuniões',
-    titulo:'Organize a governança',
-    texto:'Registre reuniões por unidade, participantes, pautas, formatos e situações em um fluxo centralizado e fácil de consultar.'
+    kicker:'Vigências',
+    titulo:'Acompanhe os prazos',
+    texto:'Consulte normativos por unidade, renove vigências e acompanhe o histórico dos registros.'
   },
   {
     numero:'03',
-    kicker:'Atas',
-    titulo:'Transforme reuniões em resultados',
-    texto:'Crie, revise e exporte atas a partir de transcrições, anotações ou resumos, com acompanhamento por unidade.'
+    kicker:'FAROL',
+    titulo:'Acesse a gestão de atividades',
+    texto:'Use o botão FAROL no menu para gerenciar projetos, tarefas, reuniões, pautas, atas e agenda.'
   }
 ];
 
-let apresentacaoNormaEtapa=0;
-let apresentacaoNormaAberturaManual=false;
+let apresentacaoNormaticEtapa=0;
+let apresentacaoNormaticAberturaManual=false;
 
-function renderizarApresentacaoNorma(){
-  const etapa=APRESENTACAO_NORMA_ETAPAS[apresentacaoNormaEtapa];
+function renderizarApresentacaoNormatic(){
+  const etapa=APRESENTACAO_NORMATIC_ETAPAS[apresentacaoNormaticEtapa];
   if(!etapa) return;
-  document.getElementById('apresentacao-norma-icone').textContent=etapa.numero;
-  document.getElementById('apresentacao-norma-kicker').textContent=etapa.kicker;
-  document.getElementById('apresentacao-norma-titulo').textContent=etapa.titulo;
-  document.getElementById('apresentacao-norma-texto').textContent=etapa.texto;
-  document.querySelectorAll('.apresentacao-etapas span').forEach((item,indice)=>item.classList.toggle('ativo',indice===apresentacaoNormaEtapa));
-  document.getElementById('apresentacao-voltar').disabled=apresentacaoNormaEtapa===0;
-  document.getElementById('apresentacao-avancar').textContent=apresentacaoNormaEtapa===APRESENTACAO_NORMA_ETAPAS.length-1?'Começar':'Próximo';
+  document.getElementById('apresentacao-normatic-icone').textContent=etapa.numero;
+  document.getElementById('apresentacao-normatic-kicker').textContent=etapa.kicker;
+  document.getElementById('apresentacao-normatic-titulo').textContent=etapa.titulo;
+  document.getElementById('apresentacao-normatic-texto').textContent=etapa.texto;
+  document.querySelectorAll('.apresentacao-etapas span').forEach((item,indice)=>item.classList.toggle('ativo',indice===apresentacaoNormaticEtapa));
+  document.getElementById('apresentacao-voltar').disabled=apresentacaoNormaticEtapa===0;
+  document.getElementById('apresentacao-avancar').textContent=apresentacaoNormaticEtapa===APRESENTACAO_NORMATIC_ETAPAS.length-1?'Começar':'Próximo';
 }
 
-function abrirApresentacaoNorma(manual=false){
-  const overlay=document.getElementById('apresentacao-norma-overlay');
+function abrirApresentacaoNormatic(manual=false){
+  const overlay=document.getElementById('apresentacao-normatic-overlay');
   if(!overlay) return;
-  apresentacaoNormaEtapa=0;
-  apresentacaoNormaAberturaManual=manual;
+  apresentacaoNormaticEtapa=0;
+  apresentacaoNormaticAberturaManual=manual;
   document.getElementById('apresentacao-nao-mostrar').checked=!manual;
-  renderizarApresentacaoNorma();
+  renderizarApresentacaoNormatic();
   overlay.classList.add('open');
   overlay.setAttribute('aria-hidden','false');
   document.body.style.overflow='hidden';
-  requestAnimationFrame(()=>overlay.querySelector('.apresentacao-norma')?.focus());
+  requestAnimationFrame(()=>overlay.querySelector('.apresentacao-normatic')?.focus());
 }
 
-function concluirApresentacaoNorma(){
-  const overlay=document.getElementById('apresentacao-norma-overlay');
+function concluirApresentacaoNormatic(){
+  const overlay=document.getElementById('apresentacao-normatic-overlay');
   if(!overlay) return;
   const naoMostrar=document.getElementById('apresentacao-nao-mostrar')?.checked;
   try{
-    if(naoMostrar) localStorage.setItem(APRESENTACAO_NORMA_KEY,'sim');
-    else if(!apresentacaoNormaAberturaManual) localStorage.removeItem(APRESENTACAO_NORMA_KEY);
+    if(naoMostrar) localStorage.setItem(APRESENTACAO_NORMATIC_KEY,'sim');
+    else if(!apresentacaoNormaticAberturaManual) localStorage.removeItem(APRESENTACAO_NORMATIC_KEY);
   }catch(e){}
   overlay.classList.remove('open');
   overlay.setAttribute('aria-hidden','true');
   document.body.style.overflow='';
 }
 
-function avancarApresentacaoNorma(){
-  if(apresentacaoNormaEtapa<APRESENTACAO_NORMA_ETAPAS.length-1){
-    apresentacaoNormaEtapa++;
-    renderizarApresentacaoNorma();
+function avancarApresentacaoNormatic(){
+  if(apresentacaoNormaticEtapa<APRESENTACAO_NORMATIC_ETAPAS.length-1){
+    apresentacaoNormaticEtapa++;
+    renderizarApresentacaoNormatic();
     return;
   }
-  concluirApresentacaoNorma();
+  concluirApresentacaoNormatic();
 }
 
-function voltarApresentacaoNorma(){
-  if(apresentacaoNormaEtapa>0){
-    apresentacaoNormaEtapa--;
-    renderizarApresentacaoNorma();
+function voltarApresentacaoNormatic(){
+  if(apresentacaoNormaticEtapa>0){
+    apresentacaoNormaticEtapa--;
+    renderizarApresentacaoNormatic();
   }
 }
 
-function pularApresentacaoNorma(){
-  concluirApresentacaoNorma();
+function pularApresentacaoNormatic(){
+  concluirApresentacaoNormatic();
 }
 
 document.addEventListener('keydown',evento=>{
-  const aberto=document.getElementById('apresentacao-norma-overlay')?.classList.contains('open');
+  const aberto=document.getElementById('apresentacao-normatic-overlay')?.classList.contains('open');
   if(!aberto) return;
-  if(evento.key==='Escape') pularApresentacaoNorma();
-  if(evento.key==='ArrowRight') avancarApresentacaoNorma();
-  if(evento.key==='ArrowLeft') voltarApresentacaoNorma();
+  if(evento.key==='Escape') pularApresentacaoNormatic();
+  if(evento.key==='ArrowRight') avancarApresentacaoNormatic();
+  if(evento.key==='ArrowLeft') voltarApresentacaoNormatic();
 });
 
 document.addEventListener('DOMContentLoaded',()=>{
+  if(document.body.classList.contains('documento-incorporado')) return;
   let concluida=false;
-  try{ concluida=localStorage.getItem(APRESENTACAO_NORMA_KEY)==='sim'; }catch(e){}
-  if(!concluida) setTimeout(()=>abrirApresentacaoNorma(false),350);
+  try{ concluida=localStorage.getItem(APRESENTACAO_NORMATIC_KEY)==='sim'; }catch(e){}
+  if(!concluida) setTimeout(()=>abrirApresentacaoNormatic(false),350);
 });

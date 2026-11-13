@@ -36,7 +36,7 @@
 
 .dashboard-indicadores {
   display: grid;
-  grid-template-columns: repeat(12,minmax(0,1fr));
+  grid-template-columns: repeat(3,minmax(0,1fr));
   gap: 16px;
   margin-bottom: 18px;
 }
@@ -47,7 +47,7 @@
 .dashboard-indicador.reunioes,
 .dashboard-indicador.minutas,
 .dashboard-indicador.pendencias {
-  grid-column: span 2;
+  grid-column: auto;
 }
 
 .dashboard-indicador {
@@ -645,7 +645,8 @@
 }
 
 .dashboard-documentos-unidades .dashboard-unidade-linha {
-  grid-template-columns: 90px minmax(80px,1fr) 112px
+  grid-template-columns: 64px minmax(0,1fr) 52px;
+  column-gap: 10px
 }
 
 .dashboard-documentos-unidades .dashboard-unidade-linha strong {
@@ -701,7 +702,8 @@
 }
 
 .dashboard-atas-unidades .dashboard-unidade-linha {
-  grid-template-columns: 90px minmax(80px,1fr) 112px
+  grid-template-columns: 64px minmax(0,1fr) 88px;
+  column-gap: 10px
 }
 
 .dashboard-atas-unidades .dashboard-unidade-linha strong {

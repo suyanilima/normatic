@@ -23,13 +23,14 @@ function editar(id){
   document.getElementById('edit-campos-normativos')?.classList.toggle('oculto', semNormativo);
   document.getElementById('edit-nome').value = doc.nome;
   document.getElementById('edit-tipo').value = doc.tipo;
-  document.getElementById('edit-baselegal').value = doc.baseLegal || '';
+  definirReferencialDocumento('edit',doc.baseLegal || '');
   document.getElementById('edit-baselegal-num').value = doc.baseLegalNumero || '';
   document.getElementById('edit-sei').value = formatarNumeroSei(doc.sei);
   document.getElementById('edit-data-vigencia').value = doc.dataVigencia || doc.dataCriacao || '';
   document.getElementById('edit-validade').value = obterAnosValidade(doc.validade) || 1;
   document.getElementById('edit-prazo-regularizacao').value = doc.prazoRegularizacao || (semNormativo ? doc.data || '' : '');
   document.getElementById('edit-desc').value = doc.descricao || '';
+  definirTemaDocumento('edit',doc.areaTematica || '',doc.tema || '');
   document.getElementById('edit-gestor-nome').value = doc.gestorNome || '';
   document.getElementById('edit-gestor-setor').value = doc.gestorSetor || doc.unidade || '';
   document.getElementById('edit-gestor-email').value = doc.gestorEmail || '';
@@ -117,13 +118,18 @@ async function confirmarEdicao(){
     return;
   }
 
+  if(!semNormativo && !validarOutroReferencial('edit')) return;
+  const classificacao = lerTemaDocumento('edit');
+  if(!classificacao) return;
+
   const estadoAnterior = {...doc, historico: Array.isArray(doc.historico) ? [...doc.historico] : []};
   const vencimentoAnterior = doc.data;
   const novoVencimento = semNormativo ? prazoRegularizacao : calcularVencimento(dataVigencia, validade);
 
+  Object.assign(doc,classificacao);
   doc.nome = nome;
   doc.tipo = semNormativo ? 'Sem normativo' : document.getElementById('edit-tipo').value;
-  doc.baseLegal = semNormativo ? 'Sem normativo' : document.getElementById('edit-baselegal').value;
+  doc.baseLegal = semNormativo ? 'Sem normativo' : obterReferencialDocumento('edit');
   doc.baseLegalNumero = semNormativo ? '' : limitarTexto(document.getElementById('edit-baselegal-num').value.trim(), LIMITES_CAMPOS.baseLegalNumero);
   doc.sei = sei;
   doc.dataVigencia = dataVigencia;

@@ -2,15 +2,17 @@
 
 /* ===== LISTAGEM, FILTROS E PAGINAÇÃO DE REUNIÕES ===== */
 
-let visualizacaoReunioes='calendario';
+let visualizacaoReunioes='lista';
 let calendarioReunioesMes=new Date(new Date().getFullYear(),new Date().getMonth(),1);
 let calendarioReunioesDia=todayStr();
 
 function alterarVisualizacaoReunioes(modo){
+  if(!document.getElementById('reunioes-visualizacao-calendario')) modo='lista';
   visualizacaoReunioes=modo==='calendario'?'calendario':'lista';
   document.querySelector('.reunioes-blocos')?.classList.toggle('modo-calendario',visualizacaoReunioes==='calendario');
   document.getElementById('reunioes-visualizacao-lista').hidden=visualizacaoReunioes!=='lista';
-  document.getElementById('reunioes-visualizacao-calendario').hidden=visualizacaoReunioes!=='calendario';
+  const calendario=document.getElementById('reunioes-visualizacao-calendario');
+  if(calendario) calendario.hidden=visualizacaoReunioes!=='calendario';
   document.getElementById('reunioes-modo-lista')?.classList.toggle('active',visualizacaoReunioes==='lista');
   document.getElementById('reunioes-modo-calendario')?.classList.toggle('active',visualizacaoReunioes==='calendario');
   if(visualizacaoReunioes==='calendario')renderCalendarioReunioes();
@@ -36,7 +38,9 @@ function renderCalendarioReunioes(){
   const primeiro=new Date(calendarioReunioesMes.getFullYear(),calendarioReunioesMes.getMonth(),1);
   const inicio=new Date(primeiro);inicio.setDate(1-primeiro.getDay());
   const hoje=todayStr(),dias=[];
-  for(let indice=0;indice<42;indice++){
+  const diasDoMes=new Date(primeiro.getFullYear(),primeiro.getMonth()+1,0).getDate();
+  const quantidadeDias=Math.ceil((primeiro.getDay()+diasDoMes)/7)*7;
+  for(let indice=0;indice<quantidadeDias;indice++){
     const data=new Date(inicio);data.setDate(inicio.getDate()+indice);
     const chave=chaveDataCalendario(data),eventos=porData[chave]||[];
     const classes=['calendario-dia'];

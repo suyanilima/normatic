@@ -2,6 +2,7 @@
 /* ===== ABA: CONTROLE (tabela, filtros, menu de ações e exportação) ===== */
 
 function render(){
+  if(typeof fecharMenusAcoes === 'function') fecharMenusAcoes();
   const withStatus = docs.map(d => ({...d, status: calcularStatus(d)}));
   if(typeof renderDashboard === 'function') renderDashboard();
   if(typeof renderSetoresDocumentos === 'function') renderSetoresDocumentos();
@@ -238,45 +239,6 @@ function popularFiltroAno(){
   sel.innerHTML = '<option value="">Todos</option>' + anosOrdenados.map(a=>`<option value="${a}">${a}</option>`).join('');
   if(anosOrdenados.includes(atual)) sel.value = atual;
 }
-
-function toggleAcoes(ev, id){
-  ev.stopPropagation();
-  const alvo = document.getElementById('acoes-'+id);
-
-  document.querySelectorAll('.actions-dropdown.open').forEach(el=>{
-    if(el !== alvo){
-      el.classList.remove('open');
-      el.classList.remove('above');
-    }
-  });
-
-  document.querySelectorAll('.actions-toggle.open').forEach(el=>{
-    if(el !== ev.currentTarget) el.classList.remove('open');
-  });
-
-  const vaiAbrir = !alvo.classList.contains('open');
-
-  alvo.classList.remove('above');
-  alvo.classList.toggle('open', vaiAbrir);
-  ev.currentTarget.classList.toggle('open', vaiAbrir);
-
-  if(vaiAbrir){
-    const menuAltura = alvo.offsetHeight || 280;
-    const botaoRect = ev.currentTarget.getBoundingClientRect();
-    const espacoAbaixo = window.innerHeight - botaoRect.bottom;
-
-    if(espacoAbaixo < menuAltura + 20){
-      alvo.classList.add('above');
-    }
-  }
-}
-document.addEventListener('click', ()=>{
-  document.querySelectorAll('.actions-dropdown.open').forEach(el=>{
-    el.classList.remove('open');
-    el.classList.remove('above');
-  });
-  document.querySelectorAll('.actions-toggle.open').forEach(el=>el.classList.remove('open'));
-});
 
 function exportarRelatorio(){
   if(docs.length === 0){
