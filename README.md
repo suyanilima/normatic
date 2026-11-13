@@ -6,6 +6,8 @@ Normativos e atividades agora compartilham uma página principal e um único men
 
 O acesso da equipe usa senha e aplicativo autenticador. Para exigir a segunda etapa também no banco, siga [a ativação do MFA](docs/MFA.md) e aplique a segunda migração SQL.
 
+Os lembretes por e-mail de tarefas e reuniões estão preparados, mas desligados até configurar o provedor, as variáveis de servidor e a terceira migração. Veja [o guia de e-mails](docs/EMAIL.md).
+
 Com Node.js instalado, abra o terminal na pasta do projeto:
 
 ```sh

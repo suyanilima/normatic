@@ -3,6 +3,8 @@
   "framework": null,
   "buildCommand": "npm run build:site",
   "outputDirectory": "dist/site",
+  "functions": { "api/email-reminders.mjs": { "maxDuration": 60 } },
+  "crons": [{ "path": "/api/email-reminders", "schedule": "0 12 * * *" }],
   "headers": [
     {
       "source": "/(.*)",
