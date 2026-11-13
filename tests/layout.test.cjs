@@ -40,7 +40,13 @@ function styleAtWidths(w, verify) {
       assert.ok(!/span 2/.test(card.gridColumn));
       assert.equal(parseFloat(style(d.querySelector('.dashboard-documentos-atencao-card')).minHeight),width<740?0:300);
       assert.equal(style(d.querySelector('.dashboard-grid')).gridTemplateColumns.replace(/\s/g,''),width<740?'minmax(0,1fr)':'repeat(2,minmax(0,1fr))');
+      const columns=style(d.getElementById('documento-form-blocks')).gridTemplateColumns.replace(/\s/g,'');
+      assert.equal(columns,width<640?'minmax(0,1fr)':width<1000?'repeat(2,minmax(0,1fr))':'repeat(3,minmax(0,1fr))','Cartões do cadastro em '+width);
     });
+    w.setTab('cadastro');
+    assert.equal(d.getElementById('modo-documento').getAttribute('aria-pressed'),'true');
+    assert.equal(d.querySelectorAll('#documento-form-blocks .cadastro-etapa').length,3);
+    assert.equal(d.querySelectorAll('.cadastro-rodape-acoes button').length,2);
     current.dom.window.close();
     current = await open('index.html#minutas',{'igov:reunioes':meetings,'igov:minutas':minutes});
     ({w,d}=current);

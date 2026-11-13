@@ -29,6 +29,8 @@ function selecionarModoCadastro(modo){
 
   document.getElementById('modo-documento')?.classList.toggle('active', normativo);
   document.getElementById('modo-sem-normativo')?.classList.toggle('active', semNormativo);
+  document.getElementById('modo-documento')?.setAttribute('aria-pressed', String(normativo));
+  document.getElementById('modo-sem-normativo')?.setAttribute('aria-pressed', String(semNormativo));
   document.getElementById('modo-reuniao')?.classList.toggle('active', reuniao);
   document.getElementById('cadastro-documento-form')?.classList.toggle('oculto', !documentoAtivo);
   document.getElementById('cadastro-reuniao-form')?.classList.toggle('oculto', !reuniao);
@@ -268,7 +270,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       descricao.value = primeiraLetraMaiuscula(descricao.value);
     });
   }
-  selecionarModoCadastro(null);
+  selecionarModoCadastro('documento');
   const dataVigencia = document.getElementById('f-data-vigencia');
   const validade = document.getElementById('f-validade');
   if(dataVigencia) dataVigencia.addEventListener('input', atualizarPreviewVencimento);

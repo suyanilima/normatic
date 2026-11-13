@@ -80,6 +80,8 @@ function filtrarCompromissos(value) {
 render = function() {
   fecharMenusAcoes();
   document.body.classList.toggle('painel-ativo', page === 'dashboard');
+  document.body.classList.toggle('cadastro-ativo', page === 'novo-normativo');
+  document.getElementById('subtitle').hidden = page !== 'novo-normativo';
   const reuniao = ['reunioes','minutas','cadastro-reuniao'].includes(page);
   const documental = ['normativos','novo-normativo'].includes(page);
   const gestao = ['reunioes','compromissos','cadastro-reuniao'].includes(page);
@@ -89,7 +91,14 @@ render = function() {
   content.hidden = reuniao || documental;
   subnav.hidden = !gestao;
   subnav.innerHTML = [['reunioes','Reuniões'],['compromissos','Compromissos'],['cadastro-reuniao','Unidades e nova reunião']].map(([id,label])=>`<button type="button" class="secondary ${page===id?'active':''}" ${page===id?'aria-current="page"':''} onclick="go(${argumentoJsHtml(id)})">${label}</button>`).join('');
-  if(documental) { cabecalho('Normativos'); abrirDocumentos(page === 'novo-normativo' ? 'cadastro' : 'acompanhamento'); }
+  if(documental) {
+    cabecalho(page === 'novo-normativo' ? 'Novo normativo' : 'Normativos');
+    if(page === 'novo-normativo') {
+      document.getElementById('crumb').textContent = 'Normativos › Novo';
+      document.getElementById('subtitle').textContent = 'Escolha a categoria e preencha as informações para concluir o cadastro.';
+    }
+    abrirDocumentos(page === 'novo-normativo' ? 'cadastro' : 'acompanhamento');
+  }
   else if(reuniao) {
     cabecalho(page === 'minutas' ? 'Atas' : 'Reuniões e compromissos');
     document.querySelectorAll('#farol-reunioes > .view').forEach(view => {

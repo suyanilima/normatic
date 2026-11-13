@@ -13,6 +13,9 @@
 
 /* Hierarquia do painel: normativos, dois cartões e atividades. */
 .painel-kicker { display: none; }
+.cadastro-ativo #subtitle { display: block; margin-top: 6px; color: var(--ink-soft); }
+.cadastro-ativo .documental-area { margin-bottom: 0; }
+.cadastro-ativo .top { align-items: center; margin-bottom: 24px; }
 .painel-ativo .breadcrumb { display: none; }
 .painel-ativo .page-inner { padding-top: 0; }
 .painel-ativo .top {

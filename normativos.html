@@ -19,6 +19,7 @@
 <link href="css/plataforma.css" rel="stylesheet"/>
 <link href="css/unificada.css" rel="stylesheet"/>
 <link href="css/cloud.css" rel="stylesheet"/>
+<link href="css/cadastro-layout.css" rel="stylesheet"/>
 </head>
 <body class="modulo-normatic documento-incorporado">
 
@@ -218,16 +219,15 @@
   <!-- VIEW: CADASTRO (aba separada) -->
   <div class="view" id="view-cadastro">
     <div class="form-view-wrap">
-      <div class="panel">
-        <h2>Categoria</h2>
-        <div class="desc">Selecione uma categoria e preencha as informações para realizar o cadastro.</div>
+      <div class="panel cadastro-layout">
+        <h2 class="sr-only">Categoria do documento</h2>
 
         <div class="cadastro-modo">
           <button type="button" id="modo-documento" class="cadastro-modo-btn active" onclick="selecionarModoCadastro('documento')">
-            <span class="cadastro-modo-numero">01</span><span><strong>Documento</strong><small>Cadastre documentos com prazo, SEI e acompanhamento de vigência.</small></span>
+            <span><strong>Documento</strong><small>Com prazo, nº SEI e acompanhamento de vigência.</small></span>
           </button>
           <button type="button" id="modo-sem-normativo" class="cadastro-modo-btn" onclick="selecionarModoCadastro('semNormativo')">
-            <span class="cadastro-modo-numero">02</span><span><strong>Documento sem normativo</strong><small>Registre documentos que não possuem vigência ou fundamentação normativa.</small></span>
+            <span><strong>Documento sem normativo</strong><small>Sem vigência ou fundamentação normativa.</small></span>
           </button>
           
         </div>
@@ -235,7 +235,7 @@
         <div id="cadastro-documento-form" class="oculto">
         <div class="form-blocks-row" id="documento-form-blocks">
           <div class="form-block">
-            <div class="form-block-title">Documento</div>
+            <div class="cadastro-etapa"><small>ETAPA 1</small><h3>Documento</h3></div>
 
             <label>Nome do documento <span class="required-mark">*</span></label>
             <input id="f-nome" type="text" maxlength="70" placeholder="Ex: Plano Diretor 2026" required>
@@ -329,7 +329,7 @@
           </div>
 
           <div class="form-block">
-            <div class="form-block-title">Tema e descrição</div>
+            <div class="cadastro-etapa"><small>ETAPA 2</small><h3>Tema e descrição</h3></div>
             <label for="f-area-tematica">Área temática</label>
             <select id="f-area-tematica"><option value="">Selecione uma área</option></select>
             <label for="f-tema">Tema do documento</label>
@@ -343,7 +343,7 @@
           </div>
 
           <div class="form-block">
-            <div class="form-block-title">Gestor responsável</div>
+            <div class="cadastro-etapa"><small>ETAPA 3</small><h3>Gestor responsável</h3></div>
 
             <div class="gestor-fields">
               <div>
@@ -369,7 +369,13 @@
           </div>
         </div>
 
-          <button class="primary" onclick="cadastrar()">Salvar documento</button>
+          <footer class="cadastro-rodape">
+            <span>Campos com <span class="required-mark">*</span> são obrigatórios.</span>
+            <div class="cadastro-rodape-acoes">
+              <button type="button" class="cadastro-cancelar" onclick="setTab('acompanhamento')">Cancelar</button>
+              <button type="button" class="primary" onclick="cadastrar()">Salvar documento</button>
+            </div>
+          </footer>
         </div>
 
         
