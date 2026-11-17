@@ -15,11 +15,15 @@
     }
     document.documentElement.classList.add('cloud-locked');
     const panel=document.createElement('section'); panel.className='cloud-login';
-    panel.innerHTML=`<form class="cloud-login-card"><h1>Normatic</h1><h2>Acesso da equipe</h2><p>Entre com a conta autorizada para consultar os registros compartilhados.</p><label for="cloud-email">E-mail</label><input id="cloud-email" name="email" type="email" autocomplete="username" required><label for="cloud-password">Senha</label><input id="cloud-password" name="password" type="password" autocomplete="current-password" required><p class="cloud-access-message" role="status" aria-live="polite"></p><button type="submit">Entrar</button></form>`;
+    panel.innerHTML=`<form class="cloud-login-card"><img class="cloud-login-logo" src="assets/normatic-logo.png" alt="Normatic"><span class="cloud-login-line" aria-hidden="true"></span><h1>Acessar o Sistema</h1><p>Informe seus dados para continuar</p><label for="cloud-email">E-mail</label><div class="cloud-input"><span aria-hidden="true">@</span><input id="cloud-email" name="email" type="email" autocomplete="username" placeholder="Digite seu e-mail" required></div><label for="cloud-password">Senha</label><div class="cloud-input"><span aria-hidden="true">⌑</span><input id="cloud-password" name="password" type="password" autocomplete="current-password" placeholder="Digite sua senha" required><button class="cloud-password-toggle" type="button" aria-label="Mostrar senha" aria-pressed="false">◉</button></div><p class="cloud-access-message" role="status" aria-live="polite"></p><button class="cloud-login-submit" type="submit">Entrar <span aria-hidden="true">→</span></button></form>`;
     document.body.appendChild(panel);
+    panel.querySelector('.cloud-password-toggle').addEventListener('click',event=>{
+      const input=panel.querySelector('[name=password]'), visible=input.type==='text';
+      input.type=visible?'password':'text';event.currentTarget.setAttribute('aria-pressed',String(!visible));event.currentTarget.setAttribute('aria-label',visible?'Mostrar senha':'Ocultar senha');
+    });
     await new Promise(resolve=>{
       panel.querySelector('form').addEventListener('submit',async event=>{
-        event.preventDefault();const button=panel.querySelector('button');if(button.disabled)return;
+        event.preventDefault();const button=panel.querySelector('button[type=submit]');if(button.disabled)return;
         const status=panel.querySelector('[role=status]');button.disabled=true;status.textContent='Entrando…';
         try {
           const {error}=await client.auth.signInWithPassword({email:panel.querySelector('[name=email]').value.trim(),password:panel.querySelector('[name=password]').value});

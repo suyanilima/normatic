@@ -57,6 +57,13 @@ html = html.replace(
   },
 );
 
+// Scripts podem criar imagens em tempo de execução (como a marca da tela de login).
+// Troca também essas referências literais para a versão portátil permanecer independente.
+html = html.replace(/src="(assets\/[^"\\]+\.png)"/g, (_, relativePath) => {
+  const image = fs.readFileSync(path.join(root, relativePath)).toString('base64');
+  return `src="data:image/png;base64,${image}"`;
+});
+
 if (/\b(?:href|src)="(?:assets|css|js)\//.test(html)) {
   throw new Error('Ainda existem dependências locais no HTML gerado.');
 }
