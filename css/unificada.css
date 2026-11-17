@@ -13,6 +13,7 @@
 .modulo-normatic.documento-incorporado .wrap { width: 100%; max-width: none; margin: 0; padding: 0; }
 .documento-incorporado #view-dashboard .dashboard-cabecalho { margin-bottom: 8px; }
 .documento-incorporado #view-dashboard .dashboard-cabecalho h2, .documento-incorporado #view-dashboard .dashboard-cabecalho p { display: none; }
+.documento-incorporado #view-dashboard #dashboard-atualizacao { display: none; }
 
 /* Hierarquia do painel: normativos, dois cartões e atividades. */
 .painel-kicker { display: none; }

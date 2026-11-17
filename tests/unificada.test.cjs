@@ -13,7 +13,7 @@ function set(w,selector,value){const field=w.document.querySelector(selector);as
     current=await open('index.html#agenda',{'igov:documentos':documentSeed,'igov:reunioes':[meeting],'farol:dados:v1':activities});
     const {w,d}=current;
     const original=w.localStorage.getItem('farol:dados:v1');
-    assert.equal(d.querySelectorAll('#nav > button').length,9);
+    assert.equal(d.querySelectorAll('#nav > button').length,8);
     assert.deepEqual([...d.querySelectorAll('#nav > .nav-grupo')].map(item=>item.textContent),['PRINCIPAL','GOVERNANÇA','GESTÃO']);
     assert.ok(d.getElementById('busca-global'));
     assert.ok(d.getElementById('painel-notificacoes'));
@@ -80,7 +80,7 @@ function set(w,selector,value){const field=w.document.querySelector(selector);as
     assert.equal(frame.contentDocument.getElementById('dashboard-total-documentos').textContent,'1','Painel preserva indicadores dos documentos existentes');
     assert.ok(frame.contentDocument.querySelector('.dashboard-situacao .dashboard-indicadores'),'Indicadores preservados dentro do cartão de situação');
     assert.equal(w.localStorage.getItem('igov:documentos'),JSON.stringify(documentSeed),'Integração não regrava os dados originais');
-    assert.equal(d.querySelectorAll('#nav > button').length,9);
+    assert.equal(d.querySelectorAll('#nav > button').length,8);
     assert.deepEqual(current.errors.map(e=>e.message),[]);
     let redirected;
     vm.runInNewContext(fs.readFileSync('js/plataforma/redirecionar.js','utf8'),{location:{hash:'#cadastro',replace:url=>{redirected=url;}}});

@@ -1,6 +1,6 @@
 /* Navegação única. Os motores existentes mantêm seus próprios dados e regras. */
-MENU.splice(0,MENU.length,['dashboard','Dashboard'],['acompanhamento','Painel de acompanhamento'],['normativos','Normativos'],['projetos','Projetos'],['tarefas','Tarefas'],['agenda','Agenda'],['reunioes','Reuniões e compromissos'],['minutas','Atas'],['responsaveis','Responsáveis e acessos']);
-const NAV_SECTIONS=[['PRINCIPAL',['dashboard','acompanhamento','normativos','projetos','tarefas']],['GOVERNANÇA',['agenda','reunioes','minutas']],['GESTÃO',['responsaveis']]];
+MENU.splice(0,MENU.length,['dashboard','Dashboard'],['normativos','Normativos'],['projetos','Projetos'],['tarefas','Tarefas'],['agenda','Agenda'],['reunioes','Reuniões e compromissos'],['minutas','Atas'],['responsaveis','Responsáveis e acessos']);
+const NAV_SECTIONS=[['PRINCIPAL',['dashboard','normativos','projetos','tarefas']],['GOVERNANÇA',['agenda','reunioes','minutas']],['GESTÃO',['responsaveis']]];
 const renderAtividades = render;
 const novoRegistroAtividade = newRecord;
 const eventosAtividades = calendarEvents;
