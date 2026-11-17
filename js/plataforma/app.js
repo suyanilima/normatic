@@ -77,6 +77,8 @@ function cabecalho(titulo) {
   document.getElementById('crumb').textContent = titulo;
   document.getElementById('subtitle').textContent = '';
   document.getElementById('topbar-pagina').textContent = titulo;
+  const atualizado=document.getElementById('topbar-atualizacao');
+  if(atualizado) atualizado.textContent=page==='dashboard'||page==='acompanhamento'?`Atualizado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}`:'';
 }
 function listaCompromissos() {
   const query = filtroCompromissos.toLocaleLowerCase('pt-BR');

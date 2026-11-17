@@ -21,10 +21,7 @@
 .cadastro-ativo .top { align-items: center; margin-bottom: 24px; }
 .painel-ativo .breadcrumb { display: none; }
 .painel-ativo .page-inner { padding-top: 0; }
-.painel-ativo .top {
-  margin: 0 0 24px; padding: 22px 24px; border: 1px solid var(--border);
-  border-radius: 12px; background: #fff; box-shadow: var(--shadow);
-}
+.painel-ativo .top { display: none; }
 .painel-ativo .painel-kicker { display: block; margin-bottom: 4px; font-size: 14px; color: var(--ink-soft); }
 .painel-ativo .top h2 { margin: 0; font-size: 25px; line-height: 1.3; }
 .painel-ativo .top > .actions { display: none; }
