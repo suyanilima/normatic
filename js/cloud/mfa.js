@@ -22,7 +22,7 @@
     }
     const panel = document.createElement('section');
     panel.className = 'cloud-login cloud-mfa';
-    panel.innerHTML = '<form class="cloud-login-card"><h1>Normatic</h1><h2>Verificação em duas etapas</h2><p data-mfa-help></p><div data-mfa-setup></div><label for="cloud-factor">Aplicativo cadastrado</label><select id="cloud-factor"></select><label for="cloud-code">Código de 6 dígitos</label><input id="cloud-code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required><p class="cloud-access-message" role="status" aria-live="polite"></p><button type="submit">Verificar e entrar</button><button type="button" class="cloud-mfa-exit">Voltar ao login</button></form>';
+    panel.innerHTML = '<form class="cloud-login-card"><img class="cloud-login-logo" src="assets/normatic-logo.png" alt="Normatic"><span class="cloud-login-line" aria-hidden="true"></span><h1>Verificação em duas etapas</h1><p data-mfa-help></p><div data-mfa-setup></div><label for="cloud-factor">Aplicativo cadastrado</label><select id="cloud-factor"></select><label for="cloud-code">Código de 6 dígitos</label><input id="cloud-code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required><p class="cloud-access-message" role="status" aria-live="polite"></p><button class="cloud-login-submit" type="submit">Verificar e entrar</button><button type="button" class="cloud-mfa-exit">Voltar ao login</button></form>';
     const select = panel.querySelector('select');
     panel.querySelector('[data-mfa-help]').textContent = enrollment
       ? 'No seu aplicativo autenticador, adicione uma conta pelo QR code ou pela chave abaixo. Depois, informe o código gerado para confirmar.'

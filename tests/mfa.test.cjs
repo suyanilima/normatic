@@ -36,7 +36,7 @@ async function flow({existing = false, cancel = false} = {}) {
     } else {
       assert.equal(enrolled, existing ? 0 : 1);
       assert.deepEqual(removed, existing ? [] : ['abandoned']);
-      assert.equal(d.querySelectorAll('img').length, existing ? 0 : 1);
+      assert.equal(d.querySelectorAll('[data-mfa-setup] img').length, existing ? 0 : 1);
       if (existing) assert.equal(d.querySelector('option').textContent, '<img onerror=x>');
       const input = d.querySelector('input');
       input.value = '000000'; d.querySelector('form').requestSubmit(); await tick();
