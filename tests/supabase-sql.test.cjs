@@ -1,7 +1,7 @@
 const assert=require('node:assert/strict');
 const {setup,IDS,empty}=require('./helpers/supabase-db.cjs');
 (async()=>{
-  const {db,asUser,snapshot,commit}=await setup();
+  const {db,asUser,snapshot,commit,commitCollection}=await setup();
   try {
     await asUser(IDS.outsider,'anon');
     await assert.rejects(snapshot,e=>e.code==='42501');
@@ -21,23 +21,27 @@ const {setup,IDS,empty}=require('./helpers/supabase-db.cjs');
     const partial={...data};delete partial.atas;
     await assert.rejects(()=>commit(0,partial),/Coleção ausente/);
     let state=await commit(0,data);assert.equal(state.revision,1);
+    const incremental=await commitCollection(1,'documentos',[{...data.documentos[0],nome:'Atualização incremental'}]);
+    assert.equal(incremental.revision,2);assert.equal(incremental.collection[0].nome,'Atualização incremental');
+    data.documentos=incremental.collection;
+    state.collections.documentos=incremental.collection;
     const unsafe=structuredClone(data);unsafe.documentos[0].id="id'indevido";
-    await assert.rejects(()=>commit(1,unsafe),e=>e.code==='23514');
+    await assert.rejects(()=>commit(2,unsafe),e=>e.code==='23514');
     assert.deepEqual(state.collections,data,'Todos os campos e a ordem devem sobreviver à gravação');
     assert.equal((await db.query('select updated_by from public.normatic_documentos')).rows[0].updated_by,IDS.admin);
     await assert.rejects(()=>db.query("update public.normatic_documentos set payload='{}'"),e=>e.code==='42501');
     const duplicate=structuredClone(data);duplicate.unidades.push(duplicate.unidades[0]);
-    await assert.rejects(()=>commit(1,duplicate),/duplicadas/);
+    await assert.rejects(()=>commit(2,duplicate),/duplicadas/);
     const invalid=structuredClone(data);invalid.projetos=[];
-    await assert.rejects(()=>commit(1,invalid),e=>e.code==='23503');
-    assert.equal((await snapshot()).revision,1,'FK inválida reverte a transação inteira');
+    await assert.rejects(()=>commit(2,invalid),e=>e.code==='23503');
+    assert.equal((await snapshot()).revision,2,'FK inválida reverte a transação inteira');
     const latest=structuredClone(data);latest.documentos[0].nome='Alteração de outra pessoa';
-    state=await commit(1,latest);assert.equal(state.revision,2);
-    await assert.rejects(()=>commit(1,data),e=>e.code==='40001');
+    state=await commit(2,latest);assert.equal(state.revision,3);
+    await assert.rejects(()=>commit(2,data),e=>e.code==='40001');
     assert.equal((await snapshot()).collections.documentos[0].nome,'Alteração de outra pessoa');
     await asUser(IDS.viewer);assert.equal((await snapshot()).collections.documentos.length,1);
-    await assert.rejects(()=>commit(2,empty()),e=>e.code==='42501');
-    await asUser(IDS.outsider);await assert.rejects(()=>commit(2,data),e=>e.code==='42501');
+    await assert.rejects(()=>commit(3,empty()),e=>e.code==='42501');
+    await asUser(IDS.outsider);await assert.rejects(()=>commit(3,data),e=>e.code==='42501');
     assert.equal((await db.query('select * from public.normatic_documentos')).rows.length,0);
     console.log('SQL Supabase: RLS, membros, leitura, escrita, FK, ordem, transação e conflitos verificados em PostgreSQL local.');
   } finally {await db.close();}

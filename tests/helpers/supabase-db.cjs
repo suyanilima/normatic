@@ -11,6 +11,7 @@ async function setup() {
     grant usage on schema auth to authenticated;
     insert into auth.users values('${IDS.admin}','admin@example.test'),('${IDS.viewer}','viewer@example.test'),('${IDS.outsider}','outsider@example.test');`);
   await db.exec(fs.readFileSync('supabase/migrations/202611130001_equipe.sql','utf8'));
+  await db.exec(fs.readFileSync('supabase/migrations/202611170004_gravacao_incremental.sql','utf8'));
   await db.exec(fs.readFileSync('supabase/02_primeiro_acesso.sql','utf8').replace('SEU_EMAIL_AQUI','admin@example.test'));
   await db.exec(`insert into public.normatic_members(user_id,role) values('${IDS.viewer}','viewer')`);
   async function asUser(id,role='authenticated') {
@@ -20,6 +21,7 @@ async function setup() {
   }
   const snapshot=async()=> (await db.query('select public.normatic_snapshot() as state')).rows[0].state;
   const commit=async(revision,collections)=> (await db.query('select public.normatic_commit($1,$2::jsonb) as state',[revision,JSON.stringify(collections)])).rows[0].state;
-  return {db,asUser,snapshot,commit};
+  const commitCollection=async(revision,name,collection)=> (await db.query('select public.normatic_commit_collection($1,$2,$3::jsonb) as state',[revision,name,JSON.stringify(collection)])).rows[0].state;
+  return {db,asUser,snapshot,commit,commitCollection};
 }
 module.exports={setup,IDS,names,empty};

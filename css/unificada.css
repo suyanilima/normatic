@@ -3,6 +3,9 @@
 .plataforma-unificada .gestao-navegacao button { width: auto; min-height: 40px; }
 .plataforma-unificada .documental-area { min-width: 0; margin-bottom: 24px; }
 .normativos-frame { display: block; width: 100%; min-width: 0; height: 620px; border: 0; background: transparent; }
+.documental-carregando { display: none; min-height: 220px; place-items: center; color: var(--ink-soft); background: #fff; border: 1px solid var(--border); border-radius: 12px; }
+.documental-pendente .documental-carregando { display: grid; }
+.documental-pendente .normativos-frame { display: none; }
 .plataforma-unificada .brand-logo { width: 160px; height: 48px; }
 .plataforma-unificada .agenda-filtros, .compromissos-filtro { display: grid; grid-template-columns: minmax(0,320px); gap: 6px; margin-bottom: 16px; }
 .plataforma-unificada .top > .actions { justify-content: flex-end; }

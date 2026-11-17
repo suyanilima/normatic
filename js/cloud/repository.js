@@ -9,7 +9,7 @@
   const localKeys={documentos:'igov:documentos',unidades:'igov:unidades-reuniao',reunioes:'igov:reunioes',atas:'igov:minutas'};
   const mapping={projetos:'projetos',tarefas:'tarefas',responsaveis:'responsaveis',agenda:'compromissos'};
   const copy=value=>JSON.parse(JSON.stringify(value));
-  let client=null, snapshot=null, queue=Promise.resolve(), backup=null;
+  let client=null, snapshot=null, queue=Promise.resolve(), backup=null, collectionCommitAvailable=true;
   function empty() { return Object.fromEntries(names.map(n=>[n,[]])); }
   function checkSnapshot(value) {
     if(!value || !Number.isSafeInteger(value.revision) || !value.collections || names.some(n=>!Array.isArray(value.collections[n]))) throw Error('Resposta do banco inválida. Os dados locais não foram alterados.');
@@ -38,20 +38,45 @@
       snapshot=checkSnapshot(data);
     } finally {global.dispatchEvent?.(new CustomEvent('normatic:cloud-saving',{detail:false}));}
   }
+  async function persistCollection(name,items,revision) {
+    if(!['admin','editor'].includes(snapshot?.role)) throw Error('Sua conta possui acesso somente para leitura.');
+    global.dispatchEvent?.(new CustomEvent('normatic:cloud-saving',{detail:true}));
+    try {
+      let data,error;
+      if(collectionCommitAvailable) {
+        ({data,error}=await database().rpc('normatic_commit_collection',{expected_revision:revision,collection_name:name,collection:items}));
+        // Instalações sem a migração continuam funcionando pelo método completo.
+        if(error?.code==='PGRST202' || /normatic_commit_collection/i.test(error?.message||'')) collectionCommitAvailable=false;
+      }
+      if(!collectionCommitAvailable) {
+        const next=copy(snapshot.collections); next[name]=items;
+        await persist(next,revision); return;
+      }
+      if(error) throw Error(error.code==='23503'?'Desvincule as tarefas antes de excluir o projeto.':error.message || 'Não foi possível salvar. Os dados locais não foram alterados.');
+      if(!data || !Number.isSafeInteger(data.revision) || !Array.isArray(data.collection)) throw Error('Resposta do banco inválida. Os dados locais não foram alterados.');
+      snapshot={...snapshot,revision:data.revision,collections:{...snapshot.collections,[name]:data.collection}};
+    } finally {global.dispatchEvent?.(new CustomEvent('normatic:cloud-saving',{detail:false}));}
+  }
   function readCollection(name) { ready(); if(!names.includes(name)) throw Error('Coleção inválida.'); return copy(snapshot.collections[name]); }
   function writeCollection(name,items) {
     if(!names.includes(name) || !Array.isArray(items)) return Promise.reject(Error('Coleção inválida.'));
     const payload=copy(items);
-    return serialized(async()=>{ready();const next=copy(snapshot.collections);next[name]=payload;await persist(next,snapshot.revision);return true;});
+    return serialized(async()=>{ready();await persistCollection(name,payload,snapshot.revision);return true;});
   }
   function activities(handler) {
     return serialized(async()=>{
       ready();const baseline=copy(snapshot);
       const data=Object.fromEntries(Object.entries(mapping).map(([local,remote])=>[local,copy(baseline.collections[remote])]));
       return handler(data,async updated=>{
-        const next=copy(baseline.collections);
-        Object.entries(mapping).forEach(([local,remote])=>next[remote]=updated[local]);
-        await persist(next,baseline.revision);
+        const changed=Object.entries(mapping).filter(([local,remote])=>JSON.stringify(updated[local])!==JSON.stringify(baseline.collections[remote]));
+        // Alterações relacionadas (ex.: renomear responsável e todos os seus vínculos) continuam atômicas.
+        if(changed.length>1) {
+          const next=copy(snapshot.collections);
+          changed.forEach(([local,remote])=>next[remote]=copy(updated[local]));
+          await persist(next,snapshot.revision);
+          return;
+        }
+        for(const [local,remote] of changed) await persistCollection(remote,copy(updated[local]),snapshot.revision);
       });
     });
   }

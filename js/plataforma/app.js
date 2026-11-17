@@ -16,7 +16,7 @@ subnav.className = 'gestao-navegacao'; subnav.setAttribute('aria-label','Reuniõ
 content.before(subnav);
 const areaDocumentos = document.createElement('section');
 areaDocumentos.className = 'documental-area'; areaDocumentos.hidden = true;
-areaDocumentos.innerHTML = '<h3 id="documental-titulo">Normativos</h3>';
+areaDocumentos.innerHTML = '<h3 id="documental-titulo">Normativos</h3><div class="documental-carregando" role="status">Carregando dados e gráficos...</div>';
 content.before(areaDocumentos);
 let frameDocumentos = null;
 let modalDocumental = false;
@@ -34,13 +34,23 @@ function abrirDocumentos(aba) {
     if(embutido) frameDocumentos.srcdoc = new TextDecoder().decode(Uint8Array.from(atob(embutido), c=>c.charCodeAt(0)));
     else frameDocumentos.src = 'normativos.html#' + aba;
     frameDocumentos.addEventListener('load', () => {
-      frameDocumentos.contentWindow?.setTab?.(abaDocumental,{semHistorico:true,plataforma:true});
-      frameDocumentos.contentWindow?.addEventListener('normatic:ready',()=>frameDocumentos.contentWindow?.setTab?.(abaDocumental,{semHistorico:true,plataforma:true}),{once:true});
+      const pronto=()=>{
+        frameDocumentos.contentWindow?.setTab?.(abaDocumental,{semHistorico:true,plataforma:true});
+        areaDocumentos.classList.remove('documental-pendente');
+      };
+      const inicializacao=frameDocumentos.contentWindow?.NORMATIC_READY;
+      if(inicializacao?.then) inicializacao.then(pronto).catch(erroDocumental);
+      else frameDocumentos.contentWindow?.addEventListener('normatic:ready',pronto,{once:true});
     });
+    areaDocumentos.classList.add('documental-pendente');
     areaDocumentos.appendChild(frameDocumentos);
   } else {
     frameDocumentos.contentWindow?.setTab?.(aba,{semHistorico:true,plataforma:true});
   }
+}
+function erroDocumental() {
+  const aviso=areaDocumentos.querySelector('.documental-carregando');
+  if(aviso) aviso.textContent='Não foi possível carregar os gráficos. Atualize a página e tente novamente.';
 }
 window.addEventListener('message', event => {
   if(event.source !== frameDocumentos?.contentWindow || event.origin !== location.origin || event.data?.canal !== 'normatic:documental') return;

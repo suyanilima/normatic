@@ -12,12 +12,12 @@ const resources={interceptors:[requestInterceptor(request=>{
 })]};
 function set(w,selector,value){const field=w.document.querySelector(selector);assert.ok(field,selector);field.value=value;field.dispatchEvent(new w.Event('input',{bubbles:true}));}
 (async()=>{
-  const {db,asUser,snapshot,commit}=await setup();let current,fail=false;
+  const {db,asUser,snapshot,commit,commitCollection}=await setup();let current,fail=false;
   try {
     await asUser(IDS.admin);
     const client={auth:{mfa:{getAuthenticatorAssuranceLevel:async()=>({data:{currentLevel:'aal2'}})},getSession:async()=>({data:{session:{}}}),onAuthStateChange:()=>{}},rpc:async(name,args)=>{
       if(fail)return {error:{message:'Falha de rede controlada'}};
-      try{return {data:await(name==='normatic_snapshot'?snapshot():commit(args.expected_revision,args.collections))};}catch(error){return {error};}
+      try{return {data:await(name==='normatic_snapshot'?snapshot():name==='normatic_commit_collection'?commitCollection(args.expected_revision,args.collection_name,args.collection):commit(args.expected_revision,args.collections))};}catch(error){return {error};}
     }};
     current=await open('index.html#reunioes',{'igov:documentos':[{id:'backup',nome:'Backup local intacto'}]}, {resources,beforeParse:w=>{w.__cloudClient=client;}});
     const {w,d}=current;

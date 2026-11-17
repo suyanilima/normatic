@@ -4,7 +4,7 @@ const vm=require('node:vm');
 const {randomUUID}=require('node:crypto');
 const {setup,IDS}=require('./helpers/supabase-db.cjs');
 (async()=>{
-  const {db,asUser,snapshot,commit}=await setup();
+  const {db,asUser,snapshot,commit,commitCollection}=await setup();
   try {
     await asUser(IDS.admin);
     const local=new Map([
@@ -18,7 +18,7 @@ const {setup,IDS}=require('./helpers/supabase-db.cjs');
     let failure=false;
     const rpc=async(name,args)=>{
       if(failure) return {error:{message:'Rede indisponível'}};
-      try { return {data:await (name==='normatic_snapshot'?snapshot():commit(args.expected_revision,args.collections))}; }
+      try { return {data:await (name==='normatic_snapshot'?snapshot():name==='normatic_commit_collection'?commitCollection(args.expected_revision,args.collection_name,args.collection):commit(args.expected_revision,args.collections))}; }
       catch(error){return {error};}
     };
     const context={console,JSON,Date,crypto:{randomUUID},Event,CustomEvent,
