@@ -41,6 +41,7 @@
 .modulo-farol .sidebar-foot small { color: var(--ink-soft); }
 .modulo-farol > main { margin-left: 220px; padding: 28px 24px; max-width: 1600px; width: calc(100% - 220px); }
 .modulo-farol .breadcrumb { color: var(--ink-soft); height: 36px; padding: 0; border: 0; background: transparent; }
+.modulo-farol .breadcrumb { display: none; }
 .modulo-farol .eyebrow { color: var(--gov-blue); }
 .modulo-farol .page-inner { max-width: none; padding: 24px 0; }
 .modulo-farol .top h2 { font-size: 24px; letter-spacing: normal; color: var(--ink); }

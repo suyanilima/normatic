@@ -93,6 +93,10 @@ function filtrarCompromissos(value) {
 }
 render = function() {
   fecharMenusAcoes();
+  const nomeDaAba=MENU.find(item=>item[0]===page)?.[1] || ({'novo-normativo':'Novo normativo','cadastro-reuniao':'Nova reunião',compromissos:'Compromissos'})[page] || 'Painel';
+  document.getElementById('topbar-pagina').textContent=nomeDaAba;
+  const atualizadoTopo=document.getElementById('topbar-atualizacao');
+  if(atualizadoTopo) atualizadoTopo.textContent=['dashboard','acompanhamento'].includes(page)?`Atualizado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}`:'';
   document.body.classList.toggle('painel-ativo', page === 'dashboard');
   document.body.classList.toggle('cadastro-ativo', page === 'novo-normativo');
   document.getElementById('subtitle').hidden = page !== 'novo-normativo';
