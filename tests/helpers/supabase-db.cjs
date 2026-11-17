@@ -12,6 +12,7 @@ async function setup() {
     insert into auth.users values('${IDS.admin}','admin@example.test'),('${IDS.viewer}','viewer@example.test'),('${IDS.outsider}','outsider@example.test');`);
   await db.exec(fs.readFileSync('supabase/migrations/202611130001_equipe.sql','utf8'));
   await db.exec(fs.readFileSync('supabase/migrations/202611170004_gravacao_incremental.sql','utf8'));
+  await db.exec(fs.readFileSync('supabase/migrations/202611170005_auditoria.sql','utf8'));
   await db.exec(fs.readFileSync('supabase/02_primeiro_acesso.sql','utf8').replace('SEU_EMAIL_AQUI','admin@example.test'));
   await db.exec(`insert into public.normatic_members(user_id,role) values('${IDS.viewer}','viewer')`);
   async function asUser(id,role='authenticated') {

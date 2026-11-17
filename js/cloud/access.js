@@ -11,7 +11,7 @@
     client.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT' && cloud.ready) location.reload();});
     const {data,error}=await client.auth.getSession();
     if(!error && data.session) {
-      try { await global.NormaticMFA.ensure(client); await cloud.reload(); return; } catch(_) { /* Exibe o formulário para trocar de conta ou tentar novamente. */ }
+      try { await global.NormaticMFA.ensure(client); await cloud.reload(); await cloud.registerAccess(); return; } catch(_) { /* Exibe o formulário para trocar de conta ou tentar novamente. */ }
     }
     document.documentElement.classList.add('cloud-locked');
     const panel=document.createElement('section'); panel.className='cloud-login';
@@ -26,7 +26,7 @@
           panel.querySelector('[name=password]').value='';
           if(error) throw error;
           await global.NormaticMFA.ensure(client);
-          await cloud.reload();panel.remove();resolve();
+          await cloud.reload();await cloud.registerAccess();panel.remove();resolve();
         } catch(error) { status.textContent=message(error); }
         finally {button.disabled=false;}
       });

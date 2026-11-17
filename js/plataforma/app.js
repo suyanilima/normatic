@@ -1,5 +1,6 @@
 /* Navegação única. Os motores existentes mantêm seus próprios dados e regras. */
-MENU.splice(0,MENU.length,['dashboard','Painel'],['normativos','Normativos'],['projetos','Projetos'],['tarefas','Tarefas'],['agenda','Agenda'],['reunioes','Reuniões e compromissos'],['minutas','Atas'],['responsaveis','Responsáveis']);
+MENU.splice(0,MENU.length,['dashboard','Dashboard'],['acompanhamento','Painel de acompanhamento'],['normativos','Normativos'],['projetos','Projetos'],['tarefas','Tarefas'],['agenda','Agenda'],['reunioes','Reuniões e compromissos'],['minutas','Atas'],['responsaveis','Responsáveis e acessos']);
+const NAV_SECTIONS=[['PRINCIPAL',['dashboard','acompanhamento','normativos','projetos','tarefas']],['GOVERNANÇA',['agenda','reunioes','minutas']],['GESTÃO',['responsaveis']]];
 const renderAtividades = render;
 const novoRegistroAtividade = newRecord;
 const eventosAtividades = calendarEvents;
@@ -75,6 +76,7 @@ function cabecalho(titulo) {
   document.getElementById('title').textContent = titulo;
   document.getElementById('crumb').textContent = titulo;
   document.getElementById('subtitle').textContent = '';
+  document.getElementById('topbar-pagina').textContent = titulo;
 }
 function listaCompromissos() {
   const query = filtroCompromissos.toLocaleLowerCase('pt-BR');
@@ -116,7 +118,12 @@ render = function() {
       view.classList.toggle('active',active); view.setAttribute('aria-hidden',String(!active));
     });
   } else if(page === 'compromissos') { cabecalho('Reuniões e compromissos'); content.innerHTML = listaCompromissos(); }
-  else {
+  else if(page === 'acompanhamento') {
+    cabecalho('Painel de acompanhamento');
+    document.getElementById('subtitle').hidden=false;
+    document.getElementById('subtitle').textContent='Resumo operacional de documentos, tarefas e reuniões que exigem atenção.';
+    content.innerHTML=painelAcompanhamento();
+  } else {
     renderAtividades();
     if(page === 'dashboard') {
       cabecalho('Painel'); abrirDocumentos('dashboard');
@@ -135,14 +142,20 @@ render = function() {
       filters.innerHTML=`<label for="agenda-tipo">Exibir na agenda</label><select id="agenda-tipo" onchange="filtroAgenda=this.value;render()">${[['todos','Todos os registros'],['reunioes','Reuniões'],['agenda','Compromissos'],['projetos','Prazos de projetos'],['tarefas','Prazos de tarefas']].map(([value,label])=>`<option value="${value}" ${filtroAgenda===value?'selected':''}>${label}</option>`).join('')}</select>`;
       content.prepend(filters);
     }
+    if(page === 'responsaveis') {
+      const corpo=abaResponsaveis==='auditoria'?painelAuditoria():people();
+      content.innerHTML=`<div class="responsaveis-tabs"><button type="button" class="secondary ${abaResponsaveis==='responsaveis'?'active':''}" onclick="abaResponsaveis='responsaveis';render()">Responsáveis</button><button type="button" class="secondary ${abaResponsaveis==='auditoria'?'active':''}" onclick="abaResponsaveis='auditoria';carregarAuditoria().then(render)">Auditoria e acessos</button></div>${corpo}`;
+    }
   }
   document.getElementById('add').style.display = ['dashboard','agenda'].includes(page) ? 'none' : '';
   document.getElementById('add').textContent = documental ? '+ Novo normativo' : gestao || page==='minutas' ? '+ Nova reunião' : document.getElementById('add').textContent;
   document.getElementById('add-compromisso').hidden = !gestao;
-  document.getElementById('nav').innerHTML = MENU.map(([id,label])=>{
+  document.getElementById('nav').innerHTML = NAV_SECTIONS.map(([grupo,ids])=>`<div class="nav-grupo">${grupo}</div>${ids.map(id=>{
+    const label=MENU.find(item=>item[0]===id)?.[1]||id;
     const current = page===id || (id==='normativos' && documental) || (id==='reunioes' && gestao);
     return `<button type="button" ${current?'class="active" aria-current="page"':''} onclick="go(${argumentoJsHtml(id)})">${label}</button>`;
-  }).join('');
+  }).join('')}`).join('');
+  renderizarNotificacoes();
 };
 go = function(target,options={}) {
   frameDocumentos?.contentWindow?.fecharMenusAcoes?.();

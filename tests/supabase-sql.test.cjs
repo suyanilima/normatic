@@ -21,6 +21,8 @@ const {setup,IDS,empty}=require('./helpers/supabase-db.cjs');
     const partial={...data};delete partial.atas;
     await assert.rejects(()=>commit(0,partial),/Coleção ausente/);
     let state=await commit(0,data);assert.equal(state.revision,1);
+    const audit=(await db.query('select * from public.normatic_audit_log(50)')).rows;
+    assert.ok(audit.some(event=>event.action==='Criação' && event.collection_name==='documentos'),'Auditoria registra criações com o usuário autenticado');
     const incremental=await commitCollection(1,'documentos',[{...data.documentos[0],nome:'Atualização incremental'}]);
     assert.equal(incremental.revision,2);assert.equal(incremental.collection[0].nome,'Atualização incremental');
     data.documentos=incremental.collection;

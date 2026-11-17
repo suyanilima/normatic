@@ -18,6 +18,7 @@
 <link href="css/plataforma.css" rel="stylesheet"/>
 <link href="css/calendarios.css" rel="stylesheet"/>
  <link href="css/unificada.css" rel="stylesheet"/>
+<link href="css/controle-plataforma.css" rel="stylesheet"/>
 <link href="css/cloud.css" rel="stylesheet"/>
 </head>
  <body class="modulo-farol plataforma-unificada">
@@ -52,6 +53,11 @@
    </div>
   </aside>
   <main>
+   <header class="plataforma-topbar">
+    <div><strong>NORMATIC</strong><span>/</span><span id="topbar-pagina">Painel</span></div>
+    <div class="topbar-acoes"><label class="busca-global"><span>Buscar</span><input id="busca-global" type="search" maxlength="120" placeholder="Buscar..." autocomplete="off" oninput="atualizarBuscaGlobal(this.value)"/><kbd>Ctrl+K</kbd></label><button type="button" class="notificacoes-botao" onclick="alternarNotificacoes()">Notificações <b id="notificacoes-total">0</b></button></div>
+    <section id="painel-notificacoes" class="painel-notificacoes" hidden aria-label="Notificações"><div class="notificacoes-head"><strong>Pendências</strong><button type="button" onclick="alternarNotificacoes()">Fechar</button></div><div class="notificacoes-filtros" role="tablist"><button type="button" onclick="filtrarNotificacoes('todas')">Todas</button><button type="button" onclick="filtrarNotificacoes('documentos')">Documentos</button><button type="button" onclick="filtrarNotificacoes('reunioes')">Reuniões</button><button type="button" onclick="filtrarNotificacoes('atas')">Atas</button></div><div id="notificacoes-lista"></div></section>
+   </header>
    <div class="breadcrumb">
     Meu espaço de trabalho
     <span>
@@ -595,6 +601,7 @@
 <script type="text/plain" data-app-src="js/farol/storage.js"></script>
 <script type="text/plain" data-app-src="js/farol/app.js"></script>
 <template id="normativos-embutidos"></template>
+<script type="text/plain" data-app-src="js/plataforma/controle.js"></script>
 <script type="text/plain" data-app-src="js/plataforma/app.js"></script>
 <script src="js/cloud/config.js"></script>
 <script src="js/vendor/supabase.umd.js"></script>

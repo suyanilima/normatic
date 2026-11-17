@@ -110,6 +110,16 @@
       return copy(snapshot);
     });
   }
-  global.NormaticCloud=Object.freeze({enabled,database,reload,readCollection,writeCollection,activities,captureLocal,importLocal,
+  async function audit() {
+    if(snapshot?.role!=='admin') throw Error('Somente administradores podem consultar a auditoria.');
+    const {data,error}=await database().rpc('normatic_audit_log',{limit_rows:200});
+    if(error) throw Error(error.message || 'Não foi possível carregar a auditoria.');
+    return Array.isArray(data)?copy(data):[];
+  }
+  async function registerAccess() {
+    if(!enabled || !snapshot) return;
+    try { await database().rpc('normatic_register_access'); } catch(_) { /* Migração ainda não aplicada. */ }
+  }
+  global.NormaticCloud=Object.freeze({enabled,database,reload,readCollection,writeCollection,activities,captureLocal,importLocal,audit,registerAccess,
     get ready(){return !!snapshot;},get role(){return snapshot?.role;},get backup(){return backup?copy(backup):null;}});
 })(globalThis);
