@@ -15,7 +15,7 @@
 .cloud-account [role=status] { display: block; font-size: 12px; overflow-wrap: anywhere; }
 .cloud-account button:disabled,.cloud-login-card button:disabled { opacity: .6; cursor: wait; }
 .cloud-boot-error { padding: 24px; }
-.cloud-mfa { position: fixed; inset: 0; z-index: 5000; overflow-y: auto; }
+.cloud-mfa { position: fixed; inset: 0; z-index: 7000; overflow-y: auto; }
 .cloud-mfa .cloud-login-card { margin: auto; box-sizing: border-box; }
 .cloud-mfa .cloud-login-card h1,.cloud-mfa .cloud-login-card h2,.cloud-mfa .cloud-login-card>p{text-align:center}.cloud-mfa .cloud-login-card select,.cloud-mfa .cloud-login-card input:not([type=checkbox]){height:48px;border:1px solid #d8e1ee;border-radius:12px;background:#f4f7fb;padding:0 14px}.cloud-mfa .cloud-login-card button{width:100%;padding:12px;border:0;border-radius:8px;background:var(--gov-blue);color:#fff;font:inherit;cursor:pointer}
 .cloud-mfa img { display: block; width: 200px; max-width: 100%; height: auto; margin: 16px auto; }

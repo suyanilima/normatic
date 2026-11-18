@@ -1,8 +1,13 @@
 (function(global) {
   const cloud=global.NormaticCloud;
+  const AUTH_TIMEOUT=20000;
   function message(error) {
     if(error?.code==='PGRST202') return 'A equipe ainda não foi configurada. Peça ao administrador para concluir a configuração.';
+    if(error?.name==='AbortError' || error?.name==='TimeoutError') return 'O servidor demorou para responder. Verifique sua conexão e tente novamente.';
     return error?.message || 'Não foi possível entrar. Confira os dados e tente novamente.';
+  }
+  function withTimeout(promise, ms) {
+    return Promise.race([promise, new Promise((_,reject)=>{setTimeout(()=>reject(Object.assign(Error('Tempo limite excedido.'),{name:'TimeoutError'})),ms);})]);
   }
   async function authorize() {
     if(!cloud.enabled || cloud.ready) return;
@@ -11,7 +16,7 @@
     client.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT' && cloud.ready) location.reload();});
     const {data,error}=await client.auth.getSession();
     if(!error && data.session) {
-      try { await global.NormaticMFA.ensure(client); await cloud.reload(); await cloud.registerAccess(); return; } catch(_) { /* Exibe o formulário para trocar de conta ou tentar novamente. */ }
+      try { await global.NormaticMFA.ensure(client); await withTimeout(cloud.reload(),AUTH_TIMEOUT); await withTimeout(cloud.registerAccess(),AUTH_TIMEOUT); return; } catch(_) { /* Exibe o formulário para trocar de conta ou tentar novamente. */ }
     }
     document.documentElement.classList.add('cloud-locked');
     const panel=document.createElement('section'); panel.className='cloud-login';
@@ -26,12 +31,22 @@
         event.preventDefault();const button=panel.querySelector('button[type=submit]');if(button.disabled)return;
         const status=panel.querySelector('[role=status]');button.disabled=true;status.textContent='Entrando…';
         try {
-          const {error}=await client.auth.signInWithPassword({email:panel.querySelector('[name=email]').value.trim(),password:panel.querySelector('[name=password]').value});
+          const {error}=await withTimeout(client.auth.signInWithPassword({email:panel.querySelector('[name=email]').value.trim(),password:panel.querySelector('[name=password]').value}),AUTH_TIMEOUT);
           panel.querySelector('[name=password]').value='';
           if(error) throw error;
+          status.textContent='Senha aceita. Verificando acesso à equipe…';
+          panel.hidden=true;
           await global.NormaticMFA.ensure(client);
-          await cloud.reload();await cloud.registerAccess();panel.remove();resolve();
-        } catch(error) { status.textContent=message(error); }
+          panel.hidden=false;
+          status.textContent='Carregando os dados da equipe…';
+          await withTimeout(cloud.reload(),AUTH_TIMEOUT);await withTimeout(cloud.registerAccess(),AUTH_TIMEOUT);panel.remove();resolve();
+        } catch(error) {
+          panel.hidden=false;
+          status.textContent=message(error);
+          // A senha pode ter criado uma sessão mesmo quando MFA ou a autorização falha.
+          // Encerre-a para que a próxima tentativa comece de forma previsível.
+          try { await client.auth.signOut({scope:'local'}); } catch(_) { /* Mantém a mensagem original. */ }
+        }
         finally {button.disabled=false;}
       });
     });
