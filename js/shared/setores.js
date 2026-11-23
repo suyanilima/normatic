@@ -89,6 +89,124 @@ const SETORES_CONVIDADOS = Object.fromEntries([
   ['GPTI','Assistência de Planejamento e Governança de Tecnologia da Informação']
 ]);
 
+const ORDEM_GRUPOS_SETORES = [
+  'Tecnologia da Informação (STI)',
+  'Gabinetes e Direção',
+  'Assessorias e Assistências',
+  'Coordenadorias',
+  'Seções e Núcleos',
+  'Comitês, Comissões e Grupos',
+  'Zonas Eleitorais',
+  'Arquivos e Outros'
+];
+
+const SETORES_TI_SIGLAS = new Set([
+  'STI', 'GSTI', 'ASPGOVTI', 'GPTI', 'EPSTI', 'CIE', 'CSCOR',
+  'SDBD', 'SEREDE', 'SESEL', 'SSEC', 'SCSEG', 'SSU', 'SEUE',
+  'CGTIC', 'CGOVTIC', 'CSI'
+]);
+
+const SIGLAS_MANTER_MAIUSCULAS = new Set([
+  'TRE-AC', 'TIC', 'TI', 'STI', 'PJE', 'LGPD', 'MPE', 'CAE', 'CAVE', 'ASSAI',
+  'ASGOVSAOF', 'SAREMI', 'SGEC', 'CPES', 'SEGLOF', 'SDBD', 'SEADE', 'SETRAN',
+  'SOC', 'AGEL', 'ASPLAN', 'COAUDI', 'COCRE', 'COGEP', 'EJE', 'GADG', 'GAJUD',
+  'GAPRES', 'GASAO', 'IN-NAUÁ', 'LGBTQIA+', 'DG', 'SEREDE', 'SEMAP'
+]);
+
+const PREPOSICOES_MINUSCULAS = new Set([
+  'de', 'da', 'do', 'das', 'dos', 'e', 'a', 'à', 'ao', 'aos', 'às', 'em', 'para', 'por', 'com', 'no', 'na', 'nos', 'nas'
+]);
+
+function formatarNomeSetorLegivel(nome){
+  const texto = String(nome || '').trim();
+  if(!texto) return '';
+  if(texto !== texto.toUpperCase()) return texto;
+  return texto.split(/(\s+|-)/).map((parte, indice) => {
+    if(!parte || /^\s+$/.test(parte) || parte === '-') return parte;
+    const limpa = parte.replace(/^[([{"']+|[)\]}"',.;:]+$/g, '');
+    if(SIGLAS_MANTER_MAIUSCULAS.has(limpa)) return parte;
+    const lower = parte.toLocaleLowerCase('pt-BR');
+    if(indice > 0 && PREPOSICOES_MINUSCULAS.has(lower)) return lower;
+    return lower.charAt(0).toLocaleUpperCase('pt-BR') + lower.slice(1);
+  }).join('');
+}
+
+function classificarGrupoSetor(sigla){
+  const s = String(sigla || '').trim().toUpperCase();
+  if(!s) return 'Arquivos e Outros';
+  if(SETORES_TI_SIGLAS.has(s) || /(^|[\s/])STI([\s/]|$)/.test(s)) return 'Tecnologia da Informação (STI)';
+  if(s.endsWith('ZE')) return 'Zonas Eleitorais';
+  if(s.startsWith('Z-ARQUIVO') || s === 'DBI' || s === 'PAD') return 'Arquivos e Outros';
+  if(s.startsWith('GA') || s === 'VICRE' || s === 'OUVIDORIA' || s === 'OUVIMULHER' || s === 'EJE' || s === 'MPE') return 'Gabinetes e Direção';
+  if(s.startsWith('AS') || s === 'AGEL' || s === 'AGECON') return 'Assessorias e Assistências';
+  if((s.startsWith('CO') && s !== 'COSET') || s === 'CRIP') return 'Coordenadorias';
+  if(
+    s === 'COSET' || s === 'GPINT' || s === 'LGBTQIA+' || s.startsWith('GT') ||
+    s.startsWith('CG') || s.startsWith('CI') || s.startsWith('CM') || s.startsWith('CP') ||
+    s.startsWith('CR') || s.startsWith('CT') || s === 'CAVE'
+  ) return 'Comitês, Comissões e Grupos';
+  return 'Seções e Núcleos';
+}
+
+function formatarRotuloSetor(sigla){
+  const s = String(sigla || '').trim();
+  if(!s) return '';
+  const nomeBruto = SETORES_CONVIDADOS[s];
+  if(!nomeBruto) return s;
+  const nome = formatarNomeSetorLegivel(nomeBruto);
+  return `${s} — ${nome}`;
+}
+
+function obterGruposSetores(extras = []){
+  const mapa = new Map();
+  ORDEM_GRUPOS_SETORES.forEach(g => mapa.set(g, []));
+  const adicionados = new Set();
+
+  const inserir = (sigla, nomeBruto) => {
+    const s = String(sigla || '').trim();
+    if(!s || adicionados.has(s)) return;
+    adicionados.add(s);
+    const nome = nomeBruto ? formatarNomeSetorLegivel(nomeBruto) : '';
+    const rotulo = nome ? `${s} — ${nome}` : s;
+    const grupo = classificarGrupoSetor(s);
+    mapa.get(grupo).push({ sigla: s, nome, rotulo });
+  };
+
+  Object.entries(SETORES_CONVIDADOS).forEach(([sigla, nome]) => inserir(sigla, nome));
+  (Array.isArray(extras) ? extras : []).forEach(sigla => inserir(sigla, SETORES_CONVIDADOS[sigla] || ''));
+
+  return ORDEM_GRUPOS_SETORES
+    .map(grupo => ({
+      grupo,
+      itens: mapa.get(grupo).sort((a, b) => a.sigla.localeCompare(b.sigla, 'pt-BR', { numeric: true }))
+    }))
+    .filter(g => g.itens.length > 0);
+}
+
+function construirOptionsSetoresAgrupados(selecionado = '', opcoes = {}){
+  const placeholder = opcoes.placeholder ?? 'Selecione a unidade';
+  const extras = Array.isArray(opcoes.extras) ? opcoes.extras : [];
+  const incluirOutra = Boolean(opcoes.incluirOutra);
+  const grupos = obterGruposSetores(extras);
+  const todasSiglas = new Set(grupos.flatMap(g => g.itens.map(i => i.sigla)));
+  const atual = String(selecionado || '').trim();
+  const atualOutra = incluirOutra && atual && !todasSiglas.has(atual);
+
+  const partes = [];
+  if(placeholder !== null){
+    partes.push(`<option value="" ${!atual ? 'selected' : ''}>${escapeHtml(placeholder)}</option>`);
+  }
+  grupos.forEach(({ grupo, itens }) => {
+    partes.push(`<optgroup label="${escapeHtml(grupo)}">${itens.map(item =>
+      `<option value="${escapeHtml(item.sigla)}" ${atual === item.sigla ? 'selected' : ''}>${escapeHtml(item.rotulo)}</option>`
+    ).join('')}</optgroup>`);
+  });
+  if(incluirOutra){
+    partes.push(`<optgroup label="Personalizada"><option value="__OUTRA__" ${atualOutra ? 'selected' : ''}>Outra unidade...</option></optgroup>`);
+  }
+  return partes.join('');
+}
+
 function popularSetoresConvidados(){
   configurarBuscaSetor('r-participante-setor','r-participante-setor-sugestoes');
   configurarBuscaSetor('edit-r-participante-setor','edit-r-participante-setor-sugestoes');
@@ -102,13 +220,24 @@ function configurarBuscaSetor(campoId, sugestoesId){
 
   const esconder = ()=>{ sugestoes.hidden = true; };
   const atualizar = ()=>{
-    const termo = campo.value.trim().toUpperCase();
-    const resultados = Object.entries(SETORES_CONVIDADOS)
-      .filter(([sigla,nome])=>!termo || sigla.includes(termo) || nome.toUpperCase().includes(termo));
-    sugestoes.innerHTML = resultados.map(([sigla,nome])=>
-      `<button type="button" role="option" data-sigla="${escapeHtml(sigla)}" title="${escapeHtml(nome)}">${escapeHtml(sigla)}</button>`
+    const termo = campo.value.trim().toLocaleUpperCase('pt-BR');
+    const grupos = obterGruposSetores().map(({ grupo, itens }) => ({
+      grupo,
+      itens: itens.filter(item =>
+        !termo ||
+        item.sigla.toLocaleUpperCase('pt-BR').includes(termo) ||
+        item.nome.toLocaleUpperCase('pt-BR').includes(termo) ||
+        grupo.toLocaleUpperCase('pt-BR').includes(termo)
+      )
+    })).filter(g => g.itens.length > 0);
+
+    sugestoes.innerHTML = grupos.map(({ grupo, itens }) =>
+      `<div class="setor-sugestao-grupo">${escapeHtml(grupo)}</div>` +
+      itens.map(item =>
+        `<button type="button" role="option" data-sigla="${escapeHtml(item.sigla)}" title="${escapeHtml(item.rotulo)}"><strong class="setor-sugestao-sigla">${escapeHtml(item.sigla)}</strong><span class="setor-sugestao-nome">${escapeHtml(item.nome)}</span></button>`
+      ).join('')
     ).join('');
-    sugestoes.hidden = resultados.length === 0;
+    sugestoes.hidden = grupos.length === 0;
   };
 
   campo.addEventListener('input',()=>{
@@ -116,7 +245,7 @@ function configurarBuscaSetor(campoId, sugestoesId){
     atualizar();
   });
   campo.addEventListener('focus',atualizar);
-  campo.addEventListener('blur',()=>setTimeout(esconder,120));
+  campo.addEventListener('blur',()=>setTimeout(esconder,140));
   sugestoes.addEventListener('mousedown',evento=>{
     const opcao = evento.target.closest('[data-sigla]');
     if(!opcao) return;

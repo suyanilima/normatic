@@ -54,13 +54,23 @@ async function salvarUnidades(){
 
 function renderUnidadesReuniao(){
   const lista = document.getElementById('reuniao-unidades-personalizadas');
-  if(lista) lista.innerHTML = unidadesPersonalizadas.filter(unidade=>!CODIGOS_UNIDADES_FIXAS.includes(unidade.codigo)).map(unidade => `<div class="reuniao-unidade-card"><button type="button" class="reuniao-tipo-btn" data-tipo="${escapeHtml(unidade.codigo)}" onclick="selecionarTipoReuniao(${argumentoJsHtml(unidade.codigo)})"><strong>${escapeHtml(unidade.nome)}</strong><span>${escapeHtml(rotuloPeriodicidadeReunioes(unidade.periodicidade))}</span></button><div class="reuniao-unidade-acoes"><button type="button" onclick="editarUnidade(${argumentoJsHtml(unidade.codigo)})">Editar</button><button type="button" class="excluir" onclick="excluirUnidade(${argumentoJsHtml(unidade.codigo)})">Excluir</button></div></div>`).join('');
+  if(lista) lista.innerHTML = unidadesPersonalizadas.filter(unidade=>!CODIGOS_UNIDADES_FIXAS.includes(unidade.codigo)).map(unidade => {
+    const totalMembros = Array.isArray(unidade.membros) ? unidade.membros.length : 0;
+    const textoMembros = `${totalMembros} ${totalMembros === 1 ? 'membro cadastrado' : 'membros cadastrados'}`;
+    return `<div class="reuniao-unidade-card"><button type="button" class="reuniao-tipo-btn" data-tipo="${escapeHtml(unidade.codigo)}" onclick="selecionarTipoReuniao(${argumentoJsHtml(unidade.codigo)})"><div class="unidade-card-topo"><strong>${escapeHtml(unidade.nome)}</strong><span class="unidade-badge-periodicidade">${escapeHtml(rotuloPeriodicidadeReunioes(unidade.periodicidade))}</span></div><small class="unidade-card-meta">${escapeHtml(textoMembros)}</small><span class="unidade-card-cta">Selecionar unidade →</span></button><div class="reuniao-unidade-acoes"><button type="button" onclick="editarUnidade(${argumentoJsHtml(unidade.codigo)})">Editar</button><button type="button" class="excluir" onclick="excluirUnidade(${argumentoJsHtml(unidade.codigo)})">Excluir</button></div></div>`;
+  }).join('');
   CODIGOS_UNIDADES_FIXAS.forEach(codigo=>{
     const configuracao=unidadesPersonalizadas.find(item=>item.codigo===codigo);
     const nome=document.getElementById(`unidade-fixa-nome-${codigo}`);
     const periodicidade=document.getElementById(`unidade-fixa-periodicidade-${codigo}`);
+    const meta=document.getElementById(`unidade-fixa-membros-${codigo}`);
     if(nome) nome.textContent=configuracao?.nome || codigo;
     if(periodicidade) periodicidade.textContent=rotuloPeriodicidadeReunioes(configuracao?.periodicidade || FREQUENCIAS_REUNIAO[codigo]);
+    if(meta) {
+      const listaMembros = configuracao?.membros || CARGOS_FIXOS_REUNIAO[codigo] || [];
+      const qtd = Array.isArray(listaMembros) ? listaMembros.length : 0;
+      meta.textContent = `${qtd} ${qtd === 1 ? 'membro fixo' : 'membros fixos'}`;
+    }
   });
   const select = document.getElementById('edit-r-frequencia');
   if(select?.querySelectorAll && select?.appendChild){

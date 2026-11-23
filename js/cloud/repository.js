@@ -120,6 +120,33 @@
     if(!enabled || !snapshot) return;
     try { await database().rpc('normatic_register_access'); } catch(_) { /* Migração ainda não aplicada. */ }
   }
-  global.NormaticCloud=Object.freeze({enabled,database,reload,readCollection,writeCollection,activities,captureLocal,importLocal,audit,registerAccess,
+  async function readAuditorias() {
+    if(!enabled || !snapshot) return null;
+    try {
+      const {data,error}=await database().rpc('normatic_auditorias_list');
+      if(error) {
+        if(error.code==='PGRST202' || /normatic_auditorias_list/i.test(error.message||'')) return null;
+        throw Error(error.message || 'Não foi possível carregar o acompanhamento de auditoria.');
+      }
+      return Array.isArray(data)?copy(data):[];
+    } catch(error) {
+      if(error?.code==='PGRST202' || /normatic_auditorias_list/i.test(error?.message||'')) return null;
+      throw error;
+    }
+  }
+  async function writeAuditorias(items) {
+    if(!enabled || !snapshot) return null;
+    if(!['admin','editor'].includes(snapshot?.role)) throw Error('Sua conta possui acesso somente para leitura.');
+    global.dispatchEvent?.(new CustomEvent('normatic:cloud-saving',{detail:true}));
+    try {
+      const {data,error}=await database().rpc('normatic_auditorias_save',{items:copy(items)});
+      if(error) {
+        if(error.code==='PGRST202' || /normatic_auditorias_save/i.test(error.message||'')) return null;
+        throw Error(error.message || 'Não foi possível salvar o acompanhamento de auditoria.');
+      }
+      return Array.isArray(data)?copy(data):copy(items);
+    } finally {global.dispatchEvent?.(new CustomEvent('normatic:cloud-saving',{detail:false}));}
+  }
+  global.NormaticCloud=Object.freeze({enabled,database,reload,readCollection,writeCollection,activities,captureLocal,importLocal,audit,registerAccess,readAuditorias,writeAuditorias,
     get ready(){return !!snapshot;},get role(){return snapshot?.role;},get backup(){return backup?copy(backup):null;}});
 })(globalThis);

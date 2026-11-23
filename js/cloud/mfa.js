@@ -1,9 +1,9 @@
 (function(global) {
   'use strict';
-  async function ensure(client) {
+  async function ensure(client, options = {}) {
     const assurance = await client.auth.mfa.getAuthenticatorAssuranceLevel();
     if (assurance.error) throw assurance.error;
-    if (assurance.data.currentLevel === 'aal2') return;
+    if (!options.forceChallenge && assurance.data.currentLevel === 'aal2') return;
     const result = await client.auth.mfa.listFactors();
     if (result.error) throw result.error;
     const factors = (result.data.totp || []).filter(factor => factor.status === 'verified');
@@ -22,8 +22,9 @@
     }
     const panel = document.createElement('section');
     panel.className = 'cloud-login cloud-mfa';
-    panel.innerHTML = '<form class="cloud-login-card"><img class="cloud-login-logo" src="assets/normatic-logo.png" alt="Normatic"><span class="cloud-login-line" aria-hidden="true"></span><h1>Verificação em duas etapas</h1><p data-mfa-help></p><div data-mfa-setup></div><label for="cloud-factor">Aplicativo cadastrado</label><select id="cloud-factor"></select><label for="cloud-code">Código de 6 dígitos</label><input id="cloud-code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required><p class="cloud-access-message" role="status" aria-live="polite"></p><button class="cloud-login-submit" type="submit">Verificar e entrar</button><button type="button" class="cloud-mfa-exit">Voltar ao login</button></form>';
+    panel.innerHTML = '<form class="cloud-login-card"><img class="cloud-login-logo" src="assets/normatic-logo.png" alt="Normatic"><span class="cloud-login-line" aria-hidden="true"></span><h1>Verificação em duas etapas</h1><p data-mfa-help></p><div data-mfa-setup></div><div data-mfa-factor-wrap><label for="cloud-factor">Aplicativo cadastrado</label><select id="cloud-factor"></select></div><label for="cloud-code">Código de 6 dígitos</label><input id="cloud-code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" placeholder="000000" required><p class="cloud-access-message" role="status" aria-live="polite"></p><button class="cloud-login-submit" type="submit">Verificar e entrar</button><button type="button" class="cloud-mfa-exit">Voltar ao login</button></form>';
     const select = panel.querySelector('select');
+    const factorWrap = panel.querySelector('[data-mfa-factor-wrap]');
     panel.querySelector('[data-mfa-help]').textContent = enrollment
       ? 'No seu aplicativo autenticador, adicione uma conta pelo QR code ou pela chave abaixo. Depois, informe o código gerado para confirmar.'
       : 'Abra seu aplicativo autenticador e informe o código da sua conta Normatic.';
@@ -37,8 +38,10 @@
       const secret = document.createElement('code'); secret.textContent = enrollment.totp.secret;
       setup.append(image, label, secret);
       select.add(new Option('Novo autenticador', enrollment.id));
+      if (factorWrap) factorWrap.hidden = true;
     } else {
       factors.forEach((factor, index) => select.add(new Option(factor.friendly_name || 'Autenticador ' + (index + 1), factor.id)));
+      if (factorWrap) factorWrap.hidden = factors.length <= 1;
     }
     document.body.append(panel);
     panel.querySelector('input').focus();

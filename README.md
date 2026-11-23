@@ -28,6 +28,9 @@ Acesse **http://localhost:4173**. Não é necessário instalar dependências par
 | Reuniões e compromissos | Listagens, filtros, Nova reunião, Novo compromisso e acesso a Unidades e nova reunião |
 | Atas | Criação manual, revisão, conclusão, edição, exclusão e exportação Word/PDF |
 | Responsáveis | Cadastro e acompanhamento das pessoas e suas tarefas |
+| Busca global | Pesquisa unificada por documentos, reuniões, atas, tarefas, projetos e responsáveis (Ctrl+K) |
+| Notificações | Pendências de documentos, reuniões futuras e atas não registradas, com filtros e marcação de lidas |
+| Auditoria | Trilha de acessos, criações, edições e exclusões — restrita a administradores |
 
 Em **Reuniões e compromissos**, o botão **Novo compromisso** abre o formulário preservado, incluindo várias datas. A opção **Compromissos** permite pesquisar, consultar, editar e excluir registros. A opção **Unidades e nova reunião** mantém periodicidades, membros, cargos e convidados. A listagem de reuniões preserva pautas, participantes, formato, SEI, remarcação, cancelamento e relatórios.
 
@@ -49,7 +52,7 @@ Não houve migração ou exclusão de dados. Mudar a origem do endereço muda o 
 
 `farol.html` apenas redireciona links antigos para a plataforma, preservando a aba. As cópias anteriores e o pacote original, quando disponíveis localmente, ficam em `arquivo/referencias/`. Os ZIPs anteriores ficam em `arquivo/entregas/`. Esses arquivos históricos são ignorados pelo Git e não acompanham novos clones.
 
-A integração com Supabase e login de equipe está ativada, utilizando dados compartilhados e sem importação automática dos registros locais. Siga [o guia do Supabase](docs/SUPABASE.md) para configurar uma nova instalação. E-mails automáticos, Google Agenda e publicação não foram implementados. A preferência de convite é preservada, mas não envia convites. A edição manual de atas funciona sem serviços; o ponto de IA preexistente permanece indisponível sem configuração, sem gerar conteúdo simulado.
+A integração com Supabase e login de equipe está ativada, utilizando dados compartilhados e sem importação automática dos registros locais. O acesso exige login com e-mail e senha, seguido de verificação MFA (TOTP). A barra lateral inclui busca global, notificações de pendências e, para administradores, uma trilha de auditoria. Siga [o guia do Supabase](docs/SUPABASE.md) para configurar uma nova instalação. São cinco migrações SQL: equipe, MFA, e-mail, gravação incremental e auditoria. E-mails automáticos, Google Agenda e publicação não foram implementados. A preferência de convite é preservada, mas não envia convites. A edição manual de atas funciona sem serviços; o ponto de IA preexistente permanece indisponível sem configuração, sem gerar conteúdo simulado.
 
 ## Testar e gerar arquivos com recursos incorporados
 
@@ -75,4 +78,4 @@ O build grava os três HTMLs em **`dist/`**: `prototipo-normatic.html` contém a
 
 `tools/empacotar.ps1` gera o ZIP atual em `dist/entregas/`, com o código, testes e ferramentas. O pacote não acumula backups, dependências instaladas ou outros ZIPs. Os protótipos podem ser recriados com o build após extrair o pacote. Os dados cadastrados continuam no navegador; não foram movidos por essa organização.
 
-As dez suítes verificam permissões, transações e integração Supabase em PostgreSQL local, além de regras, persistência, CRUD, filtros, agenda, unidades, atas, exportações, recursos, navegação unificada e preservação de rascunhos. Há testes de CSS para 390, 768, 1024 e 1440 px, mas eles não substituem inspeção visual em navegador real. Veja [a organização e a validação da plataforma](docs/PLATAFORMA-UNIFICADA.md).
+As treze suítes verificam permissões, transações, auditoria e integração Supabase em PostgreSQL local, além de regras, persistência, CRUD, filtros, agenda, unidades, atas, exportações, recursos, navegação unificada, preservação de rascunhos, login, MFA, e-mails e segurança. Há testes de CSS para 390, 768, 1024 e 1440 px, mas eles não substituem inspeção visual em navegador real. Veja [a organização e a validação da plataforma](docs/PLATAFORMA-UNIFICADA.md).

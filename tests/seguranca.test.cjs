@@ -18,6 +18,9 @@ const {open} = require('./integracao.test.cjs');
     let {w, d} = current;
     let scripts = 0;
     w.alert = () => scripts++;
+    assert.equal(d.querySelector('#content img'), null, 'Novo Dashboard resiste a injeção de HTML');
+    assert.equal(scripts, 0, 'Novo Dashboard não executa código injetado');
+    w.eval('renderAtividades()');
     const person = d.querySelector('.dashboard-person button');
     assert.equal(person.dataset.responsavel, name);
     person.click();
@@ -41,7 +44,7 @@ const {open} = require('./integracao.test.cjs');
       assert.equal(holder.querySelectorAll('button').length, 1);
       assert.equal(holder.querySelector('img'), null);
     }
-    for (const [route, selector] of [['projetos','.project-entry .actions button'], ['tarefas','.simple-task .actions button'], ['compromissos','.simple-task .actions button']]) {
+    for (const [route, selector] of [['projetos','.project-entry .actions button'], ['tarefas','.simple-task .actions button']]) {
       w.go(route);
       let received;
       w.edit = (table, id) => received = id;

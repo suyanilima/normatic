@@ -101,7 +101,7 @@
 
   <!-- VIEW: ACOMPANHAMENTO (principal) -->
   <div class="view" id="view-acompanhamento">
-    <section class="panel documentos-setores-view" id="documentos-setores-view" aria-labelledby="documentos-setores-titulo">
+    <section class="panel documentos-setores-view oculto" id="documentos-setores-view" aria-labelledby="documentos-setores-titulo">
       <div class="documentos-pagina-head">
         <h2>Acompanhamento de documentos</h2>
       </div>
@@ -111,8 +111,8 @@
       </div>
     </section>
 
-    <section class="documentos-acompanhamento oculto" id="documentos-acompanhamento">
-      <div class="panel documentos-contexto-bloco" aria-labelledby="documentos-lista-titulo">
+    <section class="documentos-acompanhamento" id="documentos-acompanhamento">
+      <div class="panel documentos-contexto-bloco oculto" aria-labelledby="documentos-lista-titulo">
         <button class="documentos-voltar-setores" type="button" onclick="voltarParaSetoresDocumentos()">Trocar unidade</button>
         <div class="documentos-breadcrumb" id="documentos-breadcrumb">Setor</div>
         <h2 id="documentos-lista-titulo">Documentos cadastrados</h2>
@@ -125,6 +125,13 @@
         <div class="search-wrap">
           <input class="campo-busca-icone" type="text" id="busca-nome" placeholder="Buscar documento..." maxlength="50" oninput="render()">
         </div>
+      </div>
+
+      <div class="toolbar-field">
+        <label class="toolbar-label" for="filtro-unidade-doc">Unidade / Setor</label>
+        <select id="filtro-unidade-doc" onchange="abrirUnidadeDocumentos(this.value)">
+          <option value="SETOR:TODAS">Todas as unidades</option>
+        </select>
       </div>
 
       <div class="toolbar-field">

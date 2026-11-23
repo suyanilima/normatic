@@ -15,6 +15,8 @@ revoke all on public.normatic_audit_events from anon, authenticated;
 create or replace function public.normatic_audit_change() returns trigger language plpgsql security definer set search_path = '' as $$
 declare registro jsonb; identificador text; rotulo text;
 begin
+  -- Ignora atualizações que alteram somente posição/metadados sem mudar o conteúdo.
+  if tg_op = 'UPDATE' and old.payload is not distinct from new.payload then return new; end if;
   registro:=case when tg_op='DELETE' then old.payload else new.payload end;
   identificador:=case when tg_op='DELETE' then old.id else new.id end;
   rotulo:=coalesce(registro->>'nome',registro->>'titulo',registro->>'pauta',registro->>'codigo',identificador);

@@ -1,3 +1,61 @@
+.modal {
+  background: #fff;
+  color: var(--ink);
+  border-radius: 16px;
+  padding: var(--space-6);
+  width: 320px;
+  max-width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  box-shadow: 0 20px 50px rgba(12,50,111,.25);
+}
+
+#delete-unidade-modal-overlay .modal,
+#delete-reuniao-modal-overlay .modal,
+#delete-minuta-modal-overlay .modal {
+  width: min(440px, 100%);
+}
+
+.modal * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.modal h3 {
+  font-size: 16px;
+  margin: 0 0 var(--space-1);
+  color: var(--gov-blue-dark);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.modal .m-sub {
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-bottom: var(--space-4);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.modal label {
+  color: var(--ink-soft);
+}
+
+.modal input {
+  background: #fff;
+  border: 1px solid var(--border);
+}
+
+.modal input[readonly] {
+  background: #F2F4F7;
+  color: var(--ink-soft);
+  cursor: default;
+}
+
 .renovar-modal {
   width: 430px;
 }

@@ -462,18 +462,34 @@
   }
 }
 
+.unidade-etapa-cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.unidade-etapa-cabecalho h2 {
+  margin: 0 0 4px;
+}
+
+.unidade-etapa-cabecalho .desc {
+  margin: 0;
+}
+
 .reuniao-tipo-etapa {
-  padding: 20px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: #FAFBFC;
+  padding: 0;
+  border: 0;
+  background: transparent;
 }
 
 .reuniao-tipo-opcoes {
   display: grid;
-  grid-template-columns: repeat(2,minmax(0,1fr));
-  gap: 14px;
-  margin-top: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 8px;
 }
 
 .reuniao-unidades-personalizadas {
@@ -483,29 +499,79 @@
 .reuniao-unidade-card {
   position: relative;
   min-width: 0;
+  display: flex;
 }
 
 .reuniao-unidade-card>.reuniao-tipo-btn {
   width: 100%;
-  padding-bottom: 48px;
+  min-height: 146px;
+  padding-bottom: 46px;
+  justify-content: space-between;
+  transition: border-color .15s, background .15s, box-shadow .15s, transform .15s;
+}
+
+.reuniao-unidade-card>.reuniao-tipo-btn:hover {
+  box-shadow: 0 10px 24px rgba(19, 81, 180, 0.12);
+  transform: translateY(-2px);
+}
+
+.unidade-card-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+}
+
+.unidade-badge-periodicidade {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #EEF4FF;
+  color: var(--gov-blue) !important;
+  font-size: 11px !important;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.unidade-card-meta {
+  display: block;
+  margin-top: 4px;
+  color: #64748B;
+  font-size: 13px;
+}
+
+.unidade-card-cta {
+  display: inline-block;
+  margin-top: 12px;
+  color: var(--gov-blue) !important;
+  font-size: 12px !important;
+  font-weight: 600;
 }
 
 .reuniao-unidade-acoes {
   position: absolute;
-  right: 12px;
-  bottom: 11px;
+  right: 14px;
+  bottom: 13px;
   display: flex;
   gap: 6px;
 }
 
 .reuniao-unidade-acoes button {
-  padding: 5px 9px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
+  padding: 5px 11px;
+  border: 1px solid #CBD5E1;
+  border-radius: 7px;
   background: #fff;
   color: var(--gov-blue);
-  font: 700 11px system-ui,-apple-system,"Segoe UI",sans-serif;
+  font: 600 12px system-ui,-apple-system,"Segoe UI",sans-serif;
   cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+
+.reuniao-unidade-acoes button:hover {
+  background: #F1F5F9;
+  border-color: var(--gov-blue);
 }
 
 .reuniao-unidade-acoes button.excluir {
@@ -513,7 +579,35 @@
 }
 
 .reuniao-tipo-adicionar {
-  border-style: dashed;
+  min-height: 146px;
+  border: 1.5px dashed #94A3B8;
+  background: #F8FAFC;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 6px;
+  transition: border-color .15s, background .15s, transform .15s;
+}
+
+.reuniao-tipo-adicionar:hover {
+  border-color: var(--gov-blue);
+  background: #F0F6FF;
+  transform: translateY(-2px);
+}
+
+.unidade-adicionar-icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  margin-bottom: 2px;
+  border-radius: 50%;
+  background: #E0ECFF;
+  color: var(--gov-blue) !important;
+  font-size: 20px !important;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .unidade-modal {
@@ -809,9 +903,10 @@
   position: absolute;
   top: calc(100% + 4px);
   left: 0;
-  z-index: 120;
+  z-index: 160;
   width: 100%;
-  max-height: min(220px,40vh);
+  min-width: min(340px, 85vw);
+  max-height: min(280px,46vh);
   overflow-y: auto;
   padding: 4px;
   border: 1px solid var(--border);
@@ -824,24 +919,61 @@
   display: none;
 }
 
+.setor-sugestao-grupo {
+  padding: 7px 10px 4px;
+  margin-top: 4px;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748B;
+  border-top: 1px solid #F1F5F9;
+  user-select: none;
+}
+
+.setor-sugestao-grupo:first-child {
+  margin-top: 0;
+  border-top: 0;
+}
+
 .setor-sugestoes button {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   width: 100%;
-  min-height: 34px;
-  padding: 8px 10px;
+  min-height: 36px;
+  padding: 7px 10px;
   border: 0;
-  border-radius: 5px;
+  border-radius: 6px;
   background: #fff;
   color: var(--ink);
-  font: 700 12px system-ui,-apple-system,"Segoe UI",sans-serif;
+  font: 500 12.5px system-ui,-apple-system,"Segoe UI",sans-serif;
   text-align: left;
   cursor: pointer;
+}
+
+.setor-sugestao-sigla {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--gov-blue-dark);
+}
+
+.setor-sugestao-nome {
+  font-size: 11.5px;
+  font-weight: 400;
+  color: #475569;
+  line-height: 1.3;
 }
 
 .setor-sugestoes button:hover,.setor-sugestoes button:focus {
   background: var(--gov-blue-bg);
   color: var(--gov-blue);
   outline: none;
+}
+
+.setor-sugestoes button:hover .setor-sugestao-sigla,
+.setor-sugestoes button:focus .setor-sugestao-sigla {
+  color: var(--gov-blue);
 }
 
 .participante-adicionar > button {
@@ -2969,4 +3101,230 @@
   .reunioes-filtros > .toolbar-field:first-child { grid-column: auto; }
   .reuniao-item { grid-template-columns: minmax(0,1fr); }
 }
+
+/* Modal Cadastrar Reunião e Escolha de Tipo */
+#modal-nova-reuniao-overlay,
+#modal-escolha-reuniao-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(12,50,111,.4);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+#modal-nova-reuniao-overlay.open,
+#modal-escolha-reuniao-overlay.open {
+  display: flex;
+  animation: overlayIn .15s ease;
+}
+#modal-nova-reuniao-overlay.open .modal,
+#modal-escolha-reuniao-overlay.open .modal {
+  animation: modalIn .18s cubic-bezier(.2,.8,.3,1);
+}
+.modal.modal-escolha-reuniao {
+  max-width: calc(100vw - 32px);
+  width: min(100%, 540px);
+  padding: 28px 32px;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 24px 64px rgba(15, 35, 75, 0.22);
+}
+.modal-escolha-reuniao .modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.modal-escolha-reuniao .modal-head h3 {
+  margin: 0 0 6px;
+  font-size: 22px;
+  color: var(--gov-blue-dark);
+  font-weight: 700;
+}
+.modal-escolha-reuniao .modal-subtitulo-ajuda {
+  margin: 0;
+  font-size: 13px;
+  color: #64748B;
+}
+.escolha-reuniao-opcoes {
+  display: grid;
+  gap: 12px;
+}
+.escolha-reuniao-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  padding: 18px 20px;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 14px;
+  background: #F8FAFC;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color .15s, background .15s, box-shadow .15s, transform .15s;
+}
+.escolha-reuniao-card:hover {
+  border-color: var(--gov-blue);
+  background: #FFFFFF;
+  box-shadow: 0 8px 20px rgba(19, 81, 180, 0.12);
+  transform: translateY(-1px);
+}
+.escolha-reuniao-card strong {
+  font-size: 16px;
+  color: var(--gov-blue-dark);
+}
+.escolha-reuniao-card span {
+  font-size: 13px;
+  color: #475569;
+  line-height: 1.45;
+  font-weight: 400;
+}
+.modal-escolha-reuniao .modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.modal-escolha-reuniao .modal-actions button {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 120px;
+  padding: 10px 20px;
+  border-radius: 10px;
+}
+.modal.modal-nova-reuniao {
+  max-width: calc(100vw - 32px);
+  width: min(100%, 880px);
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  padding: 24px 32px;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 24px 64px rgba(15, 35, 75, 0.22);
+}
+.modal-nova-reuniao .modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.modal-nova-reuniao .modal-head h3 {
+  margin: 0 0 4px;
+  font-size: 22px;
+  color: var(--gov-blue-dark);
+  font-weight: 700;
+}
+.modal-nova-reuniao .modal-subtitulo-ajuda {
+  margin: 0;
+  font-size: 13px;
+  color: #64748B;
+  line-height: 1.45;
+}
+.modal-nova-reuniao .form-grid-duplo {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+.modal-nova-reuniao .form-grid-triplo {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr 1fr;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+.modal-nova-reuniao .campo-grupo {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 8px;
+}
+.modal-nova-reuniao .campo-grupo label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 5px;
+}
+.modal-nova-reuniao input,
+.modal-nova-reuniao select,
+.modal-nova-reuniao textarea,
+.modal-nova-reuniao .toolbar-select-botao {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 14px;
+  border: 1px solid #CBD5E1;
+  border-radius: 10px;
+  background: #F8FAFC;
+  color: var(--ink);
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color .15s, background .15s, box-shadow .15s;
+}
+.modal-nova-reuniao .toolbar-select-botao {
+  height: 40px;
+  line-height: 20px;
+  padding-right: 36px;
+}
+.modal-nova-reuniao .toolbar-select-opcoes {
+  z-index: 1200;
+  border-radius: 10px;
+}
+.modal-nova-reuniao input:focus,
+.modal-nova-reuniao select:focus,
+.modal-nova-reuniao textarea:focus,
+.modal-nova-reuniao .toolbar-select-botao:hover,
+.modal-nova-reuniao .toolbar-select-botao[aria-expanded="true"] {
+  border-color: var(--gov-blue);
+  background: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(19, 81, 180, 0.15);
+  outline: none;
+}
+.modal-nova-reuniao .campo-data-hora-duplo {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 8px;
+}
+.modal-nova-reuniao textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+.modal-nova-reuniao .modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.modal-nova-reuniao .modal-actions button {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 130px;
+  padding: 10px 22px;
+  border-radius: 10px;
+}
+.modal-nova-reuniao .modal-actions button.primary {
+  background: var(--gov-blue);
+  border-color: var(--gov-blue);
+  color: #ffffff;
+}
+@media (max-width: 640px) {
+  .modal.modal-nova-reuniao {
+    padding: 20px 16px;
+  }
+  .modal-nova-reuniao .form-grid-duplo,
+  .modal-nova-reuniao .form-grid-triplo {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
 

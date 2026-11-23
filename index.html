@@ -19,6 +19,8 @@
 <link href="css/calendarios.css" rel="stylesheet"/>
  <link href="css/unificada.css" rel="stylesheet"/>
 <link href="css/controle-plataforma.css" rel="stylesheet"/>
+<link href="css/auditoria.css" rel="stylesheet"/>
+<link href="css/dashboard-unificado.css" rel="stylesheet"/>
 <link href="css/cloud.css" rel="stylesheet"/>
 </head>
  <body class="modulo-farol plataforma-unificada">
@@ -80,9 +82,7 @@
       </p>
      </div>
      <div class="actions">
-      
-      <button class="secondary" id="add-compromisso" type="button" onclick="newRecord('agenda')" hidden>+ Novo compromisso</button>
-<button class="primary" id="add" onclick="newRecord()">
+      <button class="primary" id="add" onclick="newRecord()">
        + Novo
       </button>
      </div>
@@ -94,14 +94,13 @@
     </div>
    </div>
   </main>
-  <div id="farol-reunioes" class="farol-reunioes" hidden><section class="view" id="view-cadastro"><div class="panel"><h2>Nova reunião</h2><div id="cadastro-reuniao-form" >
+  <div id="farol-reunioes" class="farol-reunioes" hidden><section class="view" id="view-cadastro"><div class="panel"><div class="unidade-etapa-cabecalho"><div><h2>Escolha a unidade demandante</h2><p class="desc">Selecione uma unidade colegiada para preencher a reunião com seus membros e cargos fixos, ou cadastre uma nova unidade.</p></div></div><div id="cadastro-reuniao-form" >
           <div class="reuniao-tipo-etapa" id="reuniao-tipo-etapa">
-            <div class="form-block-title">Escolha a unidade</div>
             <div class="reuniao-tipo-opcoes">
-              <div class="reuniao-unidade-card"><button type="button" class="reuniao-tipo-btn" data-tipo="CGTIC" onclick="selecionarTipoReuniao('CGTIC')"><strong id="unidade-fixa-nome-CGTIC">CGTIC</strong><span id="unidade-fixa-periodicidade-CGTIC">Reuniões quinzenais</span></button><div class="reuniao-unidade-acoes"><button type="button" onclick="editarUnidade('CGTIC')">Editar</button></div></div>
-              <div class="reuniao-unidade-card"><button type="button" class="reuniao-tipo-btn" data-tipo="CGOVTIC" onclick="selecionarTipoReuniao('CGOVTIC')"><strong id="unidade-fixa-nome-CGOVTIC">CGOVTIC</strong><span id="unidade-fixa-periodicidade-CGOVTIC">Reuniões bimestrais</span></button><div class="reuniao-unidade-acoes"><button type="button" onclick="editarUnidade('CGOVTIC')">Editar</button></div></div>
+              <div class="reuniao-unidade-card"><button type="button" class="reuniao-tipo-btn" data-tipo="CGTIC" onclick="selecionarTipoReuniao('CGTIC')"><div class="unidade-card-topo"><strong id="unidade-fixa-nome-CGTIC">CGTIC</strong><span class="unidade-badge-periodicidade" id="unidade-fixa-periodicidade-CGTIC">Reuniões quinzenais</span></div><small class="unidade-card-meta" id="unidade-fixa-membros-CGTIC">Comitê Gestor de TIC</small><span class="unidade-card-cta">Selecionar unidade →</span></button><div class="reuniao-unidade-acoes"><button type="button" onclick="editarUnidade('CGTIC')">Editar</button></div></div>
+              <div class="reuniao-unidade-card"><button type="button" class="reuniao-tipo-btn" data-tipo="CGOVTIC" onclick="selecionarTipoReuniao('CGOVTIC')"><div class="unidade-card-topo"><strong id="unidade-fixa-nome-CGOVTIC">CGOVTIC</strong><span class="unidade-badge-periodicidade" id="unidade-fixa-periodicidade-CGOVTIC">Reuniões bimestrais</span></div><small class="unidade-card-meta" id="unidade-fixa-membros-CGOVTIC">Comitê de Governança de TIC</small><span class="unidade-card-cta">Selecionar unidade →</span></button><div class="reuniao-unidade-acoes"><button type="button" onclick="editarUnidade('CGOVTIC')">Editar</button></div></div>
               <div id="reuniao-unidades-personalizadas" class="reuniao-unidades-personalizadas"></div>
-              <button type="button" class="reuniao-tipo-btn reuniao-tipo-adicionar" onclick="abrirCadastroUnidade()"><strong>+ Cadastrar unidade</strong><span>Adicione membros e seus cargos</span></button>
+              <button type="button" class="reuniao-tipo-btn reuniao-tipo-adicionar" onclick="abrirCadastroUnidade()"><span class="unidade-adicionar-icone" aria-hidden="true">+</span><strong>Cadastrar unidade</strong><span>Adicione uma nova unidade com membros e cargos fixos</span></button>
             </div>
           </div>
           <div id="reuniao-dados-etapa" class="oculto">
@@ -161,7 +160,6 @@
     <div class="reunioes-blocos">
       <section class="panel reunioes-intro-card" aria-labelledby="reunioes-lista-titulo">
         <div><h2 id="reunioes-lista-titulo">Reuniões cadastradas</h2><div class="desc">Histórico e agenda de reuniões</div></div>
-        
       </section>
       <section class="panel reunioes-filtros-card" aria-label="Filtros de reuniões">
         <div class="toolbar reunioes-filtros">
@@ -210,7 +208,6 @@
           <div id="reunioes-paginacao" class="paginacao reunioes-paginacao"></div>
         </div>
       </section>
-      
     </div>
   </div>
 <div class="view" id="view-minutas">
@@ -544,6 +541,112 @@
     </div>
   </div>
 </div></div>
+<div id="modal-escolha-reuniao-overlay" aria-hidden="true">
+  <div class="modal modal-escolha-reuniao" role="dialog" aria-modal="true" aria-labelledby="escolha-reuniao-titulo" tabindex="-1">
+    <div class="modal-head">
+      <div>
+        <h3 id="escolha-reuniao-titulo">Cadastrar reunião</h3>
+        <p class="modal-subtitulo-ajuda">Escolha como deseja cadastrar a reunião:</p>
+      </div>
+      <button class="modal-close" type="button" onclick="fecharEscolhaCadastroReuniao()" aria-label="Fechar">✕</button>
+    </div>
+    <div class="escolha-reuniao-opcoes">
+      <button type="button" class="escolha-reuniao-card" id="btn-escolher-reuniao-pontual" onclick="escolherReuniaoPontual()">
+        <strong>Reunião pontual</strong>
+        <span>Reunião direta sem vínculo obrigatório com colegiado fixo (assunto, setor responsável, participantes em texto livre e pauta).</span>
+      </button>
+      <button type="button" class="escolha-reuniao-card" id="btn-escolher-reuniao-unidade" onclick="escolherReuniaoUnidade()">
+        <strong>Reunião de unidade demandante</strong>
+        <span>Reunião vinculada a uma unidade ou colegiado (CGTIC, CGOVTIC ou unidades personalizadas com membros e cargos fixos).</span>
+      </button>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="secondary" onclick="fecharEscolhaCadastroReuniao()">Cancelar</button>
+    </div>
+  </div>
+</div>
+<div id="modal-nova-reuniao-overlay" aria-hidden="true">
+  <div class="modal modal-nova-reuniao" role="dialog" aria-modal="true" aria-labelledby="nova-reuniao-titulo" tabindex="-1">
+    <div class="modal-head">
+      <div>
+        <h3 id="nova-reuniao-titulo">Cadastrar reunião</h3>
+        <p class="modal-subtitulo-ajuda">Os registros cadastrados aqui ficam disponíveis automaticamente no Calendário, Lista de Reuniões e Geração de Atas.</p>
+      </div>
+      <button class="modal-close" type="button" onclick="fecharModalNovaReuniao()" aria-label="Fechar">✕</button>
+    </div>
+    <form id="form-nova-reuniao" onsubmit="event.preventDefault(); salvarNovaReuniao();">
+      <div class="form-grid-duplo">
+        <div class="campo-grupo">
+          <label for="nr-titulo">Assunto / Título da reunião <span class="required-mark">*</span></label>
+          <input id="nr-titulo" type="text" maxlength="150" placeholder="Ex.: Alinhamento quinzenal de entregas" required>
+        </div>
+        <div class="campo-grupo">
+          <label for="nr-codigo">Código / Referência</label>
+          <input id="nr-codigo" type="text" maxlength="50" placeholder="Ex.: REU-2026-04">
+        </div>
+      </div>
+
+      <div class="form-grid-triplo">
+        <div class="campo-grupo">
+          <label for="nr-tipo">Tipo de reunião</label>
+          <input id="nr-tipo" type="text" maxlength="50" placeholder="Ex.: Alinhamento de Documentos">
+        </div>
+        <div class="campo-grupo">
+          <label for="nr-data">Data e horário <span class="required-mark">*</span></label>
+          <div class="campo-data-hora-duplo">
+            <input id="nr-data" type="date" required min="1900-01-01" max="9999-12-31">
+            <input id="nr-horario" type="time" required>
+          </div>
+        </div>
+        <div class="campo-grupo">
+          <label for="nr-situacao">Situação da reunião</label>
+          <select id="nr-situacao">
+            <option value="Agendada" selected>Agendada</option>
+            <option value="Realizada">Realizada</option>
+            <option value="Cancelada">Cancelada</option>
+            <option value="Remarcada">Remarcada</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-grid-duplo">
+        <div class="campo-grupo">
+          <label for="nr-documento">Documento vinculado</label>
+          <select id="nr-documento">
+            <option value="">Geral / Sem documento específico</option>
+          </select>
+        </div>
+        <div class="campo-grupo">
+          <label for="nr-setor">Setor responsável</label>
+          <select id="nr-setor">
+            <option value="">Geral / Sem setor específico</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-grid-duplo">
+        <div class="campo-grupo">
+          <label for="nr-link">Link da reunião (opcional)</label>
+          <input id="nr-link" type="url" maxlength="500" placeholder="https://meet.google.com/...">
+        </div>
+        <div class="campo-grupo">
+          <label for="nr-participantes">Participantes (um por linha)</label>
+          <textarea id="nr-participantes" rows="2" placeholder="Ex.:&#10;Camila Ferreira&#10;Rafael Monteiro"></textarea>
+        </div>
+      </div>
+
+      <div class="campo-grupo">
+        <label for="nr-pauta">Pauta da reunião</label>
+        <textarea id="nr-pauta" rows="2" placeholder="Tópicos previstos para discussão..."></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="secondary" onclick="fecharModalNovaReuniao()">Cancelar</button>
+        <button type="submit" class="primary" id="btn-salvar-nova-reuniao">Cadastrar reunião</button>
+      </div>
+    </form>
+  </div>
+</div>
 <div id="toast"></div>
   <dialog id="modal">
    <h3 id="modalTitle">
@@ -602,6 +705,8 @@
 <script type="text/plain" data-app-src="js/farol/app.js"></script>
 <template id="normativos-embutidos"></template>
 <script type="text/plain" data-app-src="js/plataforma/controle.js"></script>
+<script type="text/plain" data-app-src="js/plataforma/auditoria.js"></script>
+<script type="text/plain" data-app-src="js/plataforma/dashboard.js"></script>
 <script type="text/plain" data-app-src="js/plataforma/app.js"></script>
 <script src="js/cloud/config.js"></script>
 <script src="js/vendor/supabase.umd.js"></script>

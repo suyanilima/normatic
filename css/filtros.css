@@ -140,6 +140,73 @@ ficam numa única linha (evita o "flex-wrap" quebrar de forma imprevisível). */
   outline: none;
 }
 
+.toolbar-select-opcoes button[hidden],
+.toolbar-select-grupo-wrap[hidden] {
+  display: none;
+}
+
+.toolbar-select-busca-wrap {
+  position: sticky;
+  top: -4px;
+  z-index: 2;
+  background: #fff;
+  padding: 4px 4px 6px;
+  border-bottom: 1px solid #EEF2F7;
+  margin-bottom: 4px;
+}
+
+.toolbar-select-busca {
+  width: 100%;
+  box-sizing: border-box;
+  height: 34px;
+  padding: 6px 10px;
+  border: 1px solid #CBD5E1;
+  border-radius: 7px;
+  background: #F8FAFC;
+  color: var(--ink);
+  font: 400 13px system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+
+.toolbar-select-busca:focus {
+  border-color: var(--gov-blue);
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(19, 81, 180, 0.14);
+  outline: none;
+}
+
+.toolbar-select-grupo {
+  padding: 7px 10px 4px;
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748B;
+  border-top: 1px solid #F1F5F9;
+  user-select: none;
+}
+
+.toolbar-select-grupo-wrap:first-of-type .toolbar-select-grupo {
+  margin-top: 0;
+  border-top: 0;
+}
+
+.auditoria-field .toolbar-select-botao {
+  height: 38px;
+  line-height: 36px;
+  border: 1px solid #CBD5E1;
+  border-radius: 9px;
+  background: #F8FAFC;
+  font-size: 13px;
+}
+
+.auditoria-field .toolbar-select-botao:hover,
+.auditoria-field .toolbar-select-botao[aria-expanded="true"] {
+  background: #fff;
+  border-color: var(--gov-blue);
+  box-shadow: 0 0 0 3px rgba(19, 81, 180, 0.14);
+}
+
 .iconbtn.export {
   border-color: var(--gov-blue);
   color: var(--gov-blue);

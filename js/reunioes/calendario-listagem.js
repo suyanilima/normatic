@@ -10,7 +10,8 @@ function alterarVisualizacaoReunioes(modo){
   if(!document.getElementById('reunioes-visualizacao-calendario')) modo='lista';
   visualizacaoReunioes=modo==='calendario'?'calendario':'lista';
   document.querySelector('.reunioes-blocos')?.classList.toggle('modo-calendario',visualizacaoReunioes==='calendario');
-  document.getElementById('reunioes-visualizacao-lista').hidden=visualizacaoReunioes!=='lista';
+  const lista = document.getElementById('reunioes-visualizacao-lista');
+  if(lista) lista.hidden=visualizacaoReunioes!=='lista';
   const calendario=document.getElementById('reunioes-visualizacao-calendario');
   if(calendario) calendario.hidden=visualizacaoReunioes!=='calendario';
   document.getElementById('reunioes-modo-lista')?.classList.toggle('active',visualizacaoReunioes==='lista');
@@ -187,3 +188,162 @@ function verResumoReuniao(id){
 function fecharResumoReuniao(){
   fecharModalElemento('resumo-reuniao-modal-overlay');
 }
+
+/* ===== ESCOLHA E NOVO MODAL: CADASTRAR REUNIÃO DIRETA ===== */
+
+function abrirEscolhaCadastroReuniao(){
+  abrirModalElemento('modal-escolha-reuniao-overlay');
+  document.getElementById('btn-escolher-reuniao-pontual')?.focus();
+}
+
+function fecharEscolhaCadastroReuniao(){
+  fecharModalElemento('modal-escolha-reuniao-overlay');
+}
+
+function escolherReuniaoPontual(){
+  fecharEscolhaCadastroReuniao();
+  abrirModalNovaReuniao();
+}
+
+function escolherReuniaoUnidade(){
+  fecharEscolhaCadastroReuniao();
+  if(typeof go === 'function') go('cadastro-reuniao');
+  if(typeof selecionarModoCadastro === 'function') selecionarModoCadastro();
+}
+
+function popularSetoresNovaReuniao(){
+  const select = document.getElementById('nr-setor');
+  if(!select || select._populado) return;
+  select._populado = true;
+  if(typeof construirOptionsSetoresAgrupados === 'function'){
+    select.innerHTML = construirOptionsSetoresAgrupados('', { placeholder: 'Geral / Sem setor específico' });
+  } else {
+    select.innerHTML = '<option value="">Geral / Sem setor específico</option>';
+    if(typeof SETORES_CONVIDADOS === 'object' && SETORES_CONVIDADOS) {
+      for(const [sigla, nome] of Object.entries(SETORES_CONVIDADOS)){
+        const opt = document.createElement('option');
+        opt.value = sigla;
+        opt.textContent = `${sigla} — ${nome}`;
+        select.appendChild(opt);
+      }
+    }
+  }
+  select._sincronizarSeletorPersonalizado?.();
+}
+
+function popularDocumentosNovaReuniao(){
+  const select = document.getElementById('nr-documento');
+  if(!select) return;
+  select.innerHTML = '<option value="">Geral / Sem documento específico</option>';
+  let lista = [];
+  try {
+    if(window.NormaticCloud?.enabled) lista = window.NormaticCloud.readCollection('documentos') || [];
+    else if(typeof docs !== 'undefined' && Array.isArray(docs)) lista = docs;
+    else lista = JSON.parse(localStorage.getItem('igov:documentos') || '[]');
+  } catch(_) { lista = []; }
+  lista.forEach(doc => {
+    const opt = document.createElement('option');
+    opt.value = doc.id;
+    opt.textContent = doc.nome || doc.titulo || doc.id;
+    select.appendChild(opt);
+  });
+  select._sincronizarSeletorPersonalizado?.();
+}
+
+function sugerirProximoCodigoReuniao(){
+  const ano = new Date().getFullYear();
+  const reunioesAno = (typeof reunioes !== 'undefined' ? reunioes : []).filter(r => (r.data || '').startsWith(String(ano)));
+  return `REU-${ano}-${String(reunioesAno.length + 1).padStart(2,'0')}`;
+}
+
+function abrirModalNovaReuniao(){
+  popularSetoresNovaReuniao();
+  popularDocumentosNovaReuniao();
+  if(typeof inicializarSeletoresToolbar === 'function') inicializarSeletoresToolbar();
+  const hoje = todayStr();
+  const agora = new Date();
+  const hora = String(agora.getHours()).padStart(2,'0') + ':' + String(agora.getMinutes()).padStart(2,'0');
+
+  const campoTitulo = document.getElementById('nr-titulo');
+  const campoCodigo = document.getElementById('nr-codigo');
+  const campoTipo = document.getElementById('nr-tipo');
+  const campoData = document.getElementById('nr-data');
+  const campoHora = document.getElementById('nr-horario');
+  const campoSituacao = document.getElementById('nr-situacao');
+  const campoDoc = document.getElementById('nr-documento');
+  const campoSetor = document.getElementById('nr-setor');
+  const campoLink = document.getElementById('nr-link');
+  const campoPart = document.getElementById('nr-participantes');
+  const campoPauta = document.getElementById('nr-pauta');
+
+  if(campoTitulo) campoTitulo.value = '';
+  if(campoCodigo) campoCodigo.value = sugerirProximoCodigoReuniao();
+  if(campoTipo) campoTipo.value = '';
+  if(campoData) campoData.value = hoje;
+  if(campoHora) campoHora.value = hora;
+  if(campoSituacao) campoSituacao.value = 'Agendada';
+  if(campoDoc) campoDoc.value = '';
+  if(campoSetor) campoSetor.value = '';
+  if(campoLink) campoLink.value = '';
+  if(campoPart) campoPart.value = '';
+  if(campoPauta) campoPauta.value = '';
+  if(typeof sincronizarSeletoresPersonalizados === 'function') sincronizarSeletoresPersonalizados();
+
+  abrirModalElemento('modal-nova-reuniao-overlay');
+  campoTitulo?.focus();
+}
+
+function fecharModalNovaReuniao(){
+  fecharModalElemento('modal-nova-reuniao-overlay');
+}
+
+async function salvarNovaReuniao(){
+  const titulo = document.getElementById('nr-titulo')?.value.trim();
+  const data = document.getElementById('nr-data')?.value.trim();
+  const horario = document.getElementById('nr-horario')?.value.trim();
+  if(!titulo || !data || !horario){
+    toast('Preencha o título, a data e o horário da reunião.', 'vencido');
+    return;
+  }
+  const codigo = document.getElementById('nr-codigo')?.value.trim();
+  const tipo = document.getElementById('nr-tipo')?.value.trim() || 'Reunião';
+  const situacao = document.getElementById('nr-situacao')?.value || 'Agendada';
+  const documentoId = document.getElementById('nr-documento')?.value || '';
+  const setor = document.getElementById('nr-setor')?.value || '';
+  const link = normalizarLinkReuniao(document.getElementById('nr-link')?.value.trim());
+  const participantesTexto = document.getElementById('nr-participantes')?.value || '';
+  const participantes = participantesTexto.split('\n').map(p=>p.trim()).filter(Boolean);
+  const pauta = document.getElementById('nr-pauta')?.value.trim() || '';
+
+  const id = 'reu-' + Date.now();
+  const frequenciaRotulo = setor || tipo || 'Geral';
+  const novaReuniao = {
+    id,
+    data,
+    horario,
+    numeroEventoSei: codigo,
+    frequencia: frequenciaRotulo,
+    tipo,
+    setor,
+    formato: link ? 'Online' : 'Presencial',
+    link,
+    pauta: pauta ? `${titulo} — ${pauta}` : titulo,
+    resumo: titulo,
+    situacao,
+    cancelada: situacao === 'Cancelada',
+    reagendada: situacao === 'Remarcada',
+    documentoId,
+    membros: [],
+    convidados: participantes,
+    participantes
+  };
+
+  reunioes.unshift(novaReuniao);
+  const salvo = await salvarReunioes();
+  if(salvo){
+    fecharModalNovaReuniao();
+    renderReunioes();
+    toast('Reunião cadastrada com sucesso!', 'valido');
+  }
+}
+

@@ -62,18 +62,194 @@ const MENU = [['dashboard', 'Visão geral'], ['projetos', 'Projetos'], ['tarefas
     }
     function viewTask(id) { ocultarAcoesCompromisso(); const t = DATA.tarefas.find(x => x.id === id); if (!t)
         return; const p = projectOf(t); document.getElementById('detailsTitle').textContent = t.titulo; document.getElementById('detailsBody').innerHTML = `<p><b>Projeto:</b> ${esc(p?.nome || 'Sem projeto')}</p><p><b>Status:</b> ${esc(taskStatus(t))}</p><p><b>Prioridade:</b> ${priority(t)}</p><p><b>Responsável:</b> ${esc(t.responsavel || 'Não atribuído')}</p><p><b>Prazo:</b> ${dt(t.prazo)}</p><p><b>Observações:</b> ${esc(t.observacoes || 'Nenhuma')}</p>`; document.getElementById('details').showModal(); }
+    let filtroProjetoBusca = '';
+    let filtroProjetoStatus = '';
+    let filtroProjetoPrioridade = '';
+    let filtroProjetoResponsavel = '';
+    function atualizarBuscaProjetos(valor) {
+        const ativo = document.getElementById('proj-busca');
+        const caret = ativo?.selectionStart;
+        filtroProjetoBusca = valor;
+        paginaProjetos = 1;
+        render();
+        const novo = document.getElementById('proj-busca');
+        novo?.focus();
+        if (caret != null) novo?.setSelectionRange?.(caret, caret);
+    }
+    function limparFiltrosProjetos() {
+        filtroProjetoBusca = '';
+        filtroProjetoStatus = '';
+        filtroProjetoPrioridade = '';
+        filtroProjetoResponsavel = '';
+        paginaProjetos = 1;
+        render();
+    }
+    function classeStatusProjeto(status) {
+        const s = String(status || 'Ativo').toLocaleLowerCase('pt-BR');
+        if (s.includes('conclu')) return 'status-verde';
+        if (s.includes('andamento')) return 'status-ambar';
+        if (s.includes('pausad')) return 'status-neutro';
+        return 'status-azul';
+    }
     function projects() {
-        const totalPaginas = Math.max(1, Math.ceil(DATA.projetos.length / PROJETOS_POR_PAGINA));
-        paginaProjetos = Math.min(paginaProjetos, totalPaginas);
+        const termo = String(filtroProjetoBusca || '').trim().toLocaleLowerCase('pt-BR');
+        const responsaveisUnicos = [...new Set(DATA.projetos.map(p => p.responsavel).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+        const filtrados = DATA.projetos.filter(p => {
+            const casaBusca = !termo || [p.nome, p.objetivo, p.responsavel].some(v => String(v || '').toLocaleLowerCase('pt-BR').includes(termo));
+            const casaStatus = !filtroProjetoStatus || (p.status || 'Ativo') === filtroProjetoStatus;
+            const casaPrio = !filtroProjetoPrioridade || (p.prioridade || 'Média') === filtroProjetoPrioridade;
+            const casaResp = !filtroProjetoResponsavel || (p.responsavel || '') === filtroProjetoResponsavel;
+            return casaBusca && casaStatus && casaPrio && casaResp;
+        });
+
+        const totalPaginas = Math.max(1, Math.ceil(filtrados.length / PROJETOS_POR_PAGINA));
+        paginaProjetos = Math.max(1, Math.min(paginaProjetos, totalPaginas));
         const inicio = (paginaProjetos - 1) * PROJETOS_POR_PAGINA;
-        const projetosVisiveis = DATA.projetos.slice(inicio, inicio + PROJETOS_POR_PAGINA);
-        const paginacao = totalPaginas > 1
-            ? `<div class="paginacao-projetos" aria-label="Páginas dos projetos">
-                <button class="secondary" onclick="mudarPaginaProjetos(${paginaProjetos - 1})" ${paginaProjetos === 1 ? 'disabled' : ''}>Anterior</button>
-                ${Array.from({ length: totalPaginas }, (_, i) => `<button class="secondary ${paginaProjetos === i + 1 ? 'pagina-ativa' : ''}" onclick="mudarPaginaProjetos(${i + 1})">${i + 1}</button>`).join('')}
-                <button class="secondary" onclick="mudarPaginaProjetos(${paginaProjetos + 1})" ${paginaProjetos === totalPaginas ? 'disabled' : ''}>Próxima</button>
-               </div>` : '';
-        return `<div class="section-heading"><div><h3>Projetos cadastrados</h3></div><span class="muted">${DATA.projetos.length} projetos</span></div><div class="projetos-sem-rolagem">${projetosVisiveis.map(p => { const ts = DATA.tarefas.filter(t => projectOf(t)?.id === p.id), c = ts.filter(done).length; return `<section class="card project-entry"><div class="item"><div style="flex:1;min-width:0"><h3>${esc(p.nome)}</h3><p class="muted">${esc(p.objetivo || 'Sem descrição')} · Responsável: ${esc(p.responsavel || 'Não atribuído')}</p>${priority(p)}<span class="tag">${esc(p.status || 'Ativo')}</span><span class="tag">${c}/${ts.length} concluídas</span></div>${actions('projetos', p.id)}</div><div class="toolbar"><button class="secondary" onclick="toggleProject(${argumentoJsHtml(p.id)})">${openProject === p.id ? 'Ocultar tarefas' : 'Visualizar tarefas'}</button><button class="primary" onclick="newRecord('tarefas',{projeto_id:${argumentoJsHtml(p.id)}})">+ Nova tarefa</button></div>${openProject === p.id ? `<div class="project-task-scroll">${projectTaskRows(ts)}</div>` : ''}</section>`; }).join('') || '<section class="card empty-state"><div class="empty-icon">▣</div><h3>Nenhum projeto cadastrado</h3><p>Crie seu primeiro projeto para começar.</p><button class="primary" onclick="newRecord(&quot;projetos&quot;)">+ Novo projeto</button></section>'}</div>${paginacao}`;
+        const projetosVisiveis = filtrados.slice(inicio, inicio + PROJETOS_POR_PAGINA);
+        const exibindoDe = filtrados.length ? inicio + 1 : 0;
+        const exibindoAte = Math.min(inicio + PROJETOS_POR_PAGINA, filtrados.length);
+        const totalTexto = filtrados.length
+            ? `Mostrando ${exibindoDe}–${exibindoAte} de ${filtrados.length} ${filtrados.length === 1 ? 'projeto' : 'projetos'}`
+            : '0 projetos';
+
+        const botoesPaginacao = totalPaginas > 1 ? `
+            <div class="paginacao" role="navigation" aria-label="Paginação de projetos">
+                <button type="button" class="pagina-btn pagina-seta" ${paginaProjetos <= 1 ? 'disabled' : ''} onclick="mudarPaginaProjetos(${paginaProjetos - 1})">Anterior</button>
+                ${Array.from({ length: totalPaginas }, (_, i) => {
+                    const num = i + 1;
+                    return `<button type="button" class="pagina-btn ${paginaProjetos === num ? 'active' : ''}" onclick="mudarPaginaProjetos(${num})">${num}</button>`;
+                }).join('')}
+                <button type="button" class="pagina-btn pagina-seta" ${paginaProjetos >= totalPaginas ? 'disabled' : ''} onclick="mudarPaginaProjetos(${paginaProjetos + 1})">Próximo</button>
+            </div>
+        ` : '';
+
+        return `
+            <div class="projetos-modulo">
+                <section class="card auditoria-filtros-card">
+                    <div class="auditoria-filtros-grid">
+                        <div class="auditoria-field">
+                            <label for="proj-busca">Buscar</label>
+                            <input id="proj-busca" type="search" maxlength="120" placeholder="Nome, descrição ou responsável..." value="${esc(filtroProjetoBusca)}" oninput="atualizarBuscaProjetos(this.value)">
+                        </div>
+                        <div class="auditoria-field">
+                            <label for="proj-filtro-status">Status</label>
+                            <select id="proj-filtro-status" onchange="filtroProjetoStatus=this.value;paginaProjetos=1;render()">
+                                <option value="">Todos</option>
+                                ${['Ativo', 'Em andamento', 'Pausado', 'Concluído'].map(st => `<option value="${st}" ${filtroProjetoStatus === st ? 'selected' : ''}>${st}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="auditoria-field">
+                            <label for="proj-filtro-prioridade">Prioridade</label>
+                            <select id="proj-filtro-prioridade" onchange="filtroProjetoPrioridade=this.value;paginaProjetos=1;render()">
+                                <option value="">Todas</option>
+                                ${['Urgente', 'Alta', 'Média', 'Baixa'].map(pr => `<option value="${pr}" ${filtroProjetoPrioridade === pr ? 'selected' : ''}>${pr}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="auditoria-field">
+                            <label for="proj-filtro-responsavel">Responsável</label>
+                            <select id="proj-filtro-responsavel" onchange="filtroProjetoResponsavel=this.value;paginaProjetos=1;render()">
+                                <option value="">Todos os responsáveis</option>
+                                ${responsaveisUnicos.map(r => `<option value="${esc(r)}" ${filtroProjetoResponsavel === r ? 'selected' : ''}>${esc(r)}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="auditoria-filtros-limpar">
+                            <button type="button" class="secondary" onclick="limparFiltrosProjetos()">Limpar filtros</button>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="card projetos-tabela-card">
+                    <div class="projetos-tabela-topo">
+                        <div>
+                            <h3>Projetos cadastrados</h3>
+                            <p class="muted">${totalTexto}</p>
+                        </div>
+                    </div>
+                    ${projetosVisiveis.length ? `
+                        <div class="projetos-tabela-wrap">
+                            <table class="projetos-tabela">
+                                <thead>
+                                    <tr>
+                                        <th>Projeto</th>
+                                        <th>Responsável</th>
+                                        <th>Prioridade</th>
+                                        <th>Status</th>
+                                        <th>Progresso</th>
+                                        <th>Prazo</th>
+                                        <th style="text-align:right">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${projetosVisiveis.map(p => {
+                                        const ts = DATA.tarefas.filter(t => projectOf(t)?.id === p.id);
+                                        const c = ts.filter(done).length;
+                                        const pct = ts.length ? Math.round((c / ts.length) * 100) : 0;
+                                        const expandido = openProject === p.id;
+                                        return `
+                                            <tr class="project-entry ${expandido ? 'is-expanded' : ''}">
+                                                <td class="proj-col-nome">
+                                                    <strong>${esc(p.nome)}</strong>
+                                                    <small>${esc(p.objetivo || 'Sem descrição')}</small>
+                                                </td>
+                                                <td class="proj-col-resp">${esc(p.responsavel || 'Não atribuído')}</td>
+                                                <td class="proj-col-prio">${priority(p)}</td>
+                                                <td class="proj-col-status">
+                                                    <span class="dash-status-pill ${classeStatusProjeto(p.status)}">${esc(p.status || 'Ativo')}</span>
+                                                </td>
+                                                <td class="proj-col-prog">
+                                                    <div class="proj-progresso">
+                                                        <div class="proj-progresso-trilha"><div class="proj-progresso-fill" style="width:${pct}%"></div></div>
+                                                        <span>${c}/${ts.length} concluídas</span>
+                                                    </div>
+                                                </td>
+                                                <td class="proj-col-prazo">${p.prazo ? dt(p.prazo) : '—'}</td>
+                                                <td class="proj-col-acoes">
+                                                    <div class="proj-acoes-wrap">
+                                                        <button type="button" class="secondary" onclick="toggleProject(${argumentoJsHtml(p.id)})">${expandido ? 'Ocultar' : `Tarefas (${ts.length})`}</button>
+                                                        <button type="button" class="primary" onclick="newRecord('tarefas',{projeto_id:${argumentoJsHtml(p.id)}})">+ Tarefa</button>
+                                                        <div class="actions">
+                                                            <button type="button" class="secondary" onclick="edit('projetos',${argumentoJsHtml(p.id)})">Editar</button>
+                                                            <button type="button" class="secondary danger" onclick="removeRecord('projetos',${argumentoJsHtml(p.id)})">Excluir</button>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            ${expandido ? `
+                                                <tr class="projeto-tarefas-expandida">
+                                                    <td colspan="7">
+                                                        <div class="projeto-tarefas-box">
+                                                            <div class="projeto-tarefas-box-head">
+                                                                <span>Tarefas vinculadas (${ts.length})</span>
+                                                            </div>
+                                                            ${projectTaskRows(ts)}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ` : ''}
+                                        `;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                        ${totalPaginas > 1 ? `
+                            <div class="paginacao-rodape">
+                                <div class="paginacao-total-texto">Página ${paginaProjetos} de ${totalPaginas}</div>
+                                ${botoesPaginacao}
+                            </div>
+                        ` : ''}
+                    ` : `
+                        <div class="tarefas-vazio">
+                            <div class="tarefas-vazio-icone" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            </div>
+                            <h3>Nenhum projeto encontrado</h3>
+                            <p>${DATA.projetos.length ? 'Ajuste os filtros ou limpe a busca para visualizar os projetos.' : 'Crie seu primeiro projeto para organizar entregas e tarefas da equipe.'}</p>
+                            <button type="button" class="primary" onclick="typeof trocarAbaProjetos==='function'?trocarAbaProjetos('cadastro'):newRecord('projetos')">+ Cadastrar projeto</button>
+                        </div>
+                    `}
+                </section>
+            </div>
+        `;
     }
     function mudarPaginaProjetos(numero) {
         const total = Math.max(1, Math.ceil(DATA.projetos.length / PROJETOS_POR_PAGINA));
@@ -84,11 +260,126 @@ const MENU = [['dashboard', 'Visão geral'], ['projetos', 'Projetos'], ['tarefas
     }
     function toggleProject(id) { openProject = openProject === id ? null : id; render(); }
     let taskStatusFilter = 'Todos';
-    function tasks() { const names = ['Todos', 'Sem projeto', ...DATA.projetos.map(p => p.id)]; const ts = DATA.tarefas.filter(t => (taskFilter === 'Todos' || (taskFilter === 'Sem projeto' ? !projectOf(t) : projectOf(t)?.id === taskFilter)) && (taskStatusFilter === 'Todos' || taskStatus(t) === taskStatusFilter)); return `<div class="status-tabs">${[['Todos', 'Todas as tarefas'], ['A fazer', 'A fazer'], ['Em andamento', 'Em andamento'], ['Concluída', 'Concluídas']].map(([key, label]) => `<button class="${taskStatusFilter === key ? 'active' : ''}" onclick="taskStatusFilter=${argumentoJsHtml(key)};render()">${label} <span class="muted">${key === 'Todos' ? DATA.tarefas.length : DATA.tarefas.filter(t => taskStatus(t) === key).length}</span></button>`).join('')}</div><div class="toolbar"><label for="projectFilter">Projeto</label><select id="projectFilter" onchange="taskFilter=this.value;render()">${names.map(n => `<option value="${esc(n)}" ${taskFilter === n ? 'selected' : ''}>${esc(DATA.projetos.find(p => p.id === n)?.nome || n)}</option>`).join('')}</select></div><div class="task-table page-scroll">${ts.length ? projectTaskRows(ts).replace('<div class="simple-list">', '').replace(/<\/div>$/, '') : '<div class="empty-state"><div class="empty-icon">✓</div><h3>Nenhuma tarefa por aqui</h3><p>As tarefas cadastradas aparecerão nesta lista.</p><button class="primary" onclick="newRecord(&quot;tarefas&quot;)">+ Nova tarefa</button></div>'}</div>`; }
+    let taskViewMode = 'lista';
+    let taskPriorityFilter = 'Todas';
+    let taskSearchQuery = '';
+    function atualizarBuscaTarefas(valor) {
+      const ativo = document.getElementById('taskSearchInput');
+      const caret = ativo?.selectionStart;
+      taskSearchQuery = valor;
+      render();
+      const novo = document.getElementById('taskSearchInput');
+      novo?.focus();
+      if (caret != null) novo?.setSelectionRange?.(caret, caret);
+    }
+    function definirModoTarefas(modo) {
+      taskViewMode = modo === 'quadro' ? 'quadro' : 'lista';
+      render();
+    }
+    function renderKanbanTarefas(ts) {
+      const colunas = [
+        { status: 'A fazer', titulo: 'Pendente', classe: 'col-pendente' },
+        { status: 'Em andamento', titulo: 'Em andamento', classe: 'col-andamento' },
+        { status: 'Concluída', titulo: 'Concluída', classe: 'col-concluida' }
+      ];
+      return `<div class="tarefas-kanban-grid">${colunas.map(col => {
+        const itens = ts.filter(t => taskStatus(t) === col.status);
+        return `
+          <section class="tarefas-kanban-col ${col.classe}">
+            <header class="tarefas-kanban-head">
+              <h4>${col.titulo}</h4>
+              <span class="tarefas-kanban-qtd">${itens.length}</span>
+            </header>
+            <div class="tarefas-kanban-body">
+              ${itens.length ? itens.map(t => {
+                const proj = projectOf(t);
+                const st = taskStatus(t);
+                return `
+                  <article class="tarefas-kanban-card ${st === 'Concluída' ? 'is-done' : ''}">
+                    <div class="tarefas-kanban-card-top">
+                      <strong>${esc(t.titulo)}</strong>
+                      ${priority(t)}
+                    </div>
+                    <div class="tarefas-kanban-card-meta">
+                      ${proj ? `<span class="tarefas-proj-tag">${esc(proj.nome)}</span>` : ''}
+                      <span>${esc(t.responsavel || 'Sem responsável')}</span>
+                      ${t.prazo ? `<span>${dt(t.prazo)}</span>` : ''}
+                    </div>
+                    <div class="tarefas-kanban-card-actions">
+                      ${st === 'A fazer' ? `<button type="button" class="secondary" onclick="changeStatus(${argumentoJsHtml(t.id)},'Em andamento')">Iniciar</button>` : ''}
+                      ${st !== 'Concluída' ? `<button type="button" class="primary" onclick="changeStatus(${argumentoJsHtml(t.id)},'Concluída')">Concluir</button>` : `<button type="button" class="secondary" onclick="changeStatus(${argumentoJsHtml(t.id)},'A fazer')">Reabrir</button>`}
+                      <button type="button" class="secondary" onclick="edit('tarefas',${argumentoJsHtml(t.id)})">Editar</button>
+                    </div>
+                  </article>
+                `;
+              }).join('') : '<div class="tarefas-kanban-vazio">Nenhuma tarefa nesta etapa.</div>'}
+            </div>
+          </section>
+        `;
+      }).join('')}</div>`;
+    }
+    function tasks() {
+      const projetos = ['Todos', 'Sem projeto', ...DATA.projetos.map(p => p.id)];
+      const termo = String(taskSearchQuery || '').trim().toLocaleLowerCase('pt-BR');
+      const filtradasBase = DATA.tarefas.filter(t => {
+        const casaProjeto = taskFilter === 'Todos' || (taskFilter === 'Sem projeto' ? !projectOf(t) : projectOf(t)?.id === taskFilter);
+        const casaPrioridade = taskPriorityFilter === 'Todas' || (t.prioridade || 'Média') === taskPriorityFilter;
+        const projNome = projectOf(t)?.nome || '';
+        const casaBusca = !termo || [t.titulo, t.responsavel, projNome, t.observacoes].some(v => String(v || '').toLocaleLowerCase('pt-BR').includes(termo));
+        return casaProjeto && casaPrioridade && casaBusca;
+      });
+      const ts = taskViewMode === 'lista'
+        ? filtradasBase.filter(t => taskStatusFilter === 'Todos' || taskStatus(t) === taskStatusFilter)
+        : filtradasBase;
+
+      const barraEsquerda = taskViewMode === 'lista'
+        ? `<div class="tarefas-status-pills" role="tablist" aria-label="Filtrar por status">${[['Todos', 'Todas'], ['A fazer', 'Pendentes'], ['Em andamento', 'Em andamento'], ['Concluída', 'Concluídas']].map(([key, label]) => `<button type="button" class="${taskStatusFilter === key ? 'active' : ''}" onclick="taskStatusFilter=${argumentoJsHtml(key)};render()">${label}</button>`).join('')}</div>`
+        : `<span class="tarefas-quadro-legenda">Visualização em colunas por estágio de execução</span>`;
+
+      const filtrosHtml = `
+        <section class="card tarefas-filtros-card">
+          <div class="tarefas-filtros-bar">
+            <div class="tarefas-filtros-esquerda">${barraEsquerda}</div>
+            <div class="tarefas-filtros-direita">
+              <div class="tarefas-select-wrap">
+                <select id="projectFilter" aria-label="Filtrar por projeto" onchange="taskFilter=this.value;render()">
+                  ${projetos.map(n => `<option value="${esc(n)}" ${taskFilter === n ? 'selected' : ''}>${esc(n === 'Todos' ? 'Todos os projetos' : (DATA.projetos.find(p => p.id === n)?.nome || n))}</option>`).join('')}
+                </select>
+              </div>
+              <div class="tarefas-select-wrap">
+                <select id="taskPriorityFilter" aria-label="Filtrar por prioridade" onchange="taskPriorityFilter=this.value;render()">
+                  <option value="Todas" ${taskPriorityFilter === 'Todas' ? 'selected' : ''}>Todas as prioridades</option>
+                  ${['Urgente', 'Alta', 'Média', 'Baixa'].map(pr => `<option value="${pr}" ${taskPriorityFilter === pr ? 'selected' : ''}>${pr}</option>`).join('')}
+                </select>
+              </div>
+              <div class="tarefas-busca-wrap">
+                <input id="taskSearchInput" type="search" maxlength="100" placeholder="Buscar tarefa, projeto ou responsável..." value="${esc(taskSearchQuery)}" oninput="atualizarBuscaTarefas(this.value)">
+              </div>
+            </div>
+          </div>
+        </section>
+      `;
+
+      const corpoHtml = taskViewMode === 'quadro'
+        ? renderKanbanTarefas(filtradasBase)
+        : `<section class="card tarefas-lista-card">${ts.length
+            ? `<div class="task-table page-scroll">${projectTaskRows(ts).replace('<div class="simple-list">', '').replace(/<\/div>$/, '')}</div>`
+            : `<div class="tarefas-vazio">
+                <div class="tarefas-vazio-icone" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="m9 12 2 2 4-4"/></svg>
+                </div>
+                <h3>Nenhuma tarefa encontrada</h3>
+                <p>Altere os filtros ou crie uma nova tarefa para distribuir as entregas da equipe.</p>
+                <button type="button" class="primary" onclick="typeof trocarAbaTarefas==='function'?trocarAbaTarefas('cadastro'):newRecord('tarefas')">+ Criar primeira tarefa</button>
+              </div>`
+          }</section>`;
+
+      return `<div class="tarefas-modulo">${filtrosHtml}${corpoHtml}</div>`;
+    }
     let openPerson = null;
     function togglePerson(id) { openPerson = openPerson === id ? null : id; render(); }
     function people() { return `<div class="section-heading"><div><h3>Responsáveis</h3></div><span class="muted">${DATA.responsaveis.length} responsáveis</span></div><div class="page-scroll">${DATA.responsaveis.map(p => { const ts = DATA.tarefas.filter(t => t.responsavel === p.nome), c = ts.filter(done).length; return `<section class="card person-entry"><div class="item"><div style="flex:1;min-width:0"><b>${esc(p.nome)}</b><p class="muted">${esc(p.email || 'Sem e-mail')} · ${ts.length} tarefas · ${c} concluídas</p></div><div class="actions"><button class="secondary" onclick="togglePerson(${argumentoJsHtml(p.id)})">${openPerson === p.id ? 'Ocultar tarefas' : 'Visualizar tarefas'}</button>${actions('responsaveis', p.id)}</div></div>${openPerson === p.id ? projectTaskRows(ts) : ''}</section>`; }).join('') || '<section class="card empty-state"><div class="empty-icon">♙</div><h3>Uma equipe, muitas possibilidades</h3><p>Cadastre responsáveis para os projetos e tarefas.</p><button class="primary" onclick="newRecord(&quot;responsaveis&quot;)">+ Adicionar responsável</button></section>'}</div>`; }
-    let selectedCalendarDay = null;
+    let selectedCalendarDay = today();
     function calendarEvents(date) { return [...DATA.agenda.filter(a => a.data === date).map(a => ({ n: 'agenda', id: a.id, title: a.titulo, at: a.hora || 'Compromisso', prio: 'Média' })), ...DATA.projetos.filter(p => p.prazo === date).map(p => ({ n: 'projetos', id: p.id, title: p.nome, at: 'Projeto', prio: p.prioridade || 'Média' })), ...DATA.tarefas.filter(t => t.prazo === date).map(t => ({ n: 'tarefas', id: t.id, title: t.titulo, at: 'Tarefa', prio: t.prioridade || 'Média' }))]; }
     function calendarPriority(e) { return 'priority-' + (({ 'Baixa': 'low', 'Média': 'medium', 'Alta': 'high', 'Urgente': 'urgent' })[e.prio] || 'medium'); }
     function selectCalendarDay(date) { selectedCalendarDay = date; render(); }
@@ -122,29 +413,37 @@ const MENU = [['dashboard', 'Visão geral'], ['projetos', 'Projetos'], ['tarefas
         return viewTask(id); const fields = n === 'projetos' ? [['Descrição', r.objetivo], ['Responsável', r.responsavel], ['Prioridade', r.prioridade], ['Status', r.status], ['Prazo', dt(r.prazo)]] : [['Data', dt(r.data)], ['Horário', r.hora], ['Término', r.hora_fim], ['Responsável', r.responsavel], ['Observações', r.observacoes]]; document.getElementById('detailsTitle').textContent = r.nome || r.titulo || 'Detalhes'; document.getElementById('detailsBody').innerHTML = fields.map(([k, v]) => `<p><b>${k}:</b> ${esc(v || 'Não informado')}</p>`).join(''); if (n === 'agenda') configurarAcoesCompromisso(id); document.getElementById('details').showModal(); }
     function calendar() {
       const first = new Date(year, month, 1), last = new Date(year, month + 1, 0).getDate();
+      const monthPrefix = `${year}-${String(month + 1).padStart(2, '0')}-`;
+      const monthEvents = [];
       let cells = '<div class="calendar-pad" aria-hidden="true"></div>'.repeat(first.getDay());
       for (let d = 1; d <= last; d++) {
-        const date = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const date = `${monthPrefix}${String(d).padStart(2, '0')}`;
         const events = calendarEvents(date), selected = selectedCalendarDay === date;
-        cells += `<div class="day ${selected ? 'calendar-selected' : ''} ${date === today() ? 'calendar-today' : ''}">
+        events.forEach(ev => monthEvents.push({ ...ev, date }));
+        cells += `<div class="day ${selected ? 'calendar-selected' : ''} ${date === today() ? 'calendar-today' : ''}" onclick="if(!event.target.closest('.event'))selectCalendarDay(${argumentoJsHtml(date)})">
           <button type="button" class="calendar-day-number" onclick="selectCalendarDay(${argumentoJsHtml(date)})" aria-label="Visualizar dia ${d}" aria-pressed="${selected}" ${date === today() ? 'aria-current="date"' : ''}>${d}</button>
-          ${events.slice(0, 2).map(e => `<button type="button" class="event ${calendarPriority(e)}" onclick="viewCalendarRecord(${argumentoJsHtml(e.n)},${argumentoJsHtml(e.id)})" title="Visualizar ${esc(e.title)}">${esc(e.at)} · ${esc(e.title)}</button>`).join('')}
+          ${events.slice(0, 2).map(e => `<button type="button" class="event ${calendarPriority(e)} event-type-${esc(e.n)}" onclick="viewCalendarRecord(${argumentoJsHtml(e.n)},${argumentoJsHtml(e.id)})" title="Visualizar ${esc(e.title)}">${esc(e.at)} · ${esc(e.title)}</button>`).join('')}
           ${events.length > 2 ? `<button type="button" class="calendar-more" onclick="selectCalendarDay(${argumentoJsHtml(date)})">+ ${events.length - 2} mais · Ver dia</button>` : ''}</div>`;
       }
       const trailing = (7 - (first.getDay() + last) % 7) % 7;
       cells += '<div class="calendar-pad" aria-hidden="true"></div>'.repeat(trailing);
-      const selected = selectedCalendarDay && selectedCalendarDay.startsWith(`${year}-${String(month + 1).padStart(2, '0')}-`) ? selectedCalendarDay : null;
+      const selected = selectedCalendarDay && selectedCalendarDay.startsWith(monthPrefix) ? selectedCalendarDay : null;
       const dayEvents = selected ? calendarEvents(selected) : [];
+      const monthLabel = first.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+      const monthTitle = monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1);
+      const upcoming = monthEvents.filter(e => e.date !== selected).slice(0, 5);
       return `<section class="card calendar-card"><div class="calendar-toolbar" aria-label="Navegação da agenda">
-        <button type="button" onclick="changeMonth(-1)" aria-label="Mês anterior">Anterior</button>
-        <b aria-live="polite">${first.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</b>
-        <button type="button" onclick="changeMonth(1)" aria-label="Próximo mês">Próximo</button>
+        <button type="button" onclick="changeMonth(-1)" aria-label="Mês anterior">‹ Anterior</button>
+        <b aria-live="polite">${monthTitle}</b>
+        <button type="button" onclick="changeMonth(1)" aria-label="Próximo mês">Próximo ›</button>
         <button type="button" onclick="irHojeAgenda()">Hoje</button></div>
         <div class="calendar-shell"><div class="calendar-main"><div class="calendar">
-        ${['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map(x => `<div class="weekday">${x}</div>`).join('')}${cells}</div></div>
+        ${['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map(x => `<div class="weekday">${x}</div>`).join('')}${cells}</div>
+        <div class="calendar-legend"><span class="legend-item"><i class="legend-dot dot-reunioes"></i> Reuniões</span><span class="legend-item"><i class="legend-dot dot-projetos"></i> Prazos de projetos</span><span class="legend-item"><i class="legend-dot dot-tarefas"></i> Prazos de tarefas</span></div></div>
         <aside class="calendar-side" aria-label="Atividades da data selecionada"><h3>${selected ? `Dia ${dt(selected)}` : 'Selecione um dia'}</h3>
-        <p class="muted">${selected ? `${dayEvents.length} registro(s) neste dia` : 'Clique no número de um dia para visualizar todas as atividades.'}</p>
-        <div class="calendar-day-list">${dayEvents.length ? dayEvents.map(e => `<div class="calendar-entry-actions"><button type="button" class="calendar-day-entry" onclick="viewCalendarRecord(${argumentoJsHtml(e.n)},${argumentoJsHtml(e.id)})"><strong>${esc(e.title)}</strong><span>${esc(e.at)} · ${esc(e.prio)}</span></button></div>`).join('') : selected ? '<p class="muted">Nenhuma atividade neste dia.</p>' : ''}</div></aside></div></section>`;
+        <p class="muted">${selected ? `${dayEvents.length} registro(s) neste dia` : 'Clique em um dia do calendário para visualizar as atividades.'}</p>
+        <div class="calendar-day-list">${dayEvents.length ? dayEvents.map(e => `<div class="calendar-entry-actions"><button type="button" class="calendar-day-entry event-type-${esc(e.n)}" onclick="viewCalendarRecord(${argumentoJsHtml(e.n)},${argumentoJsHtml(e.id)})"><strong>${esc(e.title)}</strong><span>${esc(e.at)} · ${esc(e.prio)}</span></button></div>`).join('') : selected ? '<p class="muted">Nenhuma atividade neste dia.</p>' : ''}</div>
+        ${upcoming.length ? `<div class="calendar-upcoming"><h4>Outros registros do mês</h4><div class="calendar-day-list">${upcoming.map(e => `<div class="calendar-entry-actions"><button type="button" class="calendar-day-entry event-type-${esc(e.n)}" onclick="selectCalendarDay(${argumentoJsHtml(e.date)});viewCalendarRecord(${argumentoJsHtml(e.n)},${argumentoJsHtml(e.id)})"><strong>${esc(e.title)}</strong><span>${dt(e.date)} · ${esc(e.at)}</span></button></div>`).join('')}</div></div>` : ''}</aside></div></section>`;
     }
     function irHojeAgenda() {
       month = new Date().getMonth(); year = new Date().getFullYear(); selectedCalendarDay = today(); render();

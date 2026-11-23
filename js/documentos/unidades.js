@@ -195,14 +195,39 @@ function renderSetoresDocumentos(){
   ).join('');
 }
 
+function popularFiltroUnidadesDocumentos(){
+  const select=document.getElementById('filtro-unidade-doc');
+  if(!select) return;
+  const setoresAtivos=new Map();
+  docs.forEach(doc=>{
+    const codigo=doc.unidade || doc.gestorSetor;
+    if(!codigo) return;
+    const contexto=localizarUnidadeDocumento(codigo);
+    if(!contexto) return;
+    const chave=contexto.setor.codigo;
+    const atual=setoresAtivos.get(chave) || {setor:contexto.setor,quantidade:0};
+    atual.quantidade++;
+    setoresAtivos.set(chave,atual);
+  });
+  const valorAtual=unidadeSelecionadaDocumentos || 'SETOR:TODAS';
+  const opcoes=['<option value="SETOR:TODAS">Todas as unidades</option>'];
+  [...setoresAtivos.values()].forEach(({setor,quantidade})=>{
+    opcoes.push(`<option value="${escapeHtml('SETOR:'+setor.codigo)}">${escapeHtml(setor.codigo)} — ${escapeHtml(setor.nome)} (${quantidade})</option>`);
+  });
+  select.innerHTML=opcoes.join('');
+  select.value=[...select.options].some(o=>o.value===valorAtual) ? valorAtual : 'SETOR:TODAS';
+  select._sincronizarSeletorPersonalizado?.();
+}
+
 function abrirUnidadeDocumentos(codigo){
-  const contexto=localizarUnidadeDocumento(codigo);
+  const contexto=localizarUnidadeDocumento(codigo || 'SETOR:TODAS');
   if(!contexto) return;
   setorSelecionadoDocumentos=contexto.setor.codigo;
   unidadeSelecionadaDocumentos=contexto.codigo;
   document.getElementById('documentos-setores-view')?.classList.add('oculto');
   document.getElementById('documentos-acompanhamento')?.classList.remove('oculto');
   definirContextoDocumentos();
+  popularFiltroUnidadesDocumentos();
   paginaAtual=1;
   filtrosAnteriores='';
   render();

@@ -155,6 +155,7 @@ function alterarItensPorPagina(valor){
 function limparFiltrosDocumentos(){
   const filtros={
     'busca-nome':'',
+    'filtro-unidade-doc':'SETOR:TODAS',
     'filtro-status':'todos',
     'filtro-tipo':'',
     'filtro-ano':''
@@ -163,6 +164,11 @@ function limparFiltrosDocumentos(){
     const campo=document.getElementById(id);
     if(campo) campo.value=valor;
   });
+  if(typeof abrirUnidadeDocumentos==='function') {
+    abrirUnidadeDocumentos('SETOR:TODAS');
+    if(typeof sincronizarSeletoresPersonalizados==='function') sincronizarSeletoresPersonalizados();
+    return;
+  }
   paginaAtual=1;
   filtrosAnteriores='';
   render();

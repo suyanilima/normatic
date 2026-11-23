@@ -21,7 +21,7 @@ function setTab(tab, opcoes = {}){
     window.history.pushState({ tab }, '', hash);
   }
   if(tab === 'dashboard' && typeof renderDashboard === 'function') renderDashboard();
-  if(tab === 'acompanhamento' && typeof renderSetoresDocumentos === 'function' && !unidadeSelecionadaDocumentos) renderSetoresDocumentos();
+  if(tab === 'acompanhamento' && typeof abrirUnidadeDocumentos === 'function') abrirUnidadeDocumentos(unidadeSelecionadaDocumentos || 'SETOR:TODAS');
 }
 
 function inicializarNavbar(){
