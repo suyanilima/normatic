@@ -831,16 +831,20 @@ body.iframe-modal-aberto .documental-area {
     overflow: hidden !important;
     transition: transform .22s ease;
   }
-  .plataforma-unificada main {
+  .plataforma-unificada main,
+  .plataforma-unificada.modulo-farol > main {
+    max-width: none !important;
     transition: margin-left .22s ease, width .22s ease;
   }
   body.sidebar-recolhida .plataforma-sidebar {
     transform: translateX(-100%);
     pointer-events: none;
   }
-  body.sidebar-recolhida main {
+  body.sidebar-recolhida main,
+  body.sidebar-recolhida.modulo-farol > main {
     margin-left: 0 !important;
     width: 100% !important;
+    max-width: none !important;
   }
   .plataforma-unificada .plataforma-sidebar > .brand,
   .plataforma-unificada .plataforma-sidebar > .cloud-account {
