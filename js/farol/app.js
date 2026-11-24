@@ -294,22 +294,27 @@ const MENU = [['dashboard', 'Visão geral'], ['projetos', 'Projetos'], ['tarefas
               ${itens.length ? itens.map(t => {
                 const proj = projectOf(t);
                 const st = taskStatus(t);
+                const prio = t.prioridade || 'Média';
+                const prioClasse = prio === 'Urgente' || prio === 'Alta' ? 'prio-alta' : prio === 'Baixa' ? 'prio-baixa' : 'prio-media';
+                const botoesEtapa = st === 'A fazer'
+                  ? `<button type="button" class="tarefas-kbtn kbtn-andamento" onclick="changeStatus(${argumentoJsHtml(t.id)},'Em andamento')">Em andamento</button><button type="button" class="tarefas-kbtn kbtn-concluir" onclick="changeStatus(${argumentoJsHtml(t.id)},'Concluída')">Concluir</button>`
+                  : st === 'Em andamento'
+                    ? `<button type="button" class="tarefas-kbtn kbtn-pendente" onclick="changeStatus(${argumentoJsHtml(t.id)},'A fazer')">Pendente</button><button type="button" class="tarefas-kbtn kbtn-concluir" onclick="changeStatus(${argumentoJsHtml(t.id)},'Concluída')">Concluir</button>`
+                    : `<button type="button" class="tarefas-kbtn kbtn-pendente kbtn-full" onclick="changeStatus(${argumentoJsHtml(t.id)},'A fazer')">Reabrir</button>`;
                 return `
                   <article class="tarefas-kanban-card ${st === 'Concluída' ? 'is-done' : ''}">
                     <div class="tarefas-kanban-card-top">
                       <strong>${esc(t.titulo)}</strong>
-                      ${priority(t)}
+                      <button type="button" class="tarefas-kanban-edit-btn" onclick="edit('tarefas',${argumentoJsHtml(t.id)})" title="Editar tarefa" aria-label="Editar tarefa">
+                        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                      </button>
                     </div>
-                    <div class="tarefas-kanban-card-meta">
-                      ${proj ? `<span class="tarefas-proj-tag">${esc(proj.nome)}</span>` : ''}
-                      <span>${esc(t.responsavel || 'Sem responsável')}</span>
-                      ${t.prazo ? `<span>${dt(t.prazo)}</span>` : ''}
+                    <div class="tarefas-kanban-card-sub">${esc(proj?.nome || 'Sem projeto')} · ${esc(t.responsavel || 'Sem responsável')}</div>
+                    <div class="tarefas-kanban-card-info">
+                      <span class="tarefas-kanban-prio ${prioClasse}">Prioridade ${esc(prio)}</span>
+                      <span class="tarefas-kanban-prazo">${t.prazo ? dt(t.prazo) : 'Sem prazo'}</span>
                     </div>
-                    <div class="tarefas-kanban-card-actions">
-                      ${st === 'A fazer' ? `<button type="button" class="secondary" onclick="changeStatus(${argumentoJsHtml(t.id)},'Em andamento')">Iniciar</button>` : ''}
-                      ${st !== 'Concluída' ? `<button type="button" class="primary" onclick="changeStatus(${argumentoJsHtml(t.id)},'Concluída')">Concluir</button>` : `<button type="button" class="secondary" onclick="changeStatus(${argumentoJsHtml(t.id)},'A fazer')">Reabrir</button>`}
-                      <button type="button" class="secondary" onclick="edit('tarefas',${argumentoJsHtml(t.id)})">Editar</button>
-                    </div>
+                    <div class="tarefas-kanban-card-actions">${botoesEtapa}</div>
                   </article>
                 `;
               }).join('') : '<div class="tarefas-kanban-vazio">Nenhuma tarefa nesta etapa.</div>'}

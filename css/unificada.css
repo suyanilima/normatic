@@ -380,6 +380,7 @@ body.iframe-modal-aberto .documental-area {
 .tarefas-kanban-col {
   background: #fff;
   border: 1px solid #E5ECF5;
+  border-top: 3px solid #CBD5E1;
   border-radius: 14px;
   padding: 16px 18px 20px;
   min-height: 360px;
@@ -387,6 +388,10 @@ body.iframe-modal-aberto .documental-area {
   flex-direction: column;
   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
 }
+
+.tarefas-kanban-col.col-pendente { border-top-color: #2563EB; }
+.tarefas-kanban-col.col-andamento { border-top-color: #D97706; }
+.tarefas-kanban-col.col-concluida { border-top-color: #16A34A; }
 
 .tarefas-kanban-head {
   display: flex;
@@ -404,15 +409,27 @@ body.iframe-modal-aberto .documental-area {
   font-weight: 700;
 }
 
-.tarefas-kanban-col.col-pendente .tarefas-kanban-head h4 { color: #1351B4; }
-.tarefas-kanban-col.col-andamento .tarefas-kanban-head h4 { color: #D97706; }
-.tarefas-kanban-col.col-concluida .tarefas-kanban-head h4 { color: #16A34A; }
+.tarefas-kanban-col.col-pendente .tarefas-kanban-head h4 { color: #2563EB !important; }
+.tarefas-kanban-col.col-andamento .tarefas-kanban-head h4 { color: #D97706 !important; }
+.tarefas-kanban-col.col-concluida .tarefas-kanban-head h4 { color: #16A34A !important; }
 
 .tarefas-kanban-qtd {
-  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 12px;
   font-weight: 700;
-  color: #64748B;
+  background: #F1F5F9;
+  color: #475569;
 }
+
+.tarefas-kanban-col.col-pendente .tarefas-kanban-qtd { background: #EFF6FF; color: #1D4ED8; }
+.tarefas-kanban-col.col-andamento .tarefas-kanban-qtd { background: #FFFBEB; color: #B45309; }
+.tarefas-kanban-col.col-concluida .tarefas-kanban-qtd { background: #F0FDF4; color: #15803D; }
 
 .tarefas-kanban-body {
   display: flex;
@@ -434,71 +451,131 @@ body.iframe-modal-aberto .documental-area {
 
 .tarefas-kanban-card {
   border: 1px solid #E5ECF5;
-  border-radius: 11px;
-  padding: 13px 14px;
-  background: #FAFCFF;
+  border-radius: 12px;
+  padding: 14px 16px;
+  background: #fff;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  transition: border-color .12s, box-shadow .12s;
+  gap: 6px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+  transition: border-color .14s, box-shadow .14s;
 }
 
 .tarefas-kanban-card:hover {
   border-color: #CBD5E1;
-  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
 }
 
 .tarefas-kanban-card.is-done {
-  opacity: 0.85;
+  background: #FAFBFD;
+  opacity: 0.88;
 }
 
 .tarefas-kanban-card-top {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
 }
 
 .tarefas-kanban-card-top strong {
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 600;
   color: #0F172A;
   line-height: 1.35;
+  word-break: break-word;
 }
 
-.tarefas-kanban-card-meta {
-  display: flex;
-  flex-wrap: wrap;
+.tarefas-kanban-edit-btn {
+  display: inline-flex;
   align-items: center;
-  gap: 6px 10px;
-  font-size: 12px;
-  color: #64748B;
+  justify-content: center;
+  flex: 0 0 26px;
+  width: 26px !important;
+  height: 26px !important;
+  min-height: 26px !important;
+  padding: 0 !important;
+  margin: -2px -4px 0 0 !important;
+  border: 0 !important;
+  border-radius: 6px !important;
+  background: transparent !important;
+  color: #94A3B8 !important;
+  cursor: pointer;
+  transition: background .12s, color .12s;
 }
 
-.tarefas-proj-tag {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 6px;
-  background: #EEF4FF;
-  color: var(--gov-blue-dark);
-  font-size: 11.5px;
+.tarefas-kanban-edit-btn:hover {
+  background: #F1F5F9 !important;
+  color: var(--gov-blue) !important;
+}
+
+.tarefas-kanban-card-sub {
+  font-size: 12.5px;
+  color: #64748B;
+  line-height: 1.4;
+}
+
+.tarefas-kanban-card-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 6px;
+  padding-top: 10px;
+  border-top: 1px solid #F1F5F9;
+  font-size: 12.5px;
+}
+
+.tarefas-kanban-prio {
   font-weight: 600;
 }
 
-.tarefas-kanban-card-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 2px;
+.tarefas-kanban-prio.prio-alta { color: #DC2626; }
+.tarefas-kanban-prio.prio-media { color: #D97706; }
+.tarefas-kanban-prio.prio-baixa { color: #64748B; }
+
+.tarefas-kanban-prazo {
+  color: #64748B;
+  white-space: nowrap;
 }
 
-.tarefas-kanban-card-actions button {
-  width: auto;
-  min-height: 28px;
-  padding: 0 10px;
-  font-size: 12px;
-  border-radius: 7px;
+.tarefas-kanban-card-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 6px;
 }
+
+.tarefas-kbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100% !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  padding: 0 10px !important;
+  margin: 0 !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 8px !important;
+  background: #fff !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer;
+  transition: background .12s, border-color .12s;
+}
+
+.tarefas-kbtn.kbtn-full {
+  grid-column: 1 / -1;
+}
+
+.tarefas-kbtn.kbtn-andamento { color: #D97706 !important; }
+.tarefas-kbtn.kbtn-andamento:hover { background: #FFFBEB !important; border-color: #FDE68A !important; }
+
+.tarefas-kbtn.kbtn-concluir { color: #16A34A !important; }
+.tarefas-kbtn.kbtn-concluir:hover { background: #F0FDF4 !important; border-color: #BBF7D0 !important; }
+
+.tarefas-kbtn.kbtn-pendente { color: #1351B4 !important; }
+.tarefas-kbtn.kbtn-pendente:hover { background: #EFF6FF !important; border-color: #BFDBFE !important; }
 
 @media (max-width: 980px) {
   .tarefas-kanban-grid {
