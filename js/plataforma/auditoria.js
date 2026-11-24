@@ -498,19 +498,26 @@ function editarAuditoria(id) {
 async function excluirAuditoria(id) {
   const item = auditoriasLista.find(a => a.id === id);
   if (!item) return;
-  const ok = typeof window.confirm === 'function'
-    ? window.confirm(`Deseja excluir a recomendação ${item.numeroRecomendacao} do processo ${item.processoSei}?`)
-    : true;
+  const ok = typeof pedirConfirmacaoExclusao === 'function'
+    ? await pedirConfirmacaoExclusao({
+        titulo: 'Excluir recomendação?',
+        mensagem: `Tem certeza que deseja excluir a recomendação ${item.numeroRecomendacao} do processo ${item.processoSei}? Essa ação não pode ser desfeita.`,
+        textoBotao: 'Excluir'
+      })
+    : (typeof window.confirm === 'function'
+        ? window.confirm(`Deseja excluir a recomendação ${item.numeroRecomendacao} do processo ${item.processoSei}?`)
+        : true);
   if (!ok) return;
   const anterior = [...auditoriasLista];
   auditoriasLista = auditoriasLista.filter(a => a.id !== id);
+  render();
   const salvo = await salvarAuditorias();
   if (!salvo) {
     auditoriasLista = anterior;
+    render();
     return;
   }
   if (typeof toast === 'function') toast('Recomendação excluída.', 'valido');
-  render();
 }
 
 function visualizarDetalhesAuditoria(id) {
@@ -648,6 +655,7 @@ async function salvarFormularioAuditoria(event) {
   }
 
   const anterior = [...auditoriasLista];
+  const eraEdicao = !!auditoriaEditandoId;
   if (auditoriaEditandoId) {
     const idx = auditoriasLista.findIndex(a => a.id === auditoriaEditandoId);
     if (idx >= 0) auditoriasLista[idx] = registro;
@@ -656,16 +664,17 @@ async function salvarFormularioAuditoria(event) {
     auditoriasLista.unshift(registro);
   }
 
+  auditoriaEditandoId = null;
+  abaAuditoria = 'visualizacao';
+  render();
+
   const salvo = await salvarAuditorias();
   if (!salvo) {
     auditoriasLista = anterior;
+    render();
     return;
   }
-  const eraEdicao = !!auditoriaEditandoId;
-  auditoriaEditandoId = null;
-  abaAuditoria = 'visualizacao';
   if (typeof toast === 'function') toast(eraEdicao ? 'Auditoria atualizada com sucesso.' : 'Auditoria cadastrada com sucesso.', 'valido');
-  render();
 }
 
 function renderFormularioAuditoria() {

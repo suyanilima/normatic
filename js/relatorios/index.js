@@ -45,9 +45,9 @@ function abrirRelatorio(origem='documentos', contexto=null){
   document.getElementById('relatorio-intro').innerHTML=introducao;
   document.getElementById('relatorio-exportar-pdf').hidden=false;
   ['documentos','reunioes'].forEach(t=>{alternarFonteRelatorio(t);atualizarContadorRelatorio(t);});
-  const overlay=document.getElementById('relatorio-modal-overlay');overlay.classList.add('open');overlay.setAttribute('aria-hidden','false');overlay.querySelector('.relatorio-modal').focus();
+  const overlay=document.getElementById('relatorio-modal-overlay');overlay.classList.add('open');overlay.setAttribute('aria-hidden','false');if(typeof sincronizarBackdropModalPai==='function')sincronizarBackdropModalPai(true);overlay.querySelector('.relatorio-modal').focus();
 }
-function fecharRelatorio(){const o=document.getElementById('relatorio-modal-overlay');if(!o)return;o.classList.remove('open');o.setAttribute('aria-hidden','true');relatorioFocoAnterior?.focus?.();}
+function fecharRelatorio(){const o=document.getElementById('relatorio-modal-overlay');if(!o)return;o.classList.remove('open');o.setAttribute('aria-hidden','true');if(typeof sincronizarBackdropModalPai==='function'&&!document.querySelector('[id$="modal-overlay"].open'))sincronizarBackdropModalPai(false);relatorioFocoAnterior?.focus?.();}
 function alternarFonteRelatorio(tipo){const s=document.getElementById(`relatorio-secao-${tipo}`);if(s)s.hidden=!document.getElementById(`relatorio-incluir-${tipo}`)?.checked;}
 function marcarCamposRelatorio(tipo,marcar){document.querySelectorAll(`[data-campo="${tipo}"]`).forEach(campo=>{campo.checked=marcar;});}
 function registrosFiltradosRelatorio(tipo){

@@ -11,6 +11,15 @@ function toast(html, kind){
 
 let focoAntesDoModal = null;
 
+function sincronizarBackdropModalPai(aberto){
+  try {
+    if(window.parent && window.parent !== window && window.parent.document?.body){
+      window.parent.document.documentElement.classList.toggle('iframe-modal-aberto', Boolean(aberto));
+      window.parent.document.body.classList.toggle('iframe-modal-aberto', Boolean(aberto));
+    }
+  } catch(_) {}
+}
+
 function abrirModalElemento(id){
   const overlay = document.getElementById(id);
   if(!overlay) return;
@@ -18,7 +27,9 @@ function abrirModalElemento(id){
   focoAntesDoModal = document.activeElement;
   overlay.classList.add('open');
   overlay.setAttribute('aria-hidden', 'false');
+  document.documentElement.classList.add('modal-aberto');
   document.body.classList.add('modal-aberto');
+  sincronizarBackdropModalPai(true);
   if(typeof sincronizarSeletoresPersonalizados === 'function') sincronizarSeletoresPersonalizados();
   requestAnimationFrame(() => overlay.querySelector('.modal')?.focus());
 }
@@ -28,7 +39,11 @@ function fecharModalElemento(id){
   if(!overlay) return;
   overlay.classList.remove('open');
   overlay.setAttribute('aria-hidden', 'true');
-  if(!document.querySelector('[id$="modal-overlay"].open')) document.body.classList.remove('modal-aberto');
+  if(!document.querySelector('[id$="modal-overlay"].open')) {
+    document.documentElement.classList.remove('modal-aberto');
+    document.body.classList.remove('modal-aberto');
+    sincronizarBackdropModalPai(false);
+  }
   focoAntesDoModal?.focus?.();
   focoAntesDoModal = null;
 }
@@ -42,6 +57,7 @@ document.addEventListener('keydown', event => {
     'delete-modal-overlay': 'fecharModalExcluir',
     'delete-reuniao-modal-overlay': 'fecharModalExcluirReuniao',
     'delete-minuta-modal-overlay': 'fecharModalExcluirMinuta',
+    'delete-registro-modal-overlay': 'cancelarConfirmacaoExclusao',
     'exportar-ata-modal-overlay': 'fecharModalExportarAta',
     'edit-reuniao-modal-overlay': 'fecharModalEditarReuniao',
     'cancelar-reuniao-modal-overlay': 'fecharCancelamentoReuniao',
@@ -59,6 +75,40 @@ document.addEventListener('keydown', event => {
   const fechar = window[fechadores[aberto.id]];
   if(typeof fechar === 'function') fechar();
 });
+
+let _resolverConfirmacaoExclusao = null;
+
+function pedirConfirmacaoExclusao({ titulo = 'Excluir registro?', mensagem = 'Tem certeza que deseja excluir este registro? Essa ação não pode ser desfeita.', textoBotao = 'Excluir' } = {}){
+  const overlay = document.getElementById('delete-registro-modal-overlay');
+  if(!overlay) return Promise.resolve(typeof window.confirm === 'function' ? window.confirm(mensagem) : true);
+  if(_resolverConfirmacaoExclusao){
+    const anterior = _resolverConfirmacaoExclusao;
+    _resolverConfirmacaoExclusao = null;
+    anterior(false);
+  }
+  const elTitulo = document.getElementById('confirm-exclusao-titulo');
+  const elMensagem = document.getElementById('confirm-exclusao-mensagem');
+  const elOk = document.getElementById('confirm-exclusao-ok');
+  if(elTitulo) elTitulo.textContent = titulo;
+  if(elMensagem) elMensagem.textContent = mensagem;
+  if(elOk) elOk.textContent = textoBotao;
+  abrirModalElemento('delete-registro-modal-overlay');
+  return new Promise(resolve => { _resolverConfirmacaoExclusao = resolve; });
+}
+
+function confirmarConfirmacaoExclusao(){
+  const resolver = _resolverConfirmacaoExclusao;
+  _resolverConfirmacaoExclusao = null;
+  fecharModalElemento('delete-registro-modal-overlay');
+  if(resolver) resolver(true);
+}
+
+function cancelarConfirmacaoExclusao(){
+  const resolver = _resolverConfirmacaoExclusao;
+  _resolverConfirmacaoExclusao = null;
+  fecharModalElemento('delete-registro-modal-overlay');
+  if(resolver) resolver(false);
+}
 
 function inicializarLimpezaErrosCampos(){
   document.querySelectorAll('input, select, textarea').forEach(campo => {

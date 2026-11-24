@@ -1,9 +1,19 @@
 /* ===== EXCLUSAO ===== */
 
-function excluir(id){
+async function excluir(id){
   const doc = docs.find(d=>d.id===id);
   if(!doc) return;
   excluindoId = id;
+  if(window.parent && window.parent !== window && typeof window.parent.pedirConfirmacaoExclusao === 'function'){
+    const confirmado = await window.parent.pedirConfirmacaoExclusao({
+      titulo: 'Excluir documento?',
+      mensagem: `Tem certeza que deseja excluir "${doc.nome}"? Essa ação não pode ser desfeita.`,
+      textoBotao: 'Excluir'
+    });
+    if(confirmado) await confirmarExclusao();
+    else excluindoId = null;
+    return;
+  }
   document.getElementById('delete-doc-nome').textContent = doc.nome;
   abrirModalElemento('delete-modal-overlay');
 }

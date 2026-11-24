@@ -155,6 +155,14 @@ async function cadastrarReuniao(){
 function editarReuniao(id){
   const reuniao = reunioes.find(item => item.id === id);
   if(!reuniao) return;
+  const temMembrosComissao = Array.isArray(reuniao.membros) && reuniao.membros.length > 0;
+  const ehUnidadeComissao = temMembrosComissao
+    || ['CGTIC', 'CGOVTIC'].includes(reuniao.frequencia)
+    || (typeof unidadesPersonalizadas !== 'undefined' && Array.isArray(unidadesPersonalizadas) && unidadesPersonalizadas.some(u => u.nome === reuniao.frequencia || u.id === reuniao.frequencia));
+  if((reuniao.origemPontual || (!ehUnidadeComissao && ('resumo' in reuniao || 'setor' in reuniao || 'documentoId' in reuniao))) && typeof abrirModalNovaReuniao === 'function'){
+    abrirModalNovaReuniao(reuniao);
+    return;
+  }
   reuniaoEditandoId = id;
   reuniaoRemarcandoId = null;
   const tituloModal=document.getElementById('editar-reuniao-titulo');

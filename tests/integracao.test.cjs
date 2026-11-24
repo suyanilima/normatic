@@ -161,7 +161,9 @@ if(require.main === module) (async () => {
     w.go('responsaveis'); data = await w.FarolStorage.api('getData');
     w.edit('responsaveis', data.responsaveis[0].id); set(d, '[name=nome]', 'Pessoa revisada'); await submit(d);
     assert.equal((await w.FarolStorage.api('getData')).tarefas[0].responsavel, 'Pessoa revisada');
-    await w.removeRecord('tarefas', taskId);
+    const remocaoTarefa = w.removeRecord('tarefas', taskId);
+    d.getElementById('confirm-exclusao-ok').click();
+    await remocaoTarefa;
     assert.equal((await w.FarolStorage.api('getData')).tarefas.length, 0);
     w.excluirReuniao(meetingId); await w.confirmarExclusaoReuniao();
     assert.equal(JSON.parse(w.localStorage.getItem('igov:reunioes')).length, 1);

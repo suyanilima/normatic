@@ -159,9 +159,23 @@
     const bar=document.createElement('section');bar.className='cloud-account';
     bar.innerHTML='<button type="button" data-cloud-action="logout">Sair</button><span role="status" aria-live="polite"></span>';
     (document.querySelector('.plataforma-sidebar') || document.body).append(bar);
+    let savingCount=0, savingTimer=null;
     global.addEventListener('normatic:cloud-saving',event=>{
-      document.documentElement.classList.toggle('cloud-saving',event.detail);
-      document.querySelectorAll('main,.plataforma-sidebar').forEach(area=>{area.inert=event.detail;});
+      if(event.detail) {
+        savingCount++;
+        if(!savingTimer && !document.documentElement.classList.contains('cloud-saving')) {
+          savingTimer=global.setTimeout(()=>{
+            savingTimer=null;
+            if(savingCount>0) document.documentElement.classList.add('cloud-saving');
+          },250);
+        }
+      } else {
+        savingCount=Math.max(0,savingCount-1);
+        if(savingCount===0) {
+          if(savingTimer) { global.clearTimeout(savingTimer); savingTimer=null; }
+          document.documentElement.classList.remove('cloud-saving');
+        }
+      }
     });
     bar.addEventListener('click',async event=>{
       const action=event.target.dataset.cloudAction;if(!action || event.target.disabled)return;

@@ -15,7 +15,8 @@
 
 #delete-unidade-modal-overlay .modal,
 #delete-reuniao-modal-overlay .modal,
-#delete-minuta-modal-overlay .modal {
+#delete-minuta-modal-overlay .modal,
+#delete-registro-modal-overlay .modal {
   width: min(440px, 100%);
 }
 
@@ -394,7 +395,7 @@ button.export-docs:hover,button.export-docs:focus-visible {
   padding: var(--space-4);
 }
 
-#delete-reuniao-modal-overlay, #delete-minuta-modal-overlay, #edit-reuniao-modal-overlay, #minuta-reuniao-modal-overlay, #unidade-modal-overlay, #delete-unidade-modal-overlay, #tabela-minuta-modal-overlay {
+#delete-reuniao-modal-overlay, #delete-minuta-modal-overlay, #delete-registro-modal-overlay, #edit-reuniao-modal-overlay, #minuta-reuniao-modal-overlay, #unidade-modal-overlay, #delete-unidade-modal-overlay, #tabela-minuta-modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(12,50,111,.4);
@@ -407,12 +408,12 @@ button.export-docs:hover,button.export-docs:focus-visible {
   padding: var(--space-4);
 }
 
-#delete-reuniao-modal-overlay.open, #delete-minuta-modal-overlay.open, #edit-reuniao-modal-overlay.open, #minuta-reuniao-modal-overlay.open, #unidade-modal-overlay.open, #delete-unidade-modal-overlay.open, #tabela-minuta-modal-overlay.open {
+#delete-reuniao-modal-overlay.open, #delete-minuta-modal-overlay.open, #delete-registro-modal-overlay.open, #edit-reuniao-modal-overlay.open, #minuta-reuniao-modal-overlay.open, #unidade-modal-overlay.open, #delete-unidade-modal-overlay.open, #tabela-minuta-modal-overlay.open {
   display: flex;
   animation: overlayIn .15s ease;
 }
 
-#delete-reuniao-modal-overlay.open .modal, #delete-minuta-modal-overlay.open .modal, #edit-reuniao-modal-overlay.open .modal, #minuta-reuniao-modal-overlay.open .modal, #unidade-modal-overlay.open .modal, #delete-unidade-modal-overlay.open .modal, #tabela-minuta-modal-overlay.open .modal {
+#delete-reuniao-modal-overlay.open .modal, #delete-minuta-modal-overlay.open .modal, #delete-registro-modal-overlay.open .modal, #edit-reuniao-modal-overlay.open .modal, #minuta-reuniao-modal-overlay.open .modal, #unidade-modal-overlay.open .modal, #delete-unidade-modal-overlay.open .modal, #tabela-minuta-modal-overlay.open .modal {
   animation: modalIn .18s cubic-bezier(.2,.8,.3,1);
 }
 

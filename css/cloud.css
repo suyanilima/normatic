@@ -37,5 +37,19 @@
 .cloud-mfa [data-mfa-setup] p { margin: 6px 0 4px; font-size: 12.5px; text-align: center; }
 .cloud-mfa code { display: block; overflow-wrap: anywhere; user-select: all; font-size: 13px; text-align: center; margin-bottom: 14px; }
 .cloud-mfa input, .cloud-mfa select { box-sizing: border-box; width: 100%; }
-.cloud-saving::after { content: 'Salvando…'; position: fixed; inset: 0; z-index: 4000; display: grid; place-items: center; background: rgba(247,248,250,.72); color: var(--gov-blue-dark); font: 600 16px system-ui,sans-serif; }
+.cloud-saving::after {
+  content: 'Sincronizando…';
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 4000;
+  padding: 8px 14px;
+  border: 1px solid #dbe4f0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .96);
+  color: var(--gov-blue-dark);
+  font: 600 12.5px system-ui, -apple-system, "Segoe UI", sans-serif;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, .12);
+  pointer-events: none;
+}
 @media(max-width:520px){.cloud-login{padding:16px}.cloud-login-card{padding:40px 26px;border-radius:20px}.cloud-login-card h1{font-size:24px}}

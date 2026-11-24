@@ -298,26 +298,7 @@ function renderDashboardUnificado() {
   const statusContagem = [...mapaStatus.entries()].sort((a, b) => b[1] - a[1]);
 
   const temFiltro = dashboardFiltroModulos.size > 0 || dashboardFiltroStatus.size > 0;
-  const totalPaginas = Math.max(1, Math.ceil(exibidos.length / DASHBOARD_POR_PAGINA));
-  if (dashboardPaginaAtual > totalPaginas) dashboardPaginaAtual = totalPaginas;
-  const inicioIdx = (dashboardPaginaAtual - 1) * DASHBOARD_POR_PAGINA;
-  const paginaItens = exibidos.slice(inicioIdx, inicioIdx + DASHBOARD_POR_PAGINA);
-  const faixaTexto = exibidos.length
-    ? `Mostrando ${inicioIdx + 1}–${inicioIdx + paginaItens.length} de ${exibidos.length} ${exibidos.length === 1 ? 'registro' : 'registros'}`
-    : '0 registros';
-
-  const paginacaoHtml = totalPaginas > 1 ? `
-    <div class="dash-paginacao">
-      <button type="button" class="dash-pag-btn" ${dashboardPaginaAtual <= 1 ? 'disabled' : ''} onclick="irPaginaDashboard(${dashboardPaginaAtual - 1})">Anterior</button>
-      <div class="dash-pag-numeros">
-        ${Array.from({ length: totalPaginas }, (_, idx) => {
-          const p = idx + 1;
-          return `<button type="button" class="dash-pag-btn ${p === dashboardPaginaAtual ? 'ativo' : ''}" onclick="irPaginaDashboard(${p})">${p}</button>`;
-        }).join('')}
-      </div>
-      <button type="button" class="dash-pag-btn" ${dashboardPaginaAtual >= totalPaginas ? 'disabled' : ''} onclick="irPaginaDashboard(${dashboardPaginaAtual + 1})">Próximo</button>
-    </div>
-  ` : '';
+  const faixaTexto = `${exibidos.length} ${exibidos.length === 1 ? 'registro' : 'registros'}`;
 
   return `
     <div class="dash-unificado">
@@ -372,7 +353,7 @@ function renderDashboardUnificado() {
             <span class="muted" id="dash-total-exibidos">${faixaTexto}</span>
           </div>
           <div class="dash-tabela-scroll">
-            ${paginaItens.length ? `
+            ${exibidos.length ? `
               <table class="dash-tabela">
                 <thead>
                   <tr>
@@ -383,11 +364,11 @@ function renderDashboardUnificado() {
                   </tr>
                 </thead>
                 <tbody>
-                  ${paginaItens.map(item => `
+                  ${exibidos.map(item => `
                     <tr class="dash-tabela-row" onclick="go(${argumentoJsHtml(item.rota)})" title="Abrir ${escapeHtml(item.moduloNome)}">
                       <td class="dash-col-desc">
                         <strong>${escapeHtml(item.descricao)}</strong>
-                        ${item.subtitulo ? `<small>${escapeHtml(item.subtitulo)}</small>` : ''}
+                        ${item.subtitulo ? `<small title="${escapeHtml(item.subtitulo)}">${escapeHtml(item.subtitulo)}</small>` : ''}
                       </td>
                       <td class="dash-col-mod">
                         <span class="dash-modulo-pill"><span class="dash-modulo-dot" style="background:${corModuloDashboard(item.modulo)}"></span>${escapeHtml(item.moduloNome)}</span>
@@ -402,7 +383,6 @@ function renderDashboardUnificado() {
               </table>
             ` : '<div class="dash-vazio">Nenhum registro corresponde aos filtros selecionados.</div>'}
           </div>
-          ${paginacaoHtml}
         </section>
 
         <div class="card dash-graficos-grid">

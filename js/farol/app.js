@@ -635,22 +635,36 @@ const MENU = [['dashboard', 'Visão geral'], ['projetos', 'Projetos'], ['tarefas
 
     async function removeRecord(n, id) {
       if (deletingRecords.has(`${n}:${id}`)) return;
-      if (!confirm('Excluir este registro?')) return;
-
       const index = DATA[n].findIndex(x => x.id === id);
       if (index < 0) return;
 
       const removed = DATA[n][index];
+      const nomesTipo = { projetos: 'projeto', tarefas: 'tarefa', responsaveis: 'responsável', agenda: 'compromisso' };
+      const rotulo = nomesTipo[n] || 'registro';
+      const nomeItem = removed?.titulo || removed?.nome || '';
+      const confirmado = typeof pedirConfirmacaoExclusao === 'function'
+        ? await pedirConfirmacaoExclusao({
+            titulo: `Excluir ${rotulo}?`,
+            mensagem: nomeItem
+              ? `Tem certeza que deseja excluir ${n === 'tarefas' ? 'a' : 'o'} ${rotulo} "${nomeItem}"? Essa ação não pode ser desfeita.`
+              : `Tem certeza que deseja excluir este ${rotulo}? Essa ação não pode ser desfeita.`,
+            textoBotao: 'Excluir'
+          })
+        : confirm('Excluir este registro?');
+      if (!confirmado) return;
+
+      const idxAtual = DATA[n].findIndex(x => x.id === id);
+      if (idxAtual < 0) return;
       const key = `${n}:${id}`;
       deletingRecords.add(key);
-      DATA[n].splice(index, 1);
+      DATA[n].splice(idxAtual, 1);
       render();
 
       try {
         await api('deleteRecord', n, id);
         notify('Registro excluído');
       } catch (e) {
-        DATA[n].splice(Math.min(index, DATA[n].length), 0, removed);
+        DATA[n].splice(Math.min(idxAtual, DATA[n].length), 0, removed);
         render();
         notify('Erro ao excluir; registro restaurado: ' + (e.message || e));
       } finally {

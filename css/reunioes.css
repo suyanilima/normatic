@@ -3234,24 +3234,39 @@
   display: grid;
   grid-template-columns: 1.5fr 1fr;
   gap: 16px;
+  align-items: start;
+  margin-bottom: 10px;
+}
+.modal-nova-reuniao .form-grid-igual {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
   margin-bottom: 10px;
 }
 .modal-nova-reuniao .form-grid-triplo {
   display: grid;
   grid-template-columns: 1fr 1.25fr 1fr;
   gap: 16px;
+  align-items: start;
   margin-bottom: 10px;
 }
 .modal-nova-reuniao .campo-grupo {
   display: flex;
   flex-direction: column;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+  min-width: 0;
+}
+.modal-nova-reuniao .form-grid-duplo .campo-grupo,
+.modal-nova-reuniao .form-grid-igual .campo-grupo,
+.modal-nova-reuniao .form-grid-triplo .campo-grupo {
+  margin-bottom: 0;
 }
 .modal-nova-reuniao .campo-grupo label {
   font-size: 13px;
   font-weight: 600;
   color: var(--ink);
-  margin-bottom: 5px;
+  margin-bottom: 6px;
 }
 .modal-nova-reuniao input,
 .modal-nova-reuniao select,
@@ -3268,9 +3283,13 @@
   font-family: inherit;
   transition: border-color .15s, background .15s, box-shadow .15s;
 }
+.modal-nova-reuniao input,
+.modal-nova-reuniao select,
 .modal-nova-reuniao .toolbar-select-botao {
   height: 40px;
   line-height: 20px;
+}
+.modal-nova-reuniao .toolbar-select-botao {
   padding-right: 36px;
 }
 .modal-nova-reuniao .toolbar-select-opcoes {
@@ -3289,27 +3308,37 @@
 }
 .modal-nova-reuniao .campo-data-hora-duplo {
   display: grid;
-  grid-template-columns: 1.2fr 1fr;
+  grid-template-columns: 1.25fr 1fr;
   gap: 8px;
 }
 .modal-nova-reuniao textarea {
   resize: vertical;
-  min-height: 60px;
+  min-height: 82px;
+  line-height: 1.45;
 }
 .modal-nova-reuniao .modal-actions {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
   gap: 12px;
-  margin-top: 14px;
+  margin-top: 16px;
   padding-top: 14px;
   border-top: 1px solid var(--border);
 }
 .modal-nova-reuniao .modal-actions button {
   flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: auto;
-  min-width: 130px;
-  padding: 10px 22px;
+  min-width: 136px;
+  height: 42px;
+  min-height: 42px;
+  padding: 0 22px;
+  margin: 0;
   border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
 }
 .modal-nova-reuniao .modal-actions button.primary {
   background: var(--gov-blue);
@@ -3321,6 +3350,7 @@
     padding: 20px 16px;
   }
   .modal-nova-reuniao .form-grid-duplo,
+  .modal-nova-reuniao .form-grid-igual,
   .modal-nova-reuniao .form-grid-triplo {
     grid-template-columns: 1fr;
     gap: 10px;

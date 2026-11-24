@@ -141,7 +141,7 @@ function atualizarSeletorToolbar(select, botao, lista){
 }
 
 function inicializarSeletoresToolbar(){
-  document.querySelectorAll('.toolbar select, #f-tipo, #f-baselegal, #edit-tipo, #edit-baselegal, #r-formato, #edit-r-formato, #f-area-tematica, #edit-area-tematica, #nr-situacao, #nr-documento, #nr-setor, #aud-unidade, #aud-status, #auditoria-filtro-processo, #auditoria-filtro-unidade, #auditoria-filtro-status, #projectFilter, #taskPriorityFilter, #tar-inline-projeto, #tar-inline-responsavel, #tar-inline-prioridade, #tar-inline-status, #proj-inline-responsavel, #proj-inline-prioridade, #proj-inline-status, #proj-filtro-status, #proj-filtro-prioridade, #proj-filtro-responsavel').forEach(select=>{
+  document.querySelectorAll('.toolbar select, #f-tipo, #f-baselegal, #edit-tipo, #edit-baselegal, #r-formato, #edit-r-formato, #f-area-tematica, #edit-area-tematica, #nr-situacao, #nr-documento, #nr-setor, #aud-unidade, #aud-status, #auditoria-filtro-processo, #auditoria-filtro-unidade, #auditoria-filtro-status, #projectFilter, #taskPriorityFilter, #tar-inline-projeto, #tar-inline-responsavel, #tar-inline-prioridade, #tar-inline-status, #proj-inline-responsavel, #proj-inline-prioridade, #proj-inline-status, #proj-filtro-status, #proj-filtro-prioridade, #proj-filtro-responsavel, #hist-filtro-acao, #hist-filtro-modulo, #hist-filtro-periodo').forEach(select=>{
     if(select.closest('.toolbar-select-personalizado')) return;
     const componente=document.createElement('div');
     componente.className='toolbar-select-personalizado';

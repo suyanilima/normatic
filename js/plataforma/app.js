@@ -24,6 +24,26 @@ let modalDocumental = false;
 let scrollAntesDoModal = 0;
 let abaDocumental = 'dashboard';
 let filtroAgenda = 'todos';
+const CHAVE_SIDEBAR_RECOLHIDA = 'normatic:sidebar-recolhida';
+
+function aplicarEstadoSidebar(recolhida) {
+  document.body.classList.toggle('sidebar-recolhida', Boolean(recolhida));
+  const btnInterno = document.getElementById('btn-recolher-sidebar');
+  const btnExterno = document.getElementById('btn-toggle-sidebar');
+  if (btnInterno) btnInterno.setAttribute('aria-expanded', String(!recolhida));
+  if (btnExterno) btnExterno.setAttribute('aria-expanded', String(!recolhida));
+}
+
+function alternarSidebar() {
+  const proxima = !document.body.classList.contains('sidebar-recolhida');
+  aplicarEstadoSidebar(proxima);
+  try { localStorage.setItem(CHAVE_SIDEBAR_RECOLHIDA, proxima ? '1' : '0'); } catch (_) {}
+}
+
+try {
+  if (localStorage.getItem(CHAVE_SIDEBAR_RECOLHIDA) === '1') aplicarEstadoSidebar(true);
+} catch (_) {}
+
 let abaProjetos = 'visualizacao';
 let abaTarefas = 'visualizacao';
 
@@ -118,12 +138,18 @@ async function salvarTarefaInline(event) {
     prazo: document.getElementById('tar-inline-prazo')?.value || '',
     observacoes: document.getElementById('tar-inline-obs')?.value.trim() || ''
   };
+  const tempId = `temporario-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  DATA.tarefas.push({ ...payload, id: tempId });
+  abaTarefas = 'visualizacao';
+  render();
   try {
     await FarolStorage.api('saveRecord', 'tarefas', payload);
-    abaTarefas = 'visualizacao';
-    await refresh();
+    DATA = await FarolStorage.api('getData');
+    render();
     notify('Tarefa cadastrada com sucesso.');
   } catch(error) {
+    DATA.tarefas = DATA.tarefas.filter(t => t.id !== tempId);
+    render();
     notify(error?.message || 'Não foi possível salvar a tarefa.');
   }
 }
@@ -201,12 +227,18 @@ async function salvarProjetoInline(event) {
     status: document.getElementById('proj-inline-status')?.value || 'Ativo',
     prazo: document.getElementById('proj-inline-prazo')?.value || ''
   };
+  const tempId = `temporario-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  DATA.projetos.push({ ...payload, id: tempId });
+  abaProjetos = 'visualizacao';
+  render();
   try {
     await FarolStorage.api('saveRecord', 'projetos', payload);
-    abaProjetos = 'visualizacao';
-    await refresh();
+    DATA = await FarolStorage.api('getData');
+    render();
     notify('Projeto cadastrado com sucesso.');
   } catch(error) {
+    DATA.projetos = DATA.projetos.filter(p => p.id !== tempId);
+    render();
     notify(error?.message || 'Não foi possível salvar o projeto.');
   }
 }
@@ -354,7 +386,7 @@ render = function() {
     }
     if(page === 'responsaveis') {
       const corpo=abaResponsaveis==='auditoria'?painelAuditoria():people();
-      content.innerHTML=`<div class="responsaveis-tabs"><button type="button" class="secondary ${abaResponsaveis==='responsaveis'?'active':''}" onclick="abaResponsaveis='responsaveis';render()">Responsáveis</button><button type="button" class="secondary ${abaResponsaveis==='auditoria'?'active':''}" onclick="abaResponsaveis='auditoria';carregarAuditoria().then(render)">Auditoria e acessos</button></div>${corpo}`;
+      content.innerHTML=`<div class="responsaveis-tabs"><button type="button" class="secondary ${abaResponsaveis==='responsaveis'?'active':''}" onclick="abaResponsaveis='responsaveis';render()">Responsáveis</button><button type="button" class="secondary ${abaResponsaveis==='auditoria'?'active':''}" onclick="abaResponsaveis='auditoria';carregarAuditoria().then(render)">Histórico de atividades</button></div>${corpo}`;
     }
   }
   document.getElementById('add').style.display = ['dashboard','agenda','normativos','novo-normativo','projetos','tarefas','reunioes','cadastro-reuniao','minutas','auditorias'].includes(page) ? 'none' : '';
@@ -369,6 +401,8 @@ render = function() {
 };
 go = function(target,options={}) {
   frameDocumentos?.contentWindow?.fecharMenusAcoes?.();
+  document.documentElement.classList.remove('iframe-modal-aberto');
+  document.body.classList.remove('iframe-modal-aberto');
   const aliases={acompanhamento:'normativos',cadastro:'novo-normativo',sobre:'dashboard'};
   target=aliases[target] || target;
   page=[...MENU.map(([id])=>id),'cadastro-reuniao','novo-normativo'].includes(target)?target:'dashboard';

@@ -44,7 +44,7 @@ function exportarRelatorioReunioes(){
       reuniao.horario || '',
       reuniao.numeroEventoSei || 'Não informado',
       unidade,
-      FREQUENCIAS_REUNIAO[reuniao.frequencia] || '',
+      reuniao.origemPontual ? 'Pontual' : (FREQUENCIAS_REUNIAO[reuniao.frequencia] || 'Pontual'),
       rotuloFormatoReuniao(reuniao.formato),
       obterSituacaoReuniao(reuniao),
       reuniao.link || '',

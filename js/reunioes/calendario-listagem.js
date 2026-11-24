@@ -134,7 +134,7 @@ function renderReunioes(){
     <div class="reuniao-item">
       <label class="selecao-registro" onclick="event.stopPropagation()"><input type="checkbox" ${typeof relatorioSelecao!=='undefined'&&relatorioSelecao.reunioes.has(item.id)?'checked':''} onchange="selecionarRegistroParaRelatorio('reunioes',${argumentoJsHtml(item.id)},this.checked)" aria-label="Selecionar reunião de ${fmtData(item.data)}"></label>
       <div class="reuniao-data"><strong>${fmtData(item.data)}</strong><span>${escapeHtml(item.horario)}</span></div>
-      <div><span class="reuniao-frequencia">${escapeHtml(item.frequencia)}</span><span class="reuniao-periodicidade">${FREQUENCIAS_REUNIAO[item.frequencia]}</span><span class="reuniao-formato">${escapeHtml(rotuloFormatoReuniao(item.formato))}</span></div>
+      <div><span class="reuniao-frequencia">${escapeHtml(item.frequencia)}</span><span class="reuniao-periodicidade">${escapeHtml(item.origemPontual ? 'Pontual' : (FREQUENCIAS_REUNIAO[item.frequencia] || 'Pontual'))}</span><span class="reuniao-formato">${escapeHtml(rotuloFormatoReuniao(item.formato))}</span></div>
       <div class="reuniao-sei-celula">${escapeHtml(item.numeroEventoSei || 'Não informado')}</div>
       <div class="reuniao-link-celula">${item.link ? `<a class="reuniao-link" href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer">Abrir</a>` : '-'}</div>
       <div class="reuniao-celula reuniao-pauta">${escapeHtml(item.pauta)}</div>
@@ -216,9 +216,9 @@ function popularSetoresNovaReuniao(){
   if(!select || select._populado) return;
   select._populado = true;
   if(typeof construirOptionsSetoresAgrupados === 'function'){
-    select.innerHTML = construirOptionsSetoresAgrupados('', { placeholder: 'Geral / Sem setor específico' });
+    select.innerHTML = construirOptionsSetoresAgrupados('', { placeholder: 'Selecione o setor (opcional)' });
   } else {
-    select.innerHTML = '<option value="">Geral / Sem setor específico</option>';
+    select.innerHTML = '<option value="">Selecione o setor (opcional)</option>';
     if(typeof SETORES_CONVIDADOS === 'object' && SETORES_CONVIDADOS) {
       for(const [sigla, nome] of Object.entries(SETORES_CONVIDADOS)){
         const opt = document.createElement('option');
@@ -234,7 +234,7 @@ function popularSetoresNovaReuniao(){
 function popularDocumentosNovaReuniao(){
   const select = document.getElementById('nr-documento');
   if(!select) return;
-  select.innerHTML = '<option value="">Geral / Sem documento específico</option>';
+  select.innerHTML = '<option value="">Selecione o documento (opcional)</option>';
   let lista = [];
   try {
     if(window.NormaticCloud?.enabled) lista = window.NormaticCloud.readCollection('documentos') || [];
@@ -256,13 +256,20 @@ function sugerirProximoCodigoReuniao(){
   return `REU-${ano}-${String(reunioesAno.length + 1).padStart(2,'0')}`;
 }
 
-function abrirModalNovaReuniao(){
+let reuniaoPontualEditandoId = null;
+
+function abrirModalNovaReuniao(reuniaoEdicao = null){
   popularSetoresNovaReuniao();
   popularDocumentosNovaReuniao();
   if(typeof inicializarSeletoresToolbar === 'function') inicializarSeletoresToolbar();
-  const hoje = todayStr();
-  const agora = new Date();
-  const hora = String(agora.getHours()).padStart(2,'0') + ':' + String(agora.getMinutes()).padStart(2,'0');
+
+  const editando = reuniaoEdicao && typeof reuniaoEdicao === 'object' && reuniaoEdicao.id ? reuniaoEdicao : null;
+  reuniaoPontualEditandoId = editando ? editando.id : null;
+
+  const tituloModal = document.getElementById('nova-reuniao-titulo');
+  const btnSalvar = document.getElementById('btn-salvar-nova-reuniao');
+  if(tituloModal) tituloModal.textContent = editando ? 'Editar reunião' : 'Cadastrar reunião';
+  if(btnSalvar) btnSalvar.textContent = editando ? 'Salvar alterações' : 'Cadastrar reunião';
 
   const campoTitulo = document.getElementById('nr-titulo');
   const campoCodigo = document.getElementById('nr-codigo');
@@ -276,17 +283,39 @@ function abrirModalNovaReuniao(){
   const campoPart = document.getElementById('nr-participantes');
   const campoPauta = document.getElementById('nr-pauta');
 
-  if(campoTitulo) campoTitulo.value = '';
-  if(campoCodigo) campoCodigo.value = sugerirProximoCodigoReuniao();
-  if(campoTipo) campoTipo.value = '';
-  if(campoData) campoData.value = hoje;
-  if(campoHora) campoHora.value = hora;
-  if(campoSituacao) campoSituacao.value = 'Agendada';
-  if(campoDoc) campoDoc.value = '';
-  if(campoSetor) campoSetor.value = '';
-  if(campoLink) campoLink.value = '';
-  if(campoPart) campoPart.value = '';
-  if(campoPauta) campoPauta.value = '';
+  if(editando){
+    const tituloValor = editando.resumo || editando.pauta || '';
+    let pautaValor = editando.pautaDetalhes || '';
+    if(!pautaValor && editando.pauta && editando.resumo && editando.pauta.startsWith(`${editando.resumo} — `)){
+      pautaValor = editando.pauta.slice(`${editando.resumo} — `.length);
+    }
+    const listaPart = Array.isArray(editando.convidados) ? editando.convidados : (Array.isArray(editando.participantes) ? editando.participantes : []);
+    const textoPart = listaPart.map(p => typeof p === 'string' ? p : [p?.nome, p?.setor].filter(Boolean).join(' - ')).filter(Boolean).join('\n');
+
+    if(campoTitulo) campoTitulo.value = tituloValor;
+    if(campoCodigo) campoCodigo.value = editando.numeroEventoSei || '';
+    if(campoTipo) campoTipo.value = editando.tipo || '';
+    if(campoData) campoData.value = editando.data || '';
+    if(campoHora) campoHora.value = editando.horario || '';
+    if(campoSituacao) campoSituacao.value = editando.situacao || 'Agendada';
+    if(campoDoc) campoDoc.value = editando.documentoId || '';
+    if(campoSetor) campoSetor.value = editando.setor || '';
+    if(campoLink) campoLink.value = editando.link || '';
+    if(campoPart) campoPart.value = textoPart;
+    if(campoPauta) campoPauta.value = pautaValor;
+  } else {
+    if(campoTitulo) campoTitulo.value = '';
+    if(campoCodigo) campoCodigo.value = '';
+    if(campoTipo) campoTipo.value = '';
+    if(campoData) campoData.value = '';
+    if(campoHora) campoHora.value = '';
+    if(campoSituacao) campoSituacao.value = '';
+    if(campoDoc) campoDoc.value = '';
+    if(campoSetor) campoSetor.value = '';
+    if(campoLink) campoLink.value = '';
+    if(campoPart) campoPart.value = '';
+    if(campoPauta) campoPauta.value = '';
+  }
   if(typeof sincronizarSeletoresPersonalizados === 'function') sincronizarSeletoresPersonalizados();
 
   abrirModalElemento('modal-nova-reuniao-overlay');
@@ -294,6 +323,7 @@ function abrirModalNovaReuniao(){
 }
 
 function fecharModalNovaReuniao(){
+  reuniaoPontualEditandoId = null;
   fecharModalElemento('modal-nova-reuniao-overlay');
 }
 
@@ -306,7 +336,7 @@ async function salvarNovaReuniao(){
     return;
   }
   const codigo = document.getElementById('nr-codigo')?.value.trim();
-  const tipo = document.getElementById('nr-tipo')?.value.trim() || 'Reunião';
+  const tipo = document.getElementById('nr-tipo')?.value.trim() || '';
   const situacao = document.getElementById('nr-situacao')?.value || 'Agendada';
   const documentoId = document.getElementById('nr-documento')?.value || '';
   const setor = document.getElementById('nr-setor')?.value || '';
@@ -315,10 +345,11 @@ async function salvarNovaReuniao(){
   const participantes = participantesTexto.split('\n').map(p=>p.trim()).filter(Boolean);
   const pauta = document.getElementById('nr-pauta')?.value.trim() || '';
 
-  const id = 'reu-' + Date.now();
+  const editandoId = reuniaoPontualEditandoId;
   const frequenciaRotulo = setor || tipo || 'Geral';
-  const novaReuniao = {
-    id,
+  const registro = {
+    id: editandoId || ('reu-' + Date.now()),
+    origemPontual: true,
     data,
     horario,
     numeroEventoSei: codigo,
@@ -328,6 +359,7 @@ async function salvarNovaReuniao(){
     formato: link ? 'Online' : 'Presencial',
     link,
     pauta: pauta ? `${titulo} — ${pauta}` : titulo,
+    pautaDetalhes: pauta,
     resumo: titulo,
     situacao,
     cancelada: situacao === 'Cancelada',
@@ -338,12 +370,27 @@ async function salvarNovaReuniao(){
     participantes
   };
 
-  reunioes.unshift(novaReuniao);
-  const salvo = await salvarReunioes();
-  if(salvo){
-    fecharModalNovaReuniao();
-    renderReunioes();
-    toast('Reunião cadastrada com sucesso!', 'valido');
+  const anteriores = [...reunioes];
+  if(editandoId){
+    const idx = reunioes.findIndex(r => r.id === editandoId);
+    if(idx >= 0) reunioes[idx] = { ...reunioes[idx], ...registro };
+    else reunioes.unshift(registro);
+  } else {
+    reunioes.unshift(registro);
   }
+
+  fecharModalNovaReuniao();
+  renderReunioes();
+  if(typeof renderizarCalendarioReunioes === 'function') renderizarCalendarioReunioes();
+  if(typeof renderDashboard === 'function') renderDashboard();
+
+  const salvo = await salvarReunioes();
+  if(!salvo){
+    reunioes = anteriores;
+    renderReunioes();
+    if(typeof renderizarCalendarioReunioes === 'function') renderizarCalendarioReunioes();
+    return;
+  }
+  toast(editandoId ? 'Reunião atualizada com sucesso!' : 'Reunião cadastrada com sucesso!', 'valido');
 }
 
