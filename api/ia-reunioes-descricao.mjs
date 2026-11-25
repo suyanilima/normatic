@@ -22,31 +22,17 @@ function extrairJson(texto) {
 }
 
 function montarPrompt(reuniao, transcricao) {
-  const colegiado = limitar(reuniao?.colegiado || 'Reunião institucional', 120);
-  const data = limitar(reuniao?.data || '', 30);
-  const horario = limitar(reuniao?.horario || '', 20);
-  const pauta = limitar(reuniao?.pauta || '', 400);
-  const membros = Array.isArray(reuniao?.membros)
-    ? reuniao.membros.map(m => [m?.nome, m?.cargo].filter(Boolean).join(' - ')).filter(Boolean).slice(0, 30)
-    : [];
-  const convidados = Array.isArray(reuniao?.convidados)
-    ? reuniao.convidados.map(c => typeof c === 'string' ? c : [c?.nome, c?.setor].filter(Boolean).join(' - ')).filter(Boolean).slice(0, 30)
-    : [];
+  const colegiado = limitar(reuniao?.colegiado || '', 120);
 
   return [
-    'Você é um secretário técnico redigindo uma ata oficial em português do Brasil (padrão institucional do Poder Judiciário).',
-    'Organize a transcrição ou anotações abaixo em dois campos JSON objetivos, claros e formais, sem inventar fatos, nomes, números ou prazos que não estejam no texto fornecido.',
+    'Você é um secretário técnico redigindo os campos de conteúdo de uma ata oficial em português do Brasil (padrão institucional do Poder Judiciário).',
+    'A data, o horário, a pauta e a lista de participantes já constam em campos próprios da ata. Portanto, NÃO inclua cabeçalho, data, pauta nem lista de participantes na sua resposta.',
+    'Baseie-se exclusivamente na transcrição/anotações abaixo, sem inventar fatos, nomes, números ou prazos.',
     '',
     'Retorne EXCLUSIVAMENTE um objeto JSON válido com exatamente estas duas chaves:',
-    '- "descricao": resumo formal, coeso e bem estruturado das discussões, problemas relatados, solicitações e deliberações da reunião (máximo 4500 caracteres).',
-    '- "providencias": lista clara de encaminhamentos e providências com responsáveis e prazos quando citados no texto. Se não houver providências mencionadas, retorne exatamente "Não foram registradas providências.".',
-    '',
-    'DADOS DA REUNIÃO:',
-    `Unidade/Colegiado: ${colegiado}`,
-    data ? `Data: ${data}${horario ? ' às ' + horario : ''}` : '',
-    pauta ? `Pauta: ${pauta}` : '',
-    membros.length ? `Membros: ${membros.join('; ')}` : '',
-    convidados.length ? `Convidados: ${convidados.join('; ')}` : '',
+    '- "descricao": texto formal, objetivo e impessoal descrevendo apenas os assuntos tratados, problemas relatados, solicitações e deliberações da reunião (sem repetir cabeçalho, pauta ou participantes; máximo 4500 caracteres).',
+    '- "providencias": lista objetiva em tópicos das providências e encaminhamentos que serão tomados, indicando responsável e prazo somente quando citados no texto. Se não houver providências mencionadas, retorne exatamente "Não foram registradas providências.".',
+    colegiado ? `Contexto da unidade/colegiado: ${colegiado}` : '',
     '',
     'TRANSCRIÇÃO / ANOTAÇÕES:',
     transcricao
