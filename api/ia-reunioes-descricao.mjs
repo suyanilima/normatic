@@ -72,6 +72,27 @@ async function verificarUsuarioSupabase(req, env, fetcher) {
   }
 }
 
+async function descobrirModelosDisponiveis(apiKey, fetcher) {
+  try {
+    const resp = await fetcher(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(apiKey)}`, {
+      method: 'GET',
+      signal: AbortSignal.timeout(8000)
+    });
+    if (!resp.ok) return [];
+    const data = await resp.json();
+    const lista = Array.isArray(data?.models) ? data.models : [];
+    const validos = lista
+      .filter(m => Array.isArray(m?.supportedGenerationMethods) && m.supportedGenerationMethods.includes('generateContent'))
+      .map(m => String(m?.name || '').replace(/^models\//, ''))
+      .filter(Boolean);
+    const flash = validos.filter(n => /flash/i.test(n) && !/image|audio|tts|thinking/i.test(n));
+    const outros = validos.filter(n => !flash.includes(n) && !/embedding|aqa|imagen|veo|tts|audio/i.test(n));
+    return [...flash, ...outros].slice(0, 6);
+  } catch (_) {
+    return [];
+  }
+}
+
 export function createHandler({ env = process.env, fetcher = fetch } = {}) {
   return async function handler(req, res) {
     res.setHeader('Cache-Control', 'no-store');
@@ -92,47 +113,70 @@ export function createHandler({ env = process.env, fetcher = fetch } = {}) {
     }
 
     const modeloPreferido = String(env.GEMINI_MODEL || DEFAULT_MODEL).trim() || DEFAULT_MODEL;
-    const modelos = [...new Set([modeloPreferido, 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash'])];
+    const modelosIniciais = [...new Set([modeloPreferido, 'gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-flash-latest', 'gemini-2.0-flash'])];
     const prompt = montarPrompt(body?.reuniao || {}, transcricao);
 
+    const tentarModelo = async (model) => {
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+      const response = await fetcher(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.2,
+            responseMimeType: 'application/json'
+          }
+        }),
+        signal: AbortSignal.timeout(25000)
+      });
+      if (response.ok) {
+        const data = await response.json();
+        const textoBruto = data?.candidates?.[0]?.content?.parts?.map(p => p?.text || '').join('\n').trim() || '';
+        const parsed = extrairJson(textoBruto);
+        const descricao = limitar(parsed?.descricao || textoBruto, MAX_DESCRICAO);
+        const providencias = limitar(parsed?.providencias || 'Não foram registradas providências.', MAX_PROVIDENCIAS);
+        return { ok: true, descricao, providencias };
+      }
+      let erroJson = null;
+      try { erroJson = await response.json(); } catch (_) { erroJson = null; }
+      return {
+        ok: false,
+        status: response.status,
+        codigo: String(erroJson?.error?.status || erroJson?.error?.message || '').slice(0, 120)
+      };
+    };
+
     try {
+      const tentados = new Set();
       let ultimoStatus = 502;
       let ultimoCodigo = '';
-      for (const model of modelos) {
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
-        const response = await fetcher(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ role: 'user', parts: [{ text: prompt }] }],
-            generationConfig: {
-              temperature: 0.2,
-              responseMimeType: 'application/json'
-            }
-          }),
-          signal: AbortSignal.timeout(25000)
-        });
 
-        if (response.ok) {
-          const data = await response.json();
-          const textoBruto = data?.candidates?.[0]?.content?.parts?.map(p => p?.text || '').join('\n').trim() || '';
-          const parsed = extrairJson(textoBruto);
-          const descricao = limitar(parsed?.descricao || textoBruto, MAX_DESCRICAO);
-          const providencias = limitar(parsed?.providencias || 'Não foram registradas providências.', MAX_PROVIDENCIAS);
-          if (!descricao) {
-            return res.status(502).json({ error: 'A IA retornou uma resposta vazia. Tente novamente.' });
-          }
-          return res.status(200).json({ descricao, providencias });
+      const executarLista = async (lista) => {
+        for (const model of lista) {
+          if (tentados.has(model)) continue;
+          tentados.add(model);
+          const r = await tentarModelo(model);
+          if (r.ok) return r;
+          ultimoStatus = r.status;
+          ultimoCodigo = r.codigo;
+          if (r.status === 404 || r.status === 503) continue;
+          return r;
         }
+        return null;
+      };
 
-        ultimoStatus = response.status;
-        let erroJson = null;
-        try { erroJson = await response.json(); } catch (_) { erroJson = null; }
-        ultimoCodigo = String(erroJson?.error?.status || erroJson?.error?.message || '').slice(0, 120);
+      let resultado = await executarLista(modelosIniciais);
+      if (!resultado && ultimoStatus === 404) {
+        const descobertos = await descobrirModelosDisponiveis(apiKey, fetcher);
+        if (descobertos.length) resultado = await executarLista(descobertos);
+      }
 
-        // Se o modelo não existir ou estiver sobrecarregado, tenta o próximo modelo gratuito.
-        if (response.status === 404 || response.status === 503) continue;
-        break;
+      if (resultado?.ok) {
+        if (!resultado.descricao) {
+          return res.status(502).json({ error: 'A IA retornou uma resposta vazia. Tente novamente.' });
+        }
+        return res.status(200).json({ descricao: resultado.descricao, providencias: resultado.providencias });
       }
 
       if (ultimoStatus === 429) {
