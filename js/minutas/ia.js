@@ -4,20 +4,45 @@ function obterReuniaoMinutaAtual(){
   return reunioes.find(item => item.id === minutaReuniaoId) || minutaHistoricoReuniao;
 }
 
+async function obterTokenSessaoIA(){
+  try {
+    if(!window.NormaticCloud?.enabled) return '';
+    const { data } = await window.NormaticCloud.database().auth.getSession();
+    return data?.session?.access_token || '';
+  } catch(_) {
+    return '';
+  }
+}
+
 async function solicitarDescricaoReuniaoIA(payload){
   if(typeof window.igovAI?.gerarDescricaoReuniao === 'function'){
     return window.igovAI.gerarDescricaoReuniao(payload);
   }
   const base = String(window.IGOV_CONFIG?.apiBaseUrl || '').replace(/\/$/, '');
-  if(!base) throw new Error('A edição com IA não está configurada nesta etapa. Use Prosseguir para revisar manualmente.');
-  const resposta = await fetch(`${base}/api/ia/reunioes/descricao`, {
+  const endpoint = base
+    ? `${base}/api/ia/reunioes/descricao`
+    : (location.protocol === 'file:' ? '' : '/api/ia-reunioes-descricao');
+  if(!endpoint) throw new Error('A edição com IA não está disponível em arquivo local. Use Prosseguir para revisar manualmente.');
+
+  const headers = {'Content-Type':'application/json'};
+  const token = await obterTokenSessaoIA();
+  if(token) headers.Authorization = `Bearer ${token}`;
+
+  const resposta = await fetch(endpoint, {
     method:'POST',
     credentials:'same-origin',
-    headers:{'Content-Type':'application/json'},
+    headers,
     body:JSON.stringify(payload)
   });
-  if(!resposta.ok) throw new Error(`Serviço de IA indisponível (${resposta.status}).`);
-  return resposta.json();
+  let dados = null;
+  try { dados = await resposta.json(); } catch(_) { dados = null; }
+  if(!resposta.ok){
+    if(resposta.status === 404 || resposta.status === 405){
+      throw new Error('O serviço de IA funciona no site publicado (Vercel). No servidor local, use Prosseguir para revisar manualmente.');
+    }
+    throw new Error(dados?.error || `Serviço de IA indisponível (${resposta.status}).`);
+  }
+  return dados;
 }
 
 function iniciarRevisaoManualMinuta(){

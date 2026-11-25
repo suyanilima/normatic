@@ -144,6 +144,8 @@ function renderReunioes(){
         <button class="actions-toggle" type="button" onclick="toggleAcoes(event,${argumentoJsHtml("reuniao-"+item.id)})" aria-label="Ações da reunião">⋮</button>
         <div class="actions-dropdown" id="acoes-reuniao-${escapeHtml(item.id)}">
           <button type="button" onclick="verResumoReuniao(${argumentoJsHtml(item.id)})">Resumo</button>
+          <button type="button" onclick="agendarReuniaoNoTeams(${argumentoJsHtml(item.id)})">Agendar no Teams</button>
+          <button type="button" onclick="baixarConviteReuniaoIcs(${argumentoJsHtml(item.id)})">Baixar convite (.ics)</button>
           <button type="button" onclick="abrirMinutaReuniao(${argumentoJsHtml(item.id)})">Gerar ata</button>
           <button type="button" onclick="remarcarReuniao(${argumentoJsHtml(item.id)})">Remarcar</button>
           <button type="button" onclick="cancelarReuniao(${argumentoJsHtml(item.id)})">Cancelar reunião</button>
@@ -187,6 +189,92 @@ function verResumoReuniao(id){
 
 function fecharResumoReuniao(){
   fecharModalElemento('resumo-reuniao-modal-overlay');
+}
+
+function obterIntervaloReuniaoDatas(reuniao){
+  const dataIso = String(reuniao?.data || '').slice(0, 10);
+  const horaRaw = String(reuniao?.horario || '09:00').trim();
+  const [hh, mm] = horaRaw.split(':').map(n => Number(n) || 0);
+  const inicio = /^\d{4}-\d{2}-\d{2}$/.test(dataIso)
+    ? new Date(`${dataIso}T${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:00`)
+    : new Date();
+  const fim = new Date(inicio.getTime() + 60 * 60 * 1000);
+  return { inicio, fim };
+}
+
+function montarTextoConviteReuniao(reuniao){
+  const participantes = typeof todosParticipantesReuniao === 'function' ? todosParticipantesReuniao(reuniao) : [];
+  const linhas = [
+    reuniao.frequencia ? `Unidade/Colegiado: ${reuniao.frequencia}` : '',
+    reuniao.numeroEventoSei ? `Evento SEI / Código: ${reuniao.numeroEventoSei}` : '',
+    reuniao.pauta ? `Pauta: ${reuniao.pauta}` : '',
+    participantes.length ? `Participantes: ${participantes.join(', ')}` : '',
+    reuniao.link ? `Link: ${reuniao.link}` : ''
+  ].filter(Boolean);
+  return linhas.join('\n');
+}
+
+function agendarReuniaoNoTeams(id){
+  if(typeof fecharMenusAcoes === 'function') fecharMenusAcoes();
+  const reuniao = reunioes.find(item => item.id === id);
+  if(!reuniao) return;
+  const { inicio, fim } = obterIntervaloReuniaoDatas(reuniao);
+  const titulo = reuniao.resumo || reuniao.pauta || `Reunião ${reuniao.frequencia || 'Normatic'}`;
+  const corpo = montarTextoConviteReuniao(reuniao);
+  const params = new URLSearchParams({
+    path: '/calendar/action/compose',
+    rru: 'addevent',
+    subject: titulo,
+    startdt: inicio.toISOString(),
+    enddt: fim.toISOString(),
+    body: corpo,
+    online: 'true'
+  });
+  const url = `https://outlook.office.com/calendar/0/deeplink/compose?${params.toString()}`;
+  window.open(url, '_blank', 'noopener,noreferrer');
+  if(typeof toast === 'function') toast('Abrindo convite preenchido no Outlook / Teams.', 'valido');
+}
+
+function formatarDataIcsUtc(date){
+  return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
+}
+
+function escaparTextoIcs(texto){
+  return String(texto || '').replace(/\\/g, '\\\\').replace(/\r?\n/g, '\\n').replace(/,/g, '\\,').replace(/;/g, '\\;');
+}
+
+function baixarConviteReuniaoIcs(id){
+  if(typeof fecharMenusAcoes === 'function') fecharMenusAcoes();
+  const reuniao = reunioes.find(item => item.id === id);
+  if(!reuniao) return;
+  const { inicio, fim } = obterIntervaloReuniaoDatas(reuniao);
+  const titulo = reuniao.resumo || reuniao.pauta || `Reunião ${reuniao.frequencia || 'Normatic'}`;
+  const corpo = montarTextoConviteReuniao(reuniao);
+  const ics = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Normatic//Reunioes//PT-BR',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    `UID:${reuniao.id || Date.now()}@normatic`,
+    `DTSTAMP:${formatarDataIcsUtc(new Date())}`,
+    `DTSTART:${formatarDataIcsUtc(inicio)}`,
+    `DTEND:${formatarDataIcsUtc(fim)}`,
+    `SUMMARY:${escaparTextoIcs(titulo)}`,
+    `DESCRIPTION:${escaparTextoIcs(corpo)}`,
+    reuniao.link ? `LOCATION:${escaparTextoIcs(reuniao.link)}` : 'LOCATION:Microsoft Teams',
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\r\n');
+  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `reuniao-${(reuniao.data || 'normatic').replace(/[^0-9-]/g, '')}.ics`;
+  document.body.appendChild(link);
+  link.click();
+  setTimeout(() => { URL.revokeObjectURL(link.href); link.remove(); }, 100);
+  if(typeof toast === 'function') toast('Convite .ics baixado. Abra-o para salvar no Teams / Outlook.', 'valido');
 }
 
 /* ===== ESCOLHA E NOVO MODAL: CADASTRAR REUNIÃO DIRETA ===== */

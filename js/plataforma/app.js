@@ -429,8 +429,9 @@ document.addEventListener('click',event=>{ if(!event.target.closest?.('.toolbar-
 window.addEventListener('popstate',()=>go(location.hash.slice(1),{semHistorico:true}));
 window.addEventListener('hashchange',()=>go(location.hash.slice(1),{semHistorico:true}));
 document.addEventListener('DOMContentLoaded',()=>{
-  if(!window.igovAI?.gerarDescricaoReuniao && !window.IGOV_CONFIG?.apiBaseUrl) {
-    const button=document.getElementById('btn-gerar-descricao-ia'); button.disabled=true; button.title='Use Prosseguir para revisar manualmente.';
+  if(location.protocol==='file:' && !window.igovAI?.gerarDescricaoReuniao && !window.IGOV_CONFIG?.apiBaseUrl) {
+    const button=document.getElementById('btn-gerar-descricao-ia');
+    if(button){ button.disabled=true; button.title='Use Prosseguir para revisar manualmente.'; }
   }
 });
 window.addEventListener('storage',event=>{
