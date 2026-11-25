@@ -152,6 +152,9 @@ async function confirmarEdicao(){
     Object.assign(doc, estadoAnterior);
     return;
   }
+  if(typeof registrarServidorNoSistema === 'function'){
+    registrarServidorNoSistema({ nome: doc.gestorNome, setor: doc.gestorSetor, email: doc.gestorEmail, whatsapp: doc.gestorWhatsapp });
+  }
   render();
   renderSetoresDocumentos();
   fecharModalEditar();

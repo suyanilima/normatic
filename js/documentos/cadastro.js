@@ -185,6 +185,9 @@ async function cadastrar(){
     docs.shift();
     return;
   }
+  if(typeof registrarServidorNoSistema === 'function'){
+    registrarServidorNoSistema({ nome: gestorNome, setor: gestorSetor, email: gestorEmail, whatsapp: gestorWhatsapp });
+  }
 
   definirTemaDocumento('f');
   document.getElementById('f-nome').value='';

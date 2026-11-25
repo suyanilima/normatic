@@ -86,7 +86,14 @@ const SETORES_CONVIDADOS = Object.fromEntries([
   ['Z-ARQUIVO-SEGLOF','UNIDADE DE ARQUIVOS DA SEGLOF'],['Z-ARQUIVO-SETRAN','SEÇÃO DE ARQUIVO DA SETRAN'],
   ['Z-ARQUIVO-SOC','UNIDADE DE ARQUIVO DA SOC'],['Z-ARQUIVO-STI','ARQUIVO-STI'],
   ['STI','Secretaria de Tecnologia da Informação'],
-  ['GPTI','Assistência de Planejamento e Governança de Tecnologia da Informação']
+  ['GPTI','Assistência de Planejamento e Governança de Tecnologia da Informação'],
+  ['DG','Diretoria-Geral'],
+  ['SAOF','Secretaria de Administração, Orçamento e Finanças'],
+  ['SEJUD','Secretaria Judiciária'],
+  ['SCLC','Seção de Compras, Licitações e Contratos'],
+  ['SEAD','Seção de Administração'],
+  ['CORTE','Corte Eleitoral'],
+  ['TRF1','Tribunal Regional Federal da 1ª Região (Exercício Provisório)']
 ]);
 
 const ORDEM_GRUPOS_SETORES = [
@@ -136,8 +143,8 @@ function classificarGrupoSetor(sigla){
   if(!s) return 'Arquivos e Outros';
   if(SETORES_TI_SIGLAS.has(s) || /(^|[\s/])STI([\s/]|$)/.test(s)) return 'Tecnologia da Informação (STI)';
   if(s.endsWith('ZE')) return 'Zonas Eleitorais';
-  if(s.startsWith('Z-ARQUIVO') || s === 'DBI' || s === 'PAD') return 'Arquivos e Outros';
-  if(s.startsWith('GA') || s === 'VICRE' || s === 'OUVIDORIA' || s === 'OUVIMULHER' || s === 'EJE' || s === 'MPE') return 'Gabinetes e Direção';
+  if(s.startsWith('Z-ARQUIVO') || s === 'DBI' || s === 'PAD' || s === 'TRF1') return 'Arquivos e Outros';
+  if(s.startsWith('GA') || s === 'DG' || s === 'SAOF' || s === 'SEJUD' || s === 'CORTE' || s === 'VICRE' || s === 'OUVIDORIA' || s === 'OUVIMULHER' || s === 'EJE' || s === 'MPE') return 'Gabinetes e Direção';
   if(s.startsWith('AS') || s === 'AGEL' || s === 'AGECON') return 'Assessorias e Assistências';
   if((s.startsWith('CO') && s !== 'COSET') || s === 'CRIP') return 'Coordenadorias';
   if(
@@ -210,6 +217,11 @@ function construirOptionsSetoresAgrupados(selecionado = '', opcoes = {}){
 function popularSetoresConvidados(){
   configurarBuscaSetor('r-participante-setor','r-participante-setor-sugestoes');
   configurarBuscaSetor('edit-r-participante-setor','edit-r-participante-setor-sugestoes');
+  configurarBuscaSetor('srv-tre-setor','srv-tre-setor-sugestoes');
+  if(typeof configurarBuscaServidor === 'function'){
+    configurarBuscaServidor('r-participante-input', { campoSetorId: 'r-participante-setor' });
+    configurarBuscaServidor('edit-r-participante-input', { campoSetorId: 'edit-r-participante-setor' });
+  }
 }
 
 function configurarBuscaSetor(campoId, sugestoesId){

@@ -70,7 +70,8 @@ document.addEventListener('keydown', event => {
     'edit-modal-overlay': 'fecharModalEditar',
     'resumo-modal-overlay': 'fecharModalResumo',
     'notificar-modal-overlay': 'fecharModalNotificar',
-    'historico-modal-overlay': 'fecharModalHistorico'
+    'historico-modal-overlay': 'fecharModalHistorico',
+    'servidor-tre-modal-overlay': 'fecharModalServidorTre'
   };
   const fechar = window[fechadores[aberto.id]];
   if(typeof fechar === 'function') fechar();

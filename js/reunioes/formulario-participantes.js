@@ -21,6 +21,9 @@ function renderMembrosEdicaoReuniao(){
       <input id="edit-r-membro-${indice}" type="text" maxlength="50" value="${escapeHtml(membro.nome)}" placeholder="Nome do membro" oninput="atualizarNomeMembroEdicaoReuniao(${indice},this.value)">
     </div>
   `).join('');
+  if(typeof configurarBuscaServidor === 'function'){
+    membrosReuniaoEdicao.forEach((_, indice) => configurarBuscaServidor(`edit-r-membro-${indice}`));
+  }
 }
 
 function adicionarParticipanteEdicaoReuniao(){
@@ -44,7 +47,11 @@ function adicionarParticipanteEdicaoReuniao(){
     toast('Esse participante já foi adicionado.', 'alerta');
     return;
   }
+  const nomeDigitadoLimpo = formatarNomeProprio(campo.value);
   participantesReuniaoEdicao.push(nome);
+  if(typeof registrarServidorNoSistema === 'function' && nomeDigitadoLimpo){
+    registrarServidorNoSistema({ nome: nomeDigitadoLimpo, setor: siglaSetor });
+  }
   limparErroCampo(campo);
   limparErroCampo(campoSetor);
   campo.value = '';
@@ -170,7 +177,11 @@ function adicionarParticipanteReuniao(){
     campo.select();
     return;
   }
+  const nomeDigitadoLimpo = formatarNomeProprio(campo.value);
   participantesReuniaoCadastro.push(nome);
+  if(typeof registrarServidorNoSistema === 'function' && nomeDigitadoLimpo){
+    registrarServidorNoSistema({ nome: nomeDigitadoLimpo, setor: siglaSetor });
+  }
   limparErroCampo(campo);
   limparErroCampo(campoSetor);
   campo.value = '';
@@ -226,6 +237,9 @@ function renderMembrosCadastro(){
       <input id="r-membro-${indice}" type="text" maxlength="50" value="${escapeHtml(membro.nome)}" placeholder="Nome do membro" oninput="atualizarNomeMembroReuniao(${indice},this.value)">
     </div>
   `).join('');
+  if(typeof configurarBuscaServidor === 'function'){
+    membrosReuniaoCadastro.forEach((_, indice) => configurarBuscaServidor(`r-membro-${indice}`));
+  }
 }
 
 function removerParticipanteReuniao(indice){

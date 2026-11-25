@@ -642,18 +642,63 @@
 
       <div class="form-grid-igual">
         <div class="campo-grupo">
-          <label for="nr-participantes">Participantes (um por linha)</label>
-          <textarea id="nr-participantes" rows="3" placeholder="Ex.:&#10;Camila Ferreira&#10;Rafael Monteiro"></textarea>
+          <label for="nr-participantes">Participantes (busque ou digite um por linha)</label>
+          <input id="nr-busca-servidor" type="text" maxlength="100" placeholder="Buscar servidor ou membro para adicionar..." style="margin-bottom:6px">
+          <textarea id="nr-participantes" rows="3" placeholder="Ex.:&#10;Camila Ferreira - STI&#10;Rafael Monteiro - COAUDI"></textarea>
         </div>
         <div class="campo-grupo">
           <label for="nr-pauta">Pauta da reunião</label>
-          <textarea id="nr-pauta" rows="3" placeholder="Tópicos previstos para discussão..."></textarea>
+          <textarea id="nr-pauta" rows="4" placeholder="Tópicos previstos para discussão..."></textarea>
         </div>
       </div>
 
       <div class="modal-actions">
         <button type="button" class="secondary" onclick="fecharModalNovaReuniao()">Cancelar</button>
         <button type="submit" class="primary" id="btn-salvar-nova-reuniao">Cadastrar reunião</button>
+      </div>
+    </form>
+  </div>
+</div>
+<div id="servidor-tre-modal-overlay" aria-hidden="true">
+  <div class="modal modal-nova-reuniao modal-servidor-tre" role="dialog" aria-modal="true" aria-labelledby="servidor-tre-modal-titulo" tabindex="-1">
+    <div class="modal-head">
+      <div>
+        <h3 id="servidor-tre-modal-titulo">Novo servidor ou membro</h3>
+        <p class="modal-subtitulo-ajuda">As alterações ficam disponíveis imediatamente na busca de Normativos e Reuniões.</p>
+      </div>
+      <button class="modal-close" type="button" onclick="fecharModalServidorTre()" aria-label="Fechar">✕</button>
+    </div>
+    <form id="form-servidor-tre" onsubmit="salvarFormularioServidorTre(event)">
+      <div class="campo-grupo">
+        <label for="srv-tre-nome">Nome completo <span class="required-mark">*</span></label>
+        <input id="srv-tre-nome" type="text" maxlength="120" placeholder="Ex.: Maria Verônica da Costa" required>
+      </div>
+      <div class="form-grid-igual">
+        <div class="campo-grupo">
+          <label for="srv-tre-setor">Setor / Lotação <span class="required-mark">*</span></label>
+          <div class="setor-busca-wrap">
+            <input id="srv-tre-setor" class="setor-autocomplete" type="text" maxlength="40" placeholder="Ex.: STI, ASPLAN, 1ª ZE..." autocomplete="off" required>
+            <div id="srv-tre-setor-sugestoes" class="setor-sugestoes" role="listbox" hidden></div>
+          </div>
+        </div>
+        <div class="campo-grupo">
+          <label for="srv-tre-cargo">Cargo / Função</label>
+          <input id="srv-tre-cargo" type="text" maxlength="120" placeholder="Ex.: Analista Judiciário">
+        </div>
+      </div>
+      <div class="form-grid-igual">
+        <div class="campo-grupo">
+          <label for="srv-tre-email">E-mail (opcional)</label>
+          <input id="srv-tre-email" type="email" maxlength="140" placeholder="nome.sobrenome@tre-ac.jus.br">
+        </div>
+        <div class="campo-grupo">
+          <label for="srv-tre-whatsapp">WhatsApp / Telefone (opcional)</label>
+          <input id="srv-tre-whatsapp" type="text" maxlength="30" placeholder="(68) 99999-9999">
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="secondary" onclick="fecharModalServidorTre()">Cancelar</button>
+        <button type="submit" class="primary" id="btn-salvar-servidor-tre">Cadastrar</button>
       </div>
     </form>
   </div>
@@ -692,6 +737,7 @@
   </div>
 <script type="text/plain" data-app-src="js/vendor/jspdf.umd.min.js"></script>
 <script type="text/plain" data-app-src="js/shared/setores.js"></script>
+<script type="text/plain" data-app-src="js/shared/servidores.js"></script>
 <script type="text/plain" data-app-src="js/shared/controles.js"></script>
 <script type="text/plain" data-app-src="js/shared/estado.js"></script>
 <script type="text/plain" data-app-src="js/shared/validacao.js"></script>

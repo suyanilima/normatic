@@ -305,5 +305,17 @@ document.addEventListener('DOMContentLoaded',()=>{
     configurarBuscaSetor('f-gestor-setor','f-gestor-setor-sugestoes');
     configurarBuscaSetor('edit-gestor-setor','edit-gestor-setor-sugestoes');
   }
+  if(typeof configurarBuscaServidor==='function'){
+    configurarBuscaServidor('f-gestor-nome', {
+      campoSetorId: 'f-gestor-setor',
+      campoEmailId: 'f-gestor-email',
+      campoWhatsappId: 'f-gestor-whatsapp'
+    });
+    configurarBuscaServidor('edit-gestor-nome', {
+      campoSetorId: 'edit-gestor-setor',
+      campoEmailId: 'edit-gestor-email',
+      campoWhatsappId: 'edit-gestor-whatsapp'
+    });
+  }
   renderSetoresDocumentos();
 });

@@ -147,6 +147,46 @@
       return Array.isArray(data)?copy(data):copy(items);
     } finally {global.dispatchEvent?.(new CustomEvent('normatic:cloud-saving',{detail:false}));}
   }
-  global.NormaticCloud=Object.freeze({enabled,database,reload,readCollection,writeCollection,activities,captureLocal,importLocal,audit,registerAccess,readAuditorias,writeAuditorias,
+  async function readServidores() {
+    if(!enabled || !snapshot) return null;
+    try {
+      const {data,error}=await database().rpc('normatic_servidores_list');
+      if(error) {
+        if(error.code==='PGRST202' || /normatic_servidores_list/i.test(error.message||'')) return null;
+        throw Error(error.message || 'Não foi possível carregar o catálogo de servidores.');
+      }
+      return Array.isArray(data)?copy(data):[];
+    } catch(error) {
+      if(error?.code==='PGRST202' || /normatic_servidores_list/i.test(error?.message||'')) return null;
+      throw error;
+    }
+  }
+  async function upsertServidor(item) {
+    if(!enabled || !snapshot) return null;
+    if(!['admin','editor'].includes(snapshot?.role)) throw Error('Sua conta possui acesso somente para leitura.');
+    global.dispatchEvent?.(new CustomEvent('normatic:cloud-saving',{detail:true}));
+    try {
+      const {data,error}=await database().rpc('normatic_servidores_upsert',{item:copy(item)});
+      if(error) {
+        if(error.code==='PGRST202' || /normatic_servidores_upsert/i.test(error.message||'')) return null;
+        throw Error(error.message || 'Não foi possível salvar o servidor.');
+      }
+      return data && typeof data==='object'?copy(data):copy(item);
+    } finally {global.dispatchEvent?.(new CustomEvent('normatic:cloud-saving',{detail:false}));}
+  }
+  async function deleteServidor(id) {
+    if(!enabled || !snapshot) return null;
+    if(!['admin','editor'].includes(snapshot?.role)) throw Error('Sua conta possui acesso somente para leitura.');
+    global.dispatchEvent?.(new CustomEvent('normatic:cloud-saving',{detail:true}));
+    try {
+      const {error}=await database().rpc('normatic_servidores_delete',{target_id:String(id||'')});
+      if(error) {
+        if(error.code==='PGRST202' || /normatic_servidores_delete/i.test(error.message||'')) return null;
+        throw Error(error.message || 'Não foi possível excluir o servidor.');
+      }
+      return true;
+    } finally {global.dispatchEvent?.(new CustomEvent('normatic:cloud-saving',{detail:false}));}
+  }
+  global.NormaticCloud=Object.freeze({enabled,database,reload,readCollection,writeCollection,activities,captureLocal,importLocal,audit,registerAccess,readAuditorias,writeAuditorias,readServidores,upsertServidor,deleteServidor,
     get ready(){return !!snapshot;},get role(){return snapshot?.role;},get backup(){return backup?copy(backup):null;}});
 })(globalThis);

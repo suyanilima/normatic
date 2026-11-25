@@ -346,10 +346,29 @@ function sugerirProximoCodigoReuniao(){
 
 let reuniaoPontualEditandoId = null;
 
+function adicionarServidorNaReuniaoPontual(item){
+  const campoPart = document.getElementById('nr-participantes');
+  if(!campoPart || !item?.nome) return;
+  const rotulo = item.setor ? `${item.nome} - ${item.setor}` : item.nome;
+  const atuais = campoPart.value.split('\n').map(l => l.trim()).filter(Boolean);
+  const jaTem = atuais.some(l => l.toLowerCase() === rotulo.toLowerCase() || l.toLowerCase().startsWith(`${item.nome.toLowerCase()} -`));
+  if(!jaTem) atuais.push(rotulo);
+  campoPart.value = atuais.join('\n');
+}
+
 function abrirModalNovaReuniao(reuniaoEdicao = null){
   popularSetoresNovaReuniao();
   popularDocumentosNovaReuniao();
   if(typeof inicializarSeletoresToolbar === 'function') inicializarSeletoresToolbar();
+  if(typeof configurarBuscaServidor === 'function'){
+    configurarBuscaServidor('nr-busca-servidor', {
+      limparAoSelecionar: true,
+      apenasSelecao: true,
+      aoSelecionar: adicionarServidorNaReuniaoPontual
+    });
+  }
+  const campoBuscaSrv = document.getElementById('nr-busca-servidor');
+  if(campoBuscaSrv) campoBuscaSrv.value = '';
 
   const editando = reuniaoEdicao && typeof reuniaoEdicao === 'object' && reuniaoEdicao.id ? reuniaoEdicao : null;
   reuniaoPontualEditandoId = editando ? editando.id : null;
@@ -478,6 +497,14 @@ async function salvarNovaReuniao(){
     renderReunioes();
     if(typeof renderizarCalendarioReunioes === 'function') renderizarCalendarioReunioes();
     return;
+  }
+  if(typeof registrarServidorNoSistema === 'function'){
+    participantes.forEach(linha => {
+      const partes = String(linha || '').split(/\s+[-—–]\s+/);
+      const nomeLimpo = partes[0]?.trim();
+      const setorLinha = partes[1]?.trim() || setor || '';
+      if(nomeLimpo && nomeLimpo.length >= 3) registrarServidorNoSistema({ nome: nomeLimpo, setor: setorLinha });
+    });
   }
   toast(editandoId ? 'Reunião atualizada com sucesso!' : 'Reunião cadastrada com sucesso!', 'valido');
 }

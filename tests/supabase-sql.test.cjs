@@ -45,6 +45,18 @@ const {setup,IDS,empty}=require('./helpers/supabase-db.cjs');
     await assert.rejects(()=>commit(3,empty()),e=>e.code==='42501');
     await asUser(IDS.outsider);await assert.rejects(()=>commit(3,data),e=>e.code==='42501');
     assert.equal((await db.query('select * from public.normatic_documentos')).rows.length,0);
+    await db.exec('reset role');
+    await db.exec(require('node:fs').readFileSync('supabase/migrations/202611250008_servidores_tre.sql','utf8'));
+    await asUser(IDS.admin);
+    const servidores=(await db.query('select public.normatic_servidores_list() as rows')).rows[0].rows;
+    assert.equal(servidores.length,182,'Migração 0008 popula os 182 servidores e membros do PDF');
+    await db.query('select public.normatic_servidores_upsert($1::jsonb)',[JSON.stringify({id:'srv-tre-001',nome:'Adenilson Pontes Silva',setor:'STI',cargo:'Técnico Judiciário',email:'adenilson@tre-ac.jus.br',whatsapp:''})]);
+    assert.equal((await db.query("select setor,email from public.normatic_servidores where id='srv-tre-001'")).rows[0].setor,'STI');
+    await asUser(IDS.viewer);
+    await assert.rejects(()=>db.query("select public.normatic_servidores_delete('srv-tre-001')"),e=>e.code==='42501');
+    await asUser(IDS.admin);
+    assert.equal((await db.query("select public.normatic_servidores_delete('srv-tre-001') as ok")).rows[0].ok,true);
+    assert.equal((await db.query('select public.normatic_servidores_list() as rows')).rows[0].rows.length,181);
     console.log('SQL Supabase: RLS, membros, leitura, escrita, FK, ordem, transação e conflitos verificados em PostgreSQL local.');
   } finally {await db.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

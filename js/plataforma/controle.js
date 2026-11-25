@@ -71,6 +71,8 @@ function rotuloModuloHistorico(modulo) {
     normatic_unidades: 'Unidades',
     responsaveis: 'Responsáveis',
     normatic_responsaveis: 'Responsáveis',
+    servidores: 'Servidores',
+    normatic_servidores: 'Servidores',
     auditorias: 'Auditoria',
     normatic_auditorias: 'Auditoria',
     compromissos: 'Agenda',
@@ -248,4 +250,263 @@ function painelAuditoria(){
     </div>
   `;
 }
+
+const SERVIDORES_POR_PAGINA = 15;
+let paginaServidoresTre = 1;
+let filtroServidorTreBusca = '';
+let filtroServidorTreSetor = '';
+let servidorTreEditandoId = null;
+
+function atualizarBuscaServidoresTre(valor) {
+  const input = document.getElementById('srv-tre-busca');
+  const caret = input?.selectionStart;
+  filtroServidorTreBusca = valor;
+  paginaServidoresTre = 1;
+  render();
+  const novo = document.getElementById('srv-tre-busca');
+  novo?.focus();
+  if (caret != null) novo?.setSelectionRange?.(caret, caret);
+}
+
+function limparFiltrosServidoresTre() {
+  filtroServidorTreBusca = '';
+  filtroServidorTreSetor = '';
+  paginaServidoresTre = 1;
+  render();
+}
+
+function irPaginaServidoresTre(pagina) {
+  paginaServidoresTre = Math.max(1, Number(pagina) || 1);
+  render();
+}
+
+function abrirModalServidorTre(id = null) {
+  const catalogo = typeof obterCatalogoServidores === 'function' ? obterCatalogoServidores() : [];
+  const item = id ? catalogo.find(s => s.id === id) : null;
+  servidorTreEditandoId = item ? item.id : null;
+
+  const titulo = document.getElementById('servidor-tre-modal-titulo');
+  const btnSalvar = document.getElementById('btn-salvar-servidor-tre');
+  const campoNome = document.getElementById('srv-tre-nome');
+  const campoSetor = document.getElementById('srv-tre-setor');
+  const campoCargo = document.getElementById('srv-tre-cargo');
+  const campoEmail = document.getElementById('srv-tre-email');
+  const campoWhats = document.getElementById('srv-tre-whatsapp');
+
+  if (titulo) titulo.textContent = item ? 'Editar servidor ou membro' : 'Novo servidor ou membro';
+  if (btnSalvar) btnSalvar.textContent = item ? 'Salvar alterações' : 'Cadastrar';
+  if (campoNome) campoNome.value = item?.nome || '';
+  if (campoSetor) campoSetor.value = item?.setor || '';
+  if (campoCargo) campoCargo.value = item?.cargo || '';
+  if (campoEmail) campoEmail.value = item?.email || '';
+  if (campoWhats) campoWhats.value = item?.whatsapp || '';
+
+  if (typeof configurarBuscaSetor === 'function') {
+    configurarBuscaSetor('srv-tre-setor', 'srv-tre-setor-sugestoes');
+  }
+  abrirModalElemento('servidor-tre-modal-overlay');
+}
+
+function fecharModalServidorTre() {
+  fecharModalElemento('servidor-tre-modal-overlay');
+  servidorTreEditandoId = null;
+}
+
+async function salvarFormularioServidorTre(event) {
+  event?.preventDefault?.();
+  const nome = document.getElementById('srv-tre-nome')?.value.trim() || '';
+  const setor = document.getElementById('srv-tre-setor')?.value.trim() || '';
+  const cargo = document.getElementById('srv-tre-cargo')?.value.trim() || '';
+  const email = document.getElementById('srv-tre-email')?.value.trim() || '';
+  const whatsapp = document.getElementById('srv-tre-whatsapp')?.value.trim() || '';
+
+  if (!nome || nome.length < 2) {
+    toast('Informe o nome completo do servidor ou membro.', 'alerta');
+    return;
+  }
+  if (!setor) {
+    toast('Informe a sigla do setor ou lotação.', 'alerta');
+    return;
+  }
+
+  const botao = document.getElementById('btn-salvar-servidor-tre');
+  if (botao) botao.disabled = true;
+  const editando = Boolean(servidorTreEditandoId);
+  try {
+    await salvarServidorSistema({
+      id: servidorTreEditandoId || undefined,
+      nome,
+      setor,
+      cargo,
+      email,
+      whatsapp
+    });
+    fecharModalServidorTre();
+    render();
+    toast(editando ? 'Cadastro atualizado com sucesso.' : 'Servidor ou membro cadastrado com sucesso.', 'valido');
+  } catch (error) {
+    toast(escapeHtml(error?.message || 'Não foi possível salvar o registro.'), 'vencido');
+  } finally {
+    if (botao) botao.disabled = false;
+  }
+}
+
+async function confirmarExclusaoServidorTre(id) {
+  const catalogo = typeof obterCatalogoServidores === 'function' ? obterCatalogoServidores() : [];
+  const item = catalogo.find(s => s.id === id);
+  if (!item) return;
+
+  const ok = await pedirConfirmacaoExclusao({
+    titulo: 'Excluir servidor ou membro?',
+    mensagem: `Deseja remover "${item.nome}" (${item.setor || 'Sem setor'}) do catálogo de Normativos e Reuniões?`,
+    textoBotao: 'Excluir'
+  });
+  if (!ok) return;
+
+  try {
+    await excluirServidorSistema(id);
+    render();
+    toast('Servidor ou membro removido do catálogo.', 'valido');
+  } catch (error) {
+    toast(escapeHtml(error?.message || 'Não foi possível excluir o registro.'), 'vencido');
+  }
+}
+
+function painelServidoresTre() {
+  const catalogo = typeof obterCatalogoServidores === 'function' ? obterCatalogoServidores() : [];
+  const podeEditar = !window.NormaticCloud?.enabled || ['admin', 'editor'].includes(window.NormaticCloud?.role);
+  const setoresDisponiveis = [...new Set(catalogo.map(s => s.setor).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+
+  const termo = typeof normalizarTextoBuscaServidor === 'function'
+    ? normalizarTextoBuscaServidor(filtroServidorTreBusca)
+    : textoControle(filtroServidorTreBusca).trim();
+
+  const filtrados = catalogo.filter(item => {
+    if (filtroServidorTreSetor && item.setor !== filtroServidorTreSetor) return false;
+    if (termo) {
+      const nomeSetor = (typeof SETORES_CONVIDADOS === 'object' && SETORES_CONVIDADOS?.[item.setor]) || '';
+      const textoAlvo = `${item.nome} ${item.setor} ${nomeSetor} ${item.cargo} ${item.email} ${item.whatsapp}`;
+      const norm = typeof normalizarTextoBuscaServidor === 'function'
+        ? normalizarTextoBuscaServidor(textoAlvo)
+        : textoControle(textoAlvo);
+      if (!norm.includes(termo)) return false;
+    }
+    return true;
+  });
+
+  const totalPaginas = Math.max(1, Math.ceil(filtrados.length / SERVIDORES_POR_PAGINA));
+  if (paginaServidoresTre > totalPaginas) paginaServidoresTre = totalPaginas;
+  const inicio = (paginaServidoresTre - 1) * SERVIDORES_POR_PAGINA;
+  const visiveis = filtrados.slice(inicio, inicio + SERVIDORES_POR_PAGINA);
+  const faixaTexto = filtrados.length
+    ? `Exibindo ${inicio + 1}–${Math.min(inicio + SERVIDORES_POR_PAGINA, filtrados.length)} de ${filtrados.length} pessoas`
+    : '0 pessoas encontradas';
+
+  const botoesPaginacao = totalPaginas > 1 ? `
+    <div class="paginacao" role="navigation" aria-label="Paginação de servidores e membros">
+      <button type="button" class="pagina-btn pagina-seta" ${paginaServidoresTre <= 1 ? 'disabled' : ''} onclick="irPaginaServidoresTre(${paginaServidoresTre - 1})">Anterior</button>
+      ${Array.from({ length: totalPaginas }, (_, i) => {
+        const num = i + 1;
+        return `<button type="button" class="pagina-btn ${paginaServidoresTre === num ? 'active' : ''}" onclick="irPaginaServidoresTre(${num})">${num}</button>`;
+      }).join('')}
+      <button type="button" class="pagina-btn pagina-seta" ${paginaServidoresTre >= totalPaginas ? 'disabled' : ''} onclick="irPaginaServidoresTre(${paginaServidoresTre + 1})">Próximo</button>
+    </div>
+  ` : '';
+
+  return `
+    <div class="projetos-modulo servidores-tre-modulo">
+      <section class="card auditoria-filtros-card">
+        <div class="auditoria-filtros-grid">
+          <div class="auditoria-field auditoria-field-busca">
+            <label for="srv-tre-busca">Buscar pessoa</label>
+            <input id="srv-tre-busca" type="search" maxlength="120" placeholder="Nome, sigla/setor, cargo ou e-mail..." value="${escapeHtml(filtroServidorTreBusca)}" oninput="atualizarBuscaServidoresTre(this.value)">
+          </div>
+          <div class="auditoria-field">
+            <label for="srv-tre-filtro-setor">Setor / Lotação</label>
+            <select id="srv-tre-filtro-setor" onchange="filtroServidorTreSetor=this.value;paginaServidoresTre=1;render()">
+              <option value="">Todos os setores (${setoresDisponiveis.length})</option>
+              ${setoresDisponiveis.map(sigla => {
+                const rotulo = typeof formatarRotuloSetor === 'function' ? formatarRotuloSetor(sigla) : sigla;
+                return `<option value="${escapeHtml(sigla)}" ${filtroServidorTreSetor === sigla ? 'selected' : ''}>${escapeHtml(rotulo)}</option>`;
+              }).join('')}
+            </select>
+          </div>
+          <div class="auditoria-filtros-limpar historico-filtros-acoes">
+            <button type="button" class="secondary" onclick="limparFiltrosServidoresTre()">Limpar</button>
+            ${podeEditar ? `<button type="button" class="primary" onclick="abrirModalServidorTre()">+ Novo servidor</button>` : ''}
+          </div>
+        </div>
+      </section>
+
+      <section class="card projetos-tabela-card">
+        <div class="projetos-tabela-topo">
+          <div>
+            <h3>Servidores e membros do TRE-AC</h3>
+            <p class="muted">${faixaTexto} · Catálogo utilizado na busca rápida de Normativos e Reuniões</p>
+          </div>
+        </div>
+        ${visiveis.length ? `
+          <div class="projetos-tabela-wrap">
+            <table class="projetos-tabela servidores-tre-tabela">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Setor / Lotação</th>
+                  <th>Cargo / Função</th>
+                  ${podeEditar ? '<th class="proj-th-acoes">Ações</th>' : ''}
+                </tr>
+              </thead>
+              <tbody>
+                ${visiveis.map(item => {
+                  const nomeSetor = (typeof SETORES_CONVIDADOS === 'object' && SETORES_CONVIDADOS?.[item.setor]) || '';
+                  const contato = [item.email, item.whatsapp].filter(Boolean).join(' · ');
+                  return `
+                    <tr>
+                      <td>
+                        <div class="proj-titulo-cel">
+                          <strong>${escapeHtml(item.nome)}</strong>
+                          ${contato ? `<span>${escapeHtml(contato)}</span>` : ''}
+                        </div>
+                      </td>
+                      <td>
+                        <div class="proj-titulo-cel">
+                          <span><span class="dash-modulo-pill">${escapeHtml(item.setor || '—')}</span></span>
+                          ${nomeSetor ? `<span>${escapeHtml(nomeSetor)}</span>` : ''}
+                        </div>
+                      </td>
+                      <td class="proj-col-resp">${escapeHtml(item.cargo || '—')}</td>
+                      ${podeEditar ? `
+                        <td class="proj-col-acoes">
+                          <div class="proj-acoes-wrap">
+                            <div class="actions">
+                              <button type="button" class="secondary" onclick="abrirModalServidorTre(${argumentoJsHtml(item.id)})">Editar</button>
+                              <button type="button" class="secondary danger" onclick="confirmarExclusaoServidorTre(${argumentoJsHtml(item.id)})">Excluir</button>
+                            </div>
+                          </div>
+                        </td>
+                      ` : ''}
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+          ${totalPaginas > 1 ? `
+            <div class="paginacao-rodape">
+              <div class="paginacao-total-texto">Página ${paginaServidoresTre} de ${totalPaginas}</div>
+              ${botoesPaginacao}
+            </div>
+          ` : ''}
+        ` : `
+          <div class="tarefas-vazio">
+            <h3>Nenhum servidor ou membro encontrado</h3>
+            <p>${catalogo.length ? 'Ajuste a busca ou limpe o filtro de setor acima.' : 'Cadastre servidores e membros para utilizá-los em Normativos e Reuniões.'}</p>
+            ${podeEditar ? '<button type="button" class="primary" onclick="abrirModalServidorTre()">+ Novo servidor</button>' : ''}
+          </div>
+        `}
+      </section>
+    </div>
+  `;
+}
+
 document.addEventListener('keydown',event=>{if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='k'){event.preventDefault();document.getElementById('busca-global')?.focus();}});
