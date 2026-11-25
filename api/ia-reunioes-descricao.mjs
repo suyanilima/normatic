@@ -77,7 +77,7 @@ export function createHandler({ env = process.env, fetcher = fetch } = {}) {
     res.setHeader('Cache-Control', 'no-store');
     if (req.method !== 'POST') return res.status(405).json({ error: 'Método não permitido.' });
 
-    const apiKey = String(env.GEMINI_API_KEY || '').trim();
+    const apiKey = String(env.GEMINI_API_KEY || '').trim().replace(/^["']|["']$/g, '');
     if (!apiKey) {
       return res.status(503).json({ error: 'Serviço de IA ainda não configurado no Vercel (defina GEMINI_API_KEY).' });
     }
@@ -91,42 +91,57 @@ export function createHandler({ env = process.env, fetcher = fetch } = {}) {
       return res.status(400).json({ error: 'Informe a transcrição ou anotações da reunião.' });
     }
 
-    const model = String(env.GEMINI_MODEL || DEFAULT_MODEL).trim() || DEFAULT_MODEL;
+    const modeloPreferido = String(env.GEMINI_MODEL || DEFAULT_MODEL).trim() || DEFAULT_MODEL;
+    const modelos = [...new Set([modeloPreferido, 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash'])];
     const prompt = montarPrompt(body?.reuniao || {}, transcricao);
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
 
     try {
-      const response = await fetcher(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ role: 'user', parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.2,
-            responseMimeType: 'application/json'
-          }
-        }),
-        signal: AbortSignal.timeout(25000)
-      });
+      let ultimoStatus = 502;
+      let ultimoCodigo = '';
+      for (const model of modelos) {
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+        const response = await fetcher(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ role: 'user', parts: [{ text: prompt }] }],
+            generationConfig: {
+              temperature: 0.2,
+              responseMimeType: 'application/json'
+            }
+          }),
+          signal: AbortSignal.timeout(25000)
+        });
 
-      if (response.status === 429) {
+        if (response.ok) {
+          const data = await response.json();
+          const textoBruto = data?.candidates?.[0]?.content?.parts?.map(p => p?.text || '').join('\n').trim() || '';
+          const parsed = extrairJson(textoBruto);
+          const descricao = limitar(parsed?.descricao || textoBruto, MAX_DESCRICAO);
+          const providencias = limitar(parsed?.providencias || 'Não foram registradas providências.', MAX_PROVIDENCIAS);
+          if (!descricao) {
+            return res.status(502).json({ error: 'A IA retornou uma resposta vazia. Tente novamente.' });
+          }
+          return res.status(200).json({ descricao, providencias });
+        }
+
+        ultimoStatus = response.status;
+        let erroJson = null;
+        try { erroJson = await response.json(); } catch (_) { erroJson = null; }
+        ultimoCodigo = String(erroJson?.error?.status || erroJson?.error?.message || '').slice(0, 120);
+
+        // Se o modelo não existir ou estiver sobrecarregado, tenta o próximo modelo gratuito.
+        if (response.status === 404 || response.status === 503) continue;
+        break;
+      }
+
+      if (ultimoStatus === 429) {
         return res.status(429).json({ error: 'Limite gratuito temporário da IA atingido. Aguarde alguns instantes e tente novamente.' });
       }
-      if (!response.ok) {
-        return res.status(502).json({ error: 'Não foi possível gerar o resumo com a IA no momento.' });
+      if (ultimoStatus === 400 || ultimoStatus === 401 || ultimoStatus === 403) {
+        return res.status(502).json({ error: `Chave GEMINI_API_KEY inválida ou sem permissão no Google AI Studio (HTTP ${ultimoStatus}).` });
       }
-
-      const data = await response.json();
-      const textoBruto = data?.candidates?.[0]?.content?.parts?.map(p => p?.text || '').join('\n').trim() || '';
-      const parsed = extrairJson(textoBruto);
-      const descricao = limitar(parsed?.descricao || textoBruto, MAX_DESCRICAO);
-      const providencias = limitar(parsed?.providencias || 'Não foram registradas providências.', MAX_PROVIDENCIAS);
-
-      if (!descricao) {
-        return res.status(502).json({ error: 'A IA retornou uma resposta vazia. Tente novamente.' });
-      }
-
-      return res.status(200).json({ descricao, providencias });
+      return res.status(502).json({ error: `Não foi possível gerar o resumo com a IA (HTTP ${ultimoStatus}${ultimoCodigo ? ` · ${ultimoCodigo}` : ''}).` });
     } catch (_) {
       return res.status(503).json({ error: 'Tempo limite ou falha de comunicação com o serviço de IA. Use Prosseguir para revisar manualmente.' });
     }
