@@ -34,6 +34,7 @@ function set(w,selector,value){const field=w.document.querySelector(selector);as
     assert.ok(d.getElementById('modal-escolha-reuniao-overlay').classList.contains('open'));
     d.getElementById('btn-escolher-reuniao-pontual').click();
     assert.ok(d.getElementById('modal-nova-reuniao-overlay').classList.contains('open'));
+    assert.equal(d.querySelector('label[for="nr-codigo"]').textContent.trim(),'Evento SEI','Campo da reunião pontual rotulado como Evento SEI');
     set(w,'#nr-titulo','Reunião pontual de teste');set(w,'#nr-data',date);set(w,'#nr-horario','15:00');set(w,'#nr-setor','STI');
     await w.salvarNovaReuniao();
     assert.equal(JSON.parse(w.localStorage.getItem('igov:reunioes')).length,2);

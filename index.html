@@ -591,8 +591,8 @@
           <input id="nr-titulo" type="text" maxlength="150" placeholder="Ex.: Alinhamento quinzenal de entregas" required>
         </div>
         <div class="campo-grupo">
-          <label for="nr-codigo">Código / Referência</label>
-          <input id="nr-codigo" type="text" maxlength="50" placeholder="Ex.: REU-2026-04">
+          <label for="nr-codigo">Evento SEI</label>
+          <input id="nr-codigo" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="50" placeholder="Informe o número do evento" oninput="this.value=this.value.replace(/\D/g,'')">
         </div>
       </div>
 
