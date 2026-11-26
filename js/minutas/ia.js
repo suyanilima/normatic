@@ -68,6 +68,68 @@ function iniciarRevisaoManualMinuta(){
   toast('Conteúdo pronto para revisão.', 'valido');
 }
 
+function converterTextoIaParaHtmlMinuta(texto){
+  const limpo = String(texto || '').replace(/\r\n/g, '\n').trim();
+  if(!limpo) return '';
+  const escapar = typeof escapeHtml === 'function'
+    ? escapeHtml
+    : (s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])));
+
+  const linhas = limpo.split('\n');
+  const partes = [];
+  let itensLista = [];
+  let linhasParagrafo = [];
+
+  const fecharParagrafo = () => {
+    if(!linhasParagrafo.length) return;
+    partes.push(`<div>${linhasParagrafo.map(escapar).join('<br>')}</div>`);
+    linhasParagrafo = [];
+  };
+  const fecharLista = () => {
+    if(!itensLista.length) return;
+    partes.push(`<ul>${itensLista.map(item => `<li><em>${escapar(item)}</em></li>`).join('')}</ul>`);
+    itensLista = [];
+  };
+
+  for(const bruta of linhas){
+    const linha = bruta.trim();
+    if(!linha){
+      fecharLista();
+      if(linhasParagrafo.length){
+        fecharParagrafo();
+        partes.push('<div><br></div>');
+      }
+      continue;
+    }
+    const matchTopico = linha.match(/^(?:[•●▪*-]|\d+[.)])\s+(.+)$/);
+    if(matchTopico){
+      fecharParagrafo();
+      itensLista.push(matchTopico[1].trim());
+    } else {
+      fecharLista();
+      linhasParagrafo.push(linha);
+    }
+  }
+  fecharLista();
+  fecharParagrafo();
+  while(partes.at(-1) === '<div><br></div>') partes.pop();
+  return partes.join('');
+}
+
+function aplicarConteudoIaEditorMinuta(id, texto){
+  const editor = document.getElementById(id);
+  if(!editor) return;
+  if(typeof sanitizarHtmlMinuta === 'function'){
+    const html = sanitizarHtmlMinuta(converterTextoIaParaHtmlMinuta(texto));
+    if(html){
+      editor.innerHTML = html;
+      if(typeof atualizarContadorEditorMinuta === 'function') atualizarContadorEditorMinuta(editor);
+      return;
+    }
+  }
+  definirTextoEditorMinuta(id, texto);
+}
+
 async function gerarDescricaoReuniaoComIA(){
   const reuniao = obterReuniaoMinutaAtual();
   const campoTranscricao = document.getElementById('minuta-reuniao-transcricao');
@@ -102,9 +164,9 @@ async function gerarDescricaoReuniaoComIA(){
     });
     const descricao = limitarTexto(String(resultado?.descricao || '').trim(), 5000);
     if(!descricao) throw new Error('A IA não retornou uma descrição válida.');
-    definirTextoEditorMinuta('minuta-reuniao-descricao', descricao);
+    aplicarConteudoIaEditorMinuta('minuta-reuniao-descricao', descricao);
     const providencias = limitarTexto(String(resultado?.providencias || 'Não foram registradas providências.').trim(), 3000);
-    definirTextoEditorMinuta('minuta-reuniao-providencias', providencias);
+    aplicarConteudoIaEditorMinuta('minuta-reuniao-providencias', providencias);
     const avisoRevisao = document.getElementById('minuta-revisao-aviso');
     avisoRevisao.textContent = 'Conteúdo gerado pela IA. Revise antes de criar a ata.';
     avisoRevisao.classList.remove('modo-teste');

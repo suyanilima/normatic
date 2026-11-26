@@ -30,10 +30,12 @@ function makeRes() {
   assert.equal(rEmpty.statusCode, 400);
 
   let calledUrl = '';
+  let capturedBody = null;
   const hOk = createHandler({
     env: { GEMINI_API_KEY: 'test-key', GEMINI_MODEL: 'gemini-2.5-flash' },
-    fetcher: async (url) => {
+    fetcher: async (url, init) => {
       calledUrl = String(url);
+      capturedBody = init?.body ? JSON.parse(init.body) : null;
       return {
         ok: true,
         status: 200,
@@ -63,6 +65,9 @@ function makeRes() {
   }, rOk);
   assert.equal(rOk.statusCode, 200);
   assert.ok(calledUrl.includes('gemini-2.5-flash:generateContent'));
+  const promptEnviado = capturedBody?.contents?.[0]?.parts?.[0]?.text || '';
+  assert.ok(promptEnviado.includes('Tribunal Regional Eleitoral do Acre (TRE-AC)'), 'Prompt utiliza o padrão oficial do TRE-AC');
+  assert.ok(promptEnviado.includes('Nada mais havendo a ser tratado, a reunião foi encerrada.'), 'Prompt exige o fecho oficial das atas do TRE-AC');
   assert.equal(rOk.body.descricao, 'Deliberou-se pela aprovação do cronograma.');
   assert.equal(rOk.body.providencias, 'STI enviará relatório até 30/11.');
 

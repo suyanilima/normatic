@@ -23,18 +23,31 @@ function extrairJson(texto) {
 
 function montarPrompt(reuniao, transcricao) {
   const colegiado = limitar(reuniao?.colegiado || '', 120);
+  const pautaContexto = limitar(reuniao?.pauta || '', 300);
 
   return [
-    'Você é um secretário técnico redigindo os campos de conteúdo de uma ata oficial em português do Brasil (padrão institucional do Poder Judiciário).',
-    'A data, o horário, a pauta e a lista de participantes já constam em campos próprios da ata. Portanto, NÃO inclua cabeçalho, data, pauta nem lista de participantes na sua resposta.',
-    'Baseie-se exclusivamente na transcrição/anotações abaixo, sem inventar fatos, nomes, números ou prazos.',
+    'Você é redator oficial de atas administrativas e técnicas do Tribunal Regional Eleitoral do Acre (TRE-AC), escrevendo para publicação no Sistema Eletrônico de Informações (SEI).',
+    'O cabeçalho (Local, Data - Hora, Comitê/Unidade, Participantes, Convidados e Pauta) já está preenchido em campos próprios do sistema. Portanto, NÃO repita cabeçalho, data, lista de participantes nem o título da pauta na resposta.',
+    'Fidelidade estrita: baseie-se EXCLUSIVAMENTE na transcrição/anotações fornecidas. Corrija erros gramaticais, marcas de oralidade e digitação para a norma culta jurídica/administrativa, mas NUNCA invente nomes, cargos, siglas, números de itens, processos ou prazos.',
     '',
-    'Retorne EXCLUSIVAMENTE um objeto JSON válido com exatamente estas duas chaves:',
-    '- "descricao": texto formal, objetivo e impessoal descrevendo apenas os assuntos tratados, problemas relatados, solicitações e deliberações da reunião (sem repetir cabeçalho, pauta ou participantes; máximo 4500 caracteres).',
-    '- "providencias": lista objetiva em tópicos das providências e encaminhamentos que serão tomados, indicando responsável e prazo somente quando citados no texto. Se não houver providências mencionadas, retorne exatamente "Não foram registradas providências.".',
-    colegiado ? `Contexto da unidade/colegiado: ${colegiado}` : '',
+    'DIRETRIZES DE ESTILO E LINGUAGEM OFICIAL DO TRE-AC:',
+    '1. Tom impessoal, técnico-administrativo e em 3ª pessoa do singular/plural (ex.: "convocou a presente reunião com a finalidade de...", "apresentou...", "esclareceu que...", "Informou, ainda, que...", "os membros deliberaram...").',
+    '2. Estrutura de "descricao" (separe cada parágrafo com uma linha em branco "\\n\\n"):',
+    '   - 1º parágrafo (contextualização): apresente de forma formal a finalidade/motivação da reunião conforme o relato (ex.: "Em atendimento à solicitação de..., a... convocou a presente reunião com a finalidade de apresentar..., expor... e deliberar sobre..." ou formulação equivalente fiel ao texto).',
+    '   - Parágrafos seguintes (exposição, esclarecimentos e deliberações): utilize conectivos institucionais do SEI como "Aberta a reunião, ... apresentou...", "destacando..., quais sejam:" (quando houver enumeração de pontos/itens, liste cada item em linha própria iniciada por "• ", finalizando os itens intermediários com ";" , o penúltimo com "; e" e o último com "."), "Na sequência, ... esclareceu que...", "Informou, ainda, que...", e "Em relação a..., deliberou-se / os membros deliberaram pela..., considerando que...".',
+    '   - Último parágrafo obrigatório de fechamento: encerre SEMPRE com a frase exata: "Nada mais havendo a ser tratado, a reunião foi encerrada."',
+    '3. Estrutura de "providencias":',
+    '   - Redija em prosa administrativa formal e direta no padrão SEI do TRE-AC indicando a unidade/responsável e a providência a ser adotada (ex.: "A STI irá solicitar reunião com urgência para apresentação das evidências aos membros do CGOVTIC, a ser designada data e horário pela Presidência do Comitê de Governança."). Se houver múltiplas providências distintas para setores diferentes, apresente uma por linha iniciada por "• " mantendo a mesma redação formal completa.',
+    '   - Se nenhuma providência ou encaminhamento futuro tiver sido mencionado na transcrição, retorne exatamente: "Não foram registradas providências."',
     '',
-    'TRANSCRIÇÃO / ANOTAÇÕES:',
+    'EXEMPLO DE ESTILO REAL DO TRE-AC (apenas referência de tom e estrutura — NÃO copie os dados deste exemplo):',
+    '{"descricao":"Em atendimento à solicitação da Assistente de Planejamento e Governança de TIC, a Secretaria de Tecnologia da Informação (STI) convocou a presente reunião com a finalidade de apresentar o resultado preliminar do ciclo avaliativo, expor as evidências reprovadas e deliberar sobre as providências a serem adotadas para saneamento das inconsistências identificadas.\\n\\nAberta a reunião, a Assistente apresentou o resultado preliminar da avaliação, destacando os pareceres que motivaram a reprovação das evidências avaliadas, quais sejam:\\n• Item 1.1 - Comprovar que a coordenação dos macroprocessos de TIC é realizada por servidores do quadro permanente, conforme percentual informado; e\\n• Item 24 - Comprovar que o órgão formalizou, definiu processos, executa e revisa o Plano de Gestão de Riscos de TIC.\\n\\nNa sequência, esclareceu que as reprovações decorreram de inconsistência nas informações constantes da planilha encaminhada. Informou, ainda, que tais inconsistências poderão ser sanadas pela STI mediante a atualização das informações dentro do prazo estabelecido.\\n\\nEm relação aos demais pontos, os membros deliberaram, por unanimidade, pela submissão da matéria ao Comitê de Governança de Tecnologia da Informação e Comunicação (CGOVTIC), para análise mais aprofundada e deliberação acerca da conveniência e oportunidade de interposição de recurso.\\n\\nNada mais havendo a ser tratado, a reunião foi encerrada.","providencias":"A STI irá solicitar reunião com urgência para apresentação das evidências aos membros do CGOVTIC, a ser designada data e horário pela Presidência do Comitê de Governança."}',
+    '',
+    'Retorne EXCLUSIVAMENTE um objeto JSON válido com exatamente as chaves "descricao" (máximo 4500 caracteres) e "providencias" (máximo 2800 caracteres).',
+    colegiado ? `Contexto da unidade/colegiado da reunião (apenas referência): ${colegiado}` : '',
+    pautaContexto ? `Contexto da pauta cadastrada (apenas referência, não repita como título): ${pautaContexto}` : '',
+    '',
+    'TRANSCRIÇÃO / ANOTAÇÕES DA REUNIÃO A REDIGIR:',
     transcricao
   ].filter(Boolean).join('\n');
 }
