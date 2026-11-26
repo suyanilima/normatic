@@ -81,6 +81,12 @@ function set(w,selector,value){const field=w.document.querySelector(selector);as
     assert.equal(titulosPendentes[0],'Tarefa Urgente','Mais urgente aparece primeiro no quadro');
     assert.equal(titulosPendentes[1],'Tarefa Alta','Alta aparece antes de Média e Baixa');
     assert.equal(titulosPendentes[titulosPendentes.length-1],'Tarefa Baixa','Baixa aparece por último no quadro');
+    const colBodies=[...d.querySelectorAll('.tarefas-kanban-body')];
+    assert.equal(colBodies.length,3,'Todas as 3 colunas do quadro possuem área rolável');
+    colBodies.forEach(body=>{
+      assert.equal(w.getComputedStyle(body).overflowY,'auto','Rolagem vertical ativa em todas as colunas do quadro');
+      assert.equal(w.getComputedStyle(body).maxHeight,'410px','Altura máxima aciona rolagem a partir da 3ª tarefa');
+    });
     w.go('novo-normativo');
     assert.equal(frame.contentWindow,frameWindow,'Navegação não recria o componente documental');
     assert.equal(frame.contentDocument.getElementById('f-nome').value,'Rascunho preservado');

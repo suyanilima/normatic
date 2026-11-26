@@ -478,7 +478,38 @@ html.em-iframe-plataforma.modal-aberto #historico-modal-overlay.open {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 410px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.45) transparent;
+}
+
+.tarefas-kanban-body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.tarefas-kanban-body::-webkit-scrollbar-button {
+  display: none;
+  height: 0;
+  width: 0;
+}
+
+.tarefas-kanban-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tarefas-kanban-body::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.45);
+  border-radius: 999px;
+}
+
+.tarefas-kanban-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.7);
 }
 
 .tarefas-kanban-vazio {
@@ -493,6 +524,7 @@ html.em-iframe-plataforma.modal-aberto #historico-modal-overlay.open {
 }
 
 .tarefas-kanban-card {
+  flex: 0 0 auto;
   border: 1px solid #E5ECF5;
   border-radius: 12px;
   padding: 14px 16px;
