@@ -68,8 +68,35 @@ function makeRes() {
   const promptEnviado = capturedBody?.contents?.[0]?.parts?.[0]?.text || '';
   assert.ok(promptEnviado.includes('Tribunal Regional Eleitoral do Acre (TRE-AC)'), 'Prompt utiliza o padrão oficial do TRE-AC');
   assert.ok(promptEnviado.includes('Nada mais havendo a ser tratado, a reunião foi encerrada.'), 'Prompt exige o fecho oficial das atas do TRE-AC');
+  assert.equal(capturedBody?.generationConfig?.thinkingConfig?.thinkingBudget, 0, 'Desativa raciocínio oculto lento no Gemini 2.5 Flash');
   assert.equal(rOk.body.descricao, 'Deliberou-se pela aprovação do cronograma.');
   assert.equal(rOk.body.providencias, 'STI enviará relatório até 30/11.');
+
+  // Se o primeiro modelo der timeout/lentidão, cai automaticamente para o próximo modelo rápido
+  const tentadosFallback = [];
+  const hFallback = createHandler({
+    env: { GEMINI_API_KEY: 'test-key', GEMINI_MODEL: 'gemini-2.5-flash' },
+    fetcher: async (url) => {
+      tentadosFallback.push(String(url));
+      if (String(url).includes('gemini-2.5-flash:')) {
+        const err = new Error('Timeout');
+        err.name = 'TimeoutError';
+        throw err;
+      }
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          candidates: [{ content: { parts: [{ text: JSON.stringify({ descricao: 'Gerado via fallback rápido.', providencias: 'Não foram registradas providências.' }) }] } }]
+        })
+      };
+    }
+  });
+  const rFallback = makeRes();
+  await hFallback({ method: 'POST', headers: {}, body: { transcricao: 'Anotação rápida' } }, rFallback);
+  assert.equal(rFallback.statusCode, 200);
+  assert.ok(tentadosFallback.some(u => u.includes('gemini-2.5-flash-lite:generateContent')), 'Usa gemini-2.5-flash-lite automaticamente quando o principal atrasa');
+  assert.equal(rFallback.body.descricao, 'Gerado via fallback rápido.');
 
   console.log('IA Atas: validação de método, chave, payload e geração via Gemini verificadas.');
 })().catch(err => {

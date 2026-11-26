@@ -117,21 +117,37 @@ export function createHandler({ env = process.env, fetcher = fetch } = {}) {
 
     const tentarModelo = async (model) => {
       const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
-      const response = await fetcher(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ role: 'user', parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.2,
-            responseMimeType: 'application/json'
-          }
-        }),
-        signal: AbortSignal.timeout(25000)
-      });
+      const generationConfig = {
+        temperature: 0.2,
+        responseMimeType: 'application/json'
+      };
+      if (/gemini-2\.5/i.test(model)) {
+        generationConfig.thinkingConfig = { thinkingBudget: 0 };
+      }
+
+      let response;
+      try {
+        response = await fetcher(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ role: 'user', parts: [{ text: prompt }] }],
+            generationConfig
+          }),
+          signal: AbortSignal.timeout(15000)
+        });
+      } catch (err) {
+        return {
+          ok: false,
+          status: 504,
+          codigo: err?.name === 'TimeoutError' || err?.name === 'AbortError' ? 'TIMEOUT' : 'NETWORK_ERROR'
+        };
+      }
+
       if (response.ok) {
         const data = await response.json();
-        const textoBruto = data?.candidates?.[0]?.content?.parts?.map(p => p?.text || '').join('\n').trim() || '';
+        const partesTexto = (data?.candidates?.[0]?.content?.parts || []).filter(p => !p?.thought);
+        const textoBruto = partesTexto.map(p => p?.text || '').join('\n').trim() || '';
         const parsed = extrairJson(textoBruto);
         const descricao = limitar(parsed?.descricao || textoBruto, MAX_DESCRICAO);
         const providencias = limitar(parsed?.providencias || 'Não foram registradas providências.', MAX_PROVIDENCIAS);
@@ -159,7 +175,7 @@ export function createHandler({ env = process.env, fetcher = fetch } = {}) {
           if (r.ok) return r;
           ultimoStatus = r.status;
           ultimoCodigo = r.codigo;
-          if (r.status === 404 || r.status === 503) continue;
+          if (r.status === 404 || r.status === 429 || r.status === 503 || r.status === 504) continue;
           return r;
         }
         return null;
