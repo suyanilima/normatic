@@ -59,7 +59,12 @@ function set(w,selector,value){const field=w.document.querySelector(selector);as
     assert.equal(frame.contentDocument.querySelector('.plataforma-sidebar'),null,'Componente documental sem segundo menu');
     assert.ok(frame.contentDocument.documentElement.classList.contains('em-iframe-plataforma'),'Iframe documental identificado para centralização em tela cheia');
     assert.ok(frame.contentWindow.cadastrar,'Motor documental original disponível');
-    frame.contentWindow.verResumo('norm-antigo');
+    const docMenuBtn=frame.contentDocument.querySelector('.actions-toggle');
+    assert.ok(docMenuBtn,'Botão de ações presente na linha de normativos');
+    docMenuBtn.click();
+    await wait();await wait();
+    assert.ok(frame.contentDocument.querySelector('body > .actions-dropdown.open'),'Menu de ações de normativos permanece aberto após ajuste de altura');
+    frame.contentDocument.querySelector('body > .actions-dropdown.open button').click();
     assert.ok(d.body.classList.contains('iframe-modal-aberto'),'Modal do iframe ativa camada de tela cheia na plataforma');
     assert.equal(w.getComputedStyle(frame).position,'fixed','Iframe ocupa toda a janela enquanto um modal de normativo está aberto');
     frame.contentWindow.fecharModalResumo();

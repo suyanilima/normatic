@@ -95,7 +95,7 @@ html.em-iframe-plataforma.modal-aberto #historico-modal-overlay.open {
 .plataforma-unificada .top > .actions { justify-content: flex-end; }
 .modulo-normatic.documento-incorporado { padding: 0; min-height: 0; }
 .modulo-normatic.documento-incorporado .wrap { width: 100%; max-width: none; margin: 0; padding: 0; }
-.documento-incorporado #view-acompanhamento.active { min-height: 480px; }
+.documento-incorporado #view-acompanhamento.active { min-height: 540px; }
 .documento-incorporado #view-dashboard .dashboard-cabecalho { margin-bottom: 8px; }
 .documento-incorporado #view-dashboard .dashboard-cabecalho h2, .documento-incorporado #view-dashboard .dashboard-cabecalho p { display: none; }
 .documento-incorporado #view-dashboard #dashboard-atualizacao { display: none; }

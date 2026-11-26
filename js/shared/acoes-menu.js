@@ -66,7 +66,15 @@ document.addEventListener('keydown', evento => {
   const proximo = evento.key === 'Home' ? 0 : evento.key === 'End' ? itens.length-1 : (indice + (evento.key === 'ArrowUp' ? -1 : 1) + itens.length) % itens.length;
   itens[proximo]?.focus();
 });
-window.addEventListener('resize', () => fecharMenusAcoes());
+let ultimaLarguraJanelaMenu = typeof window !== 'undefined' ? window.innerWidth : 0;
+window.addEventListener('resize', () => {
+  if(Math.abs(window.innerWidth - ultimaLarguraJanelaMenu) > 2) {
+    ultimaLarguraJanelaMenu = window.innerWidth;
+    fecharMenusAcoes();
+  } else if(menuAcoesAberto) {
+    posicionarMenuAcoes(menuAcoesAberto.menu, menuAcoesAberto.botao);
+  }
+});
 document.addEventListener('scroll', evento => {
   if(menuAcoesAberto && !menuAcoesAberto.menu.contains(evento.target)) fecharMenusAcoes();
 }, true);
