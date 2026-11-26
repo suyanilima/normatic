@@ -1,5 +1,6 @@
 // Contrato do componente documental com a navegação única, na mesma origem.
 if(window.parent !== window) {
+  document.documentElement.classList.add('em-iframe-plataforma');
   const origem = parent.location.origin === 'null' ? '*' : parent.location.origin;
   const trocarAba = setTab;
   setTab = function(tab, options = {}) {
@@ -16,7 +17,12 @@ if(window.parent !== window) {
       agendado = false;
       if(!document?.body || !parent.document?.body) return;
       const modal = !!document.querySelector('[id$="modal-overlay"].open');
-      parent.postMessage({canal:'normatic:documental',acao:'altura',modal,altura:Math.max(160,document.body.scrollHeight+16)}, origem);
+      const menuAberto = document.querySelector('.actions-dropdown.open');
+      const botaoMenu = typeof menuAcoesAberto === 'object' ? menuAcoesAberto?.botao : null;
+      const alturaMenu = (menuAberto && botaoMenu)
+        ? Math.ceil((botaoMenu.getBoundingClientRect().bottom || 0) + (menuAberto.scrollHeight || 240) + 28)
+        : 0;
+      parent.postMessage({canal:'normatic:documental',acao:'altura',modal,altura:Math.max(160, document.body.scrollHeight + 16, alturaMenu)}, origem);
     });
   }
   new MutationObserver(informarAltura).observe(document.body,{childList:true,subtree:true,attributes:true,characterData:true});

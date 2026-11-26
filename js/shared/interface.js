@@ -14,6 +14,14 @@ let focoAntesDoModal = null;
 function sincronizarBackdropModalPai(aberto){
   try {
     if(window.parent && window.parent !== window && window.parent.document?.body){
+      const area = window.frameElement?.parentElement;
+      if(area){
+        if(aberto && !window.parent.document.body.classList.contains('iframe-modal-aberto')){
+          area.style.minHeight = `${Math.max(320, window.frameElement.offsetHeight || 0)}px`;
+        } else if(!aberto){
+          area.style.minHeight = '';
+        }
+      }
       window.parent.document.documentElement.classList.toggle('iframe-modal-aberto', Boolean(aberto));
       window.parent.document.body.classList.toggle('iframe-modal-aberto', Boolean(aberto));
     }

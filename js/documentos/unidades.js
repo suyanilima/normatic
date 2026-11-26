@@ -316,6 +316,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       campoEmailId: 'edit-gestor-email',
       campoWhatsappId: 'edit-gestor-whatsapp'
     });
+    configurarBuscaServidor('modal-responsavel');
   }
   renderSetoresDocumentos();
 });

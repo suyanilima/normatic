@@ -277,9 +277,9 @@ window.addEventListener('message', event => {
     frameDocumentos.style.height = (modal ? Math.max(360,innerHeight-100) : Math.min(20000,Math.max(160,event.data.altura))) + 'px';
     if(modal && !modalDocumental) {
       scrollAntesDoModal = scrollY;
-      frameDocumentos.scrollIntoView({block:'start'});
+      if(!document.body.classList.contains('iframe-modal-aberto')) frameDocumentos.scrollIntoView({block:'start'});
     }
-    if(!modal && modalDocumental) window.scrollTo({top:scrollAntesDoModal});
+    if(!modal && modalDocumental && !document.body.classList.contains('iframe-modal-aberto')) window.scrollTo({top:scrollAntesDoModal});
     modalDocumental = modal;
   }
   if(event.data.acao === 'navegar') {

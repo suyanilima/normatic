@@ -23,15 +23,57 @@ body.iframe-modal-aberto::before {
   content: '';
   position: fixed;
   inset: 0;
-  z-index: 900;
-  background: rgba(12, 50, 111, .4);
+  z-index: 1150;
+  background: rgba(12, 50, 111, .42);
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
   animation: overlayIn .15s ease;
 }
 body.iframe-modal-aberto .documental-area {
-  position: relative;
-  z-index: 950;
+  position: static;
+  z-index: auto;
+}
+body.iframe-modal-aberto .normativos-frame {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  margin: 0 !important;
+  z-index: 1200 !important;
+  background: transparent !important;
+}
+html.em-iframe-plataforma.modal-aberto,
+html.em-iframe-plataforma.modal-aberto body {
+  background: transparent !important;
+  min-height: 100dvh !important;
+  height: 100dvh !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+html.em-iframe-plataforma.modal-aberto body > .wrap {
+  visibility: hidden !important;
+  pointer-events: none !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
+html.em-iframe-plataforma.modal-aberto #modal-overlay.open,
+html.em-iframe-plataforma.modal-aberto #delete-modal-overlay.open,
+html.em-iframe-plataforma.modal-aberto #edit-modal-overlay.open,
+html.em-iframe-plataforma.modal-aberto #resumo-modal-overlay.open,
+html.em-iframe-plataforma.modal-aberto #notificar-modal-overlay.open,
+html.em-iframe-plataforma.modal-aberto #historico-modal-overlay.open {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  padding: 20px !important;
+  box-sizing: border-box !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 #delete-registro-modal-overlay,
 #delete-reuniao-modal-overlay,
@@ -53,6 +95,7 @@ body.iframe-modal-aberto .documental-area {
 .plataforma-unificada .top > .actions { justify-content: flex-end; }
 .modulo-normatic.documento-incorporado { padding: 0; min-height: 0; }
 .modulo-normatic.documento-incorporado .wrap { width: 100%; max-width: none; margin: 0; padding: 0; }
+.documento-incorporado #view-acompanhamento.active { min-height: 480px; }
 .documento-incorporado #view-dashboard .dashboard-cabecalho { margin-bottom: 8px; }
 .documento-incorporado #view-dashboard .dashboard-cabecalho h2, .documento-incorporado #view-dashboard .dashboard-cabecalho p { display: none; }
 .documento-incorporado #view-dashboard #dashboard-atualizacao { display: none; }

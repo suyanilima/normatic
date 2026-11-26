@@ -57,7 +57,13 @@ function set(w,selector,value){const field=w.document.querySelector(selector);as
     await new Promise(resolve=>frame.addEventListener('load',resolve,{once:true}));await wait();
     await frame.contentWindow.NORMATIC_READY;
     assert.equal(frame.contentDocument.querySelector('.plataforma-sidebar'),null,'Componente documental sem segundo menu');
+    assert.ok(frame.contentDocument.documentElement.classList.contains('em-iframe-plataforma'),'Iframe documental identificado para centralização em tela cheia');
     assert.ok(frame.contentWindow.cadastrar,'Motor documental original disponível');
+    frame.contentWindow.verResumo('norm-antigo');
+    assert.ok(d.body.classList.contains('iframe-modal-aberto'),'Modal do iframe ativa camada de tela cheia na plataforma');
+    assert.equal(w.getComputedStyle(frame).position,'fixed','Iframe ocupa toda a janela enquanto um modal de normativo está aberto');
+    frame.contentWindow.fecharModalResumo();
+    assert.ok(!d.body.classList.contains('iframe-modal-aberto'),'Fechar modal restaura o fluxo normal do iframe');
     w.go('novo-normativo');set(frame.contentWindow,'#f-nome','Rascunho preservado');
     const frameWindow=frame.contentWindow;
     w.go('tarefas');w.go('novo-normativo');

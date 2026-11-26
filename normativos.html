@@ -403,7 +403,10 @@
 
 <div id="modal-overlay" aria-hidden="true">
   <div class="modal renovar-modal" role="dialog" aria-modal="true" aria-labelledby="renovar-titulo" tabindex="-1">
-    <h3 id="renovar-titulo">Renovar vigência</h3>
+    <div class="modal-head">
+      <h3 id="renovar-titulo">Renovar vigência</h3>
+      <button class="modal-close" type="button" onclick="fecharModal()" aria-label="Fechar">✕</button>
+    </div>
     <div class="m-sub" id="modal-doc-nome">—</div>
 
     <label>Data atual do documento</label>
@@ -468,7 +471,10 @@
 
 <div id="edit-modal-overlay" aria-hidden="true">
   <div class="modal edit-modal" role="dialog" aria-modal="true" aria-labelledby="editar-titulo" tabindex="-1">
-    <h3 id="editar-titulo">Editar documento</h3>
+    <div class="modal-head">
+      <h3 id="editar-titulo">Editar documento</h3>
+      <button class="modal-close" type="button" onclick="fecharModalEditar()" aria-label="Fechar">✕</button>
+    </div>
 
     <div class="form-blocks-row">
       <div class="form-block">
@@ -607,7 +613,10 @@
 
 <div id="resumo-modal-overlay" aria-hidden="true">
   <div class="modal resumo-modal" role="dialog" aria-modal="true" aria-labelledby="resumo-nome" tabindex="-1">
-    <h3 id="resumo-nome">—</h3>
+    <div class="modal-head">
+      <h3 id="resumo-nome">—</h3>
+      <button class="modal-close" type="button" onclick="fecharModalResumo()" aria-label="Fechar">✕</button>
+    </div>
     <div class="resumo-tabhead">Resumo do documento</div>
     <div class="resumo-body">
       <div class="resumo-row"><span class="resumo-label">Tipo</span><span id="resumo-tipo">—</span></div>

@@ -5,12 +5,41 @@
   padding: var(--space-6);
   width: 320px;
   max-width: 100%;
-  max-height: 90vh;
+  max-height: calc(100dvh - 40px);
   overflow-y: auto;
   overflow-x: hidden;
   overflow-wrap: anywhere;
   word-break: break-word;
   box-shadow: 0 20px 50px rgba(12,50,111,.25);
+  scrollbar-width: thin;
+  scrollbar-color: #AFC3DF transparent;
+}
+
+.modal::-webkit-scrollbar,
+.resumo-body::-webkit-scrollbar,
+.edit-modal .form-blocks-row::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal::-webkit-scrollbar-button,
+.resumo-body::-webkit-scrollbar-button,
+.edit-modal .form-blocks-row::-webkit-scrollbar-button {
+  display: none;
+  height: 0;
+  width: 0;
+}
+
+.modal::-webkit-scrollbar-track,
+.resumo-body::-webkit-scrollbar-track,
+.edit-modal .form-blocks-row::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal::-webkit-scrollbar-thumb,
+.resumo-body::-webkit-scrollbar-thumb,
+.edit-modal .form-blocks-row::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #AFC3DF;
 }
 
 #delete-unidade-modal-overlay .modal,
@@ -58,7 +87,8 @@
 }
 
 .renovar-modal {
-  width: 430px;
+  width: min(430px, calc(100vw - 32px));
+  max-height: calc(100dvh - 40px);
 }
 
 .renovar-modal h3 {
@@ -75,6 +105,7 @@
 }
 
 .modal-actions {
+  flex: 0 0 auto;
   display: flex;
   gap: var(--space-3);
   margin-top: var(--space-5);
@@ -287,6 +318,7 @@ button.export-docs:hover,button.export-docs:focus-visible {
 }
 
 .modal-head {
+  flex: 0 0 auto;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -456,11 +488,12 @@ button.export-docs:hover,button.export-docs:focus-visible {
 
 /* modal resumo */
 .resumo-modal {
-  width: min(680px,calc(100vw - 32px));
+  display: flex;
+  flex-direction: column;
+  width: min(680px, calc(100vw - 32px));
   max-width: none;
-  max-height: calc(100vh - 32px);
-  overflow-x: hidden;
-  overflow-y: auto;
+  max-height: calc(100dvh - 40px);
+  overflow: hidden;
 }
 
 /* Apresentação inicial do sistema */
@@ -675,19 +708,29 @@ button.export-docs:hover,button.export-docs:focus-visible {
   }
 }
 
-/* modal editar: mais largo, com rolagem para nunca cortar topo/rodapé */
+/* modal editar: mais largo, com cabeçalho/rodapé fixos e rolagem interna suave */
 .edit-modal {
-  width: min(1040px, 94vw);
-  max-height: calc(100dvh - 32px);
-  overflow-y: auto;
-  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  width: min(1040px, calc(100vw - 32px));
+  max-height: calc(100dvh - 40px);
+  overflow: hidden;
 }
 
 .edit-modal .form-blocks-row {
+  flex: 1 1 auto;
+  min-height: 0;
   margin-top: var(--space-4);
+  padding-right: 6px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #AFC3DF transparent;
 }
 
 .resumo-tabhead {
+  flex: 0 0 auto;
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: .04em;
@@ -695,13 +738,21 @@ button.export-docs:hover,button.export-docs:focus-visible {
   color: var(--gov-blue);
   border-bottom: 2px solid var(--gov-blue-bg);
   padding-bottom: var(--space-2);
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-3);
 }
 
 .resumo-body {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  flex: 1 1 auto;
+  min-height: 0;
+  gap: 8px;
+  padding-right: 6px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #AFC3DF transparent;
 }
 
 .resumo-row {
@@ -710,7 +761,7 @@ button.export-docs:hover,button.export-docs:focus-visible {
   justify-content: space-between;
   gap: var(--space-3);
   font-size: 13px;
-  padding: var(--space-2) 0;
+  padding: 6px 0;
   border-bottom: 1px solid var(--border);
 }
 
@@ -758,7 +809,8 @@ button.export-docs:hover,button.export-docs:focus-visible {
 
 /* modal notificar gestor */
 .notificar-modal {
-  width: 380px;
+  width: min(430px, calc(100vw - 32px));
+  max-height: calc(100dvh - 40px);
 }
 
 .notificar-preview {
