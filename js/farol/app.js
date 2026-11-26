@@ -276,6 +276,20 @@ const MENU = [['dashboard', 'Visão geral'], ['projetos', 'Projetos'], ['tarefas
       taskViewMode = modo === 'quadro' ? 'quadro' : 'lista';
       render();
     }
+    function pesoPrioridadeTarefa(prioridade) {
+      const p = String(prioridade || 'Média').trim();
+      return PRIORITY_ORDER[p] ?? 4;
+    }
+    function ordenarTarefasPorPrioridade(lista) {
+      return [...lista].sort((a, b) => {
+        const diffPrio = pesoPrioridadeTarefa(a?.prioridade) - pesoPrioridadeTarefa(b?.prioridade);
+        if (diffPrio !== 0) return diffPrio;
+        const prazoA = a?.prazo || '9999-99-99';
+        const prazoB = b?.prazo || '9999-99-99';
+        if (prazoA !== prazoB) return prazoA.localeCompare(prazoB);
+        return String(a?.titulo || '').localeCompare(String(b?.titulo || ''), 'pt-BR');
+      });
+    }
     function renderKanbanTarefas(ts) {
       const colunas = [
         { status: 'A fazer', titulo: 'Pendente', classe: 'col-pendente' },
@@ -283,7 +297,7 @@ const MENU = [['dashboard', 'Visão geral'], ['projetos', 'Projetos'], ['tarefas
         { status: 'Concluída', titulo: 'Concluída', classe: 'col-concluida' }
       ];
       return `<div class="tarefas-kanban-grid">${colunas.map(col => {
-        const itens = ts.filter(t => taskStatus(t) === col.status);
+        const itens = ordenarTarefasPorPrioridade(ts.filter(t => taskStatus(t) === col.status));
         return `
           <section class="tarefas-kanban-col ${col.classe}">
             <header class="tarefas-kanban-head">
@@ -295,7 +309,7 @@ const MENU = [['dashboard', 'Visão geral'], ['projetos', 'Projetos'], ['tarefas
                 const proj = projectOf(t);
                 const st = taskStatus(t);
                 const prio = t.prioridade || 'Média';
-                const prioClasse = prio === 'Urgente' || prio === 'Alta' ? 'prio-alta' : prio === 'Baixa' ? 'prio-baixa' : 'prio-media';
+                const prioClasse = prio === 'Urgente' ? 'prio-urgente' : prio === 'Alta' ? 'prio-alta' : prio === 'Baixa' ? 'prio-baixa' : 'prio-media';
                 const botoesEtapa = st === 'A fazer'
                   ? `<button type="button" class="tarefas-kbtn kbtn-andamento" onclick="changeStatus(${argumentoJsHtml(t.id)},'Em andamento')">Em andamento</button><button type="button" class="tarefas-kbtn kbtn-concluir" onclick="changeStatus(${argumentoJsHtml(t.id)},'Concluída')">Concluir</button>`
                   : st === 'Em andamento'
@@ -326,13 +340,13 @@ const MENU = [['dashboard', 'Visão geral'], ['projetos', 'Projetos'], ['tarefas
     function tasks() {
       const projetos = ['Todos', 'Sem projeto', ...DATA.projetos.map(p => p.id)];
       const termo = String(taskSearchQuery || '').trim().toLocaleLowerCase('pt-BR');
-      const filtradasBase = DATA.tarefas.filter(t => {
+      const filtradasBase = ordenarTarefasPorPrioridade(DATA.tarefas.filter(t => {
         const casaProjeto = taskFilter === 'Todos' || (taskFilter === 'Sem projeto' ? !projectOf(t) : projectOf(t)?.id === taskFilter);
         const casaPrioridade = taskPriorityFilter === 'Todas' || (t.prioridade || 'Média') === taskPriorityFilter;
         const projNome = projectOf(t)?.nome || '';
         const casaBusca = !termo || [t.titulo, t.responsavel, projNome, t.observacoes].some(v => String(v || '').toLocaleLowerCase('pt-BR').includes(termo));
         return casaProjeto && casaPrioridade && casaBusca;
-      });
+      }));
       const ts = taskViewMode === 'lista'
         ? filtradasBase.filter(t => taskStatusFilter === 'Todos' || taskStatus(t) === taskStatusFilter)
         : filtradasBase;

@@ -71,7 +71,17 @@ function set(w,selector,value){const field=w.document.querySelector(selector);as
     assert.ok(!d.body.classList.contains('iframe-modal-aberto'),'Fechar modal restaura o fluxo normal do iframe');
     w.go('novo-normativo');set(frame.contentWindow,'#f-nome','Rascunho preservado');
     const frameWindow=frame.contentWindow;
-    w.go('tarefas');w.go('novo-normativo');
+    w.go('tarefas');
+    await w.FarolStorage.api('saveRecord','tarefas',{titulo:'Tarefa Baixa',prioridade:'Baixa',status:'A fazer',prazo:'2099-05-01'});
+    await w.FarolStorage.api('saveRecord','tarefas',{titulo:'Tarefa Urgente',prioridade:'Urgente',status:'A fazer',prazo:'2099-12-01'});
+    await w.FarolStorage.api('saveRecord','tarefas',{titulo:'Tarefa Alta',prioridade:'Alta',status:'A fazer',prazo:'2099-08-01'});
+    await w.refresh();
+    w.definirModoTarefas('quadro');
+    const titulosPendentes=[...d.querySelectorAll('.col-pendente .tarefas-kanban-card-top strong')].map(el=>el.textContent.trim());
+    assert.equal(titulosPendentes[0],'Tarefa Urgente','Mais urgente aparece primeiro no quadro');
+    assert.equal(titulosPendentes[1],'Tarefa Alta','Alta aparece antes de Média e Baixa');
+    assert.equal(titulosPendentes[titulosPendentes.length-1],'Tarefa Baixa','Baixa aparece por último no quadro');
+    w.go('novo-normativo');
     assert.equal(frame.contentWindow,frameWindow,'Navegação não recria o componente documental');
     assert.equal(frame.contentDocument.getElementById('f-nome').value,'Rascunho preservado');
     w.dispatchEvent(new w.MessageEvent('message',{origin:w.location.origin,source:frame.contentWindow,data:{canal:'normatic:documental',acao:'altura',altura:2000,modal:true}}));

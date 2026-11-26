@@ -501,7 +501,7 @@ html.em-iframe-plataforma.modal-aberto #historico-modal-overlay.open {
   flex-direction: column;
   gap: 6px;
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
-  transition: border-color .14s, box-shadow .14s;
+  transition: background .14s, border-color .14s, box-shadow .14s;
 }
 
 .tarefas-kanban-card:hover {
@@ -509,9 +509,46 @@ html.em-iframe-plataforma.modal-aberto #historico-modal-overlay.open {
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
 }
 
+/* Cores dos cards conforme a coluna do quadro */
+.tarefas-kanban-col.col-pendente .tarefas-kanban-card {
+  background: #EFF6FF;
+  border-color: #BFDBFE;
+}
+.tarefas-kanban-col.col-pendente .tarefas-kanban-card:hover {
+  background: #E8F1FF;
+  border-color: #93C5FD;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+}
+.tarefas-kanban-col.col-pendente .tarefas-kanban-card-info {
+  border-top-color: rgba(37, 99, 235, 0.14);
+}
+
+.tarefas-kanban-col.col-andamento .tarefas-kanban-card {
+  background: #FFF7ED;
+  border-color: #FED7AA;
+}
+.tarefas-kanban-col.col-andamento .tarefas-kanban-card:hover {
+  background: #FFEDD5;
+  border-color: #FDBA74;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.1);
+}
+.tarefas-kanban-col.col-andamento .tarefas-kanban-card-info {
+  border-top-color: rgba(217, 119, 6, 0.16);
+}
+
+.tarefas-kanban-col.col-concluida .tarefas-kanban-card,
 .tarefas-kanban-card.is-done {
-  background: #FAFBFD;
-  opacity: 0.88;
+  background: #F0FDF4;
+  border-color: #BBF7D0;
+  opacity: 0.95;
+}
+.tarefas-kanban-col.col-concluida .tarefas-kanban-card:hover {
+  background: #DCFCE7;
+  border-color: #86EFAC;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.1);
+}
+.tarefas-kanban-col.col-concluida .tarefas-kanban-card-info {
+  border-top-color: rgba(22, 163, 74, 0.16);
 }
 
 .tarefas-kanban-card-top {
@@ -573,9 +610,10 @@ html.em-iframe-plataforma.modal-aberto #historico-modal-overlay.open {
   font-weight: 600;
 }
 
+.tarefas-kanban-prio.prio-urgente { color: #B91C1C; font-weight: 700; }
 .tarefas-kanban-prio.prio-alta { color: #DC2626; }
-.tarefas-kanban-prio.prio-media { color: #D97706; }
-.tarefas-kanban-prio.prio-baixa { color: #64748B; }
+.tarefas-kanban-prio.prio-media { color: #B45309; }
+.tarefas-kanban-prio.prio-baixa { color: #475569; }
 
 .tarefas-kanban-prazo {
   color: #64748B;
