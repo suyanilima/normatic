@@ -221,18 +221,17 @@ function agendarReuniaoNoTeams(id){
   const { inicio, fim } = obterIntervaloReuniaoDatas(reuniao);
   const titulo = reuniao.resumo || reuniao.pauta || `Reunião ${reuniao.frequencia || 'Normatic'}`;
   const corpo = montarTextoConviteReuniao(reuniao);
+  // Deep link oficial do Teams: abre o formulário "Nova reunião" no app ou no Teams Web,
+  // sem depender de caixa de correio do Outlook Web (evita OwaUserHasNoMailboxAndNoLicenseAssignedException).
   const params = new URLSearchParams({
-    path: '/calendar/action/compose',
-    rru: 'addevent',
     subject: titulo,
-    startdt: inicio.toISOString(),
-    enddt: fim.toISOString(),
-    body: corpo,
-    online: 'true'
+    startTime: inicio.toISOString(),
+    endTime: fim.toISOString(),
+    content: corpo
   });
-  const url = `https://outlook.office.com/calendar/0/deeplink/compose?${params.toString()}`;
+  const url = `https://teams.microsoft.com/l/meeting/new?${params.toString()}`;
   window.open(url, '_blank', 'noopener,noreferrer');
-  if(typeof toast === 'function') toast('Abrindo convite preenchido no Outlook / Teams.', 'valido');
+  if(typeof toast === 'function') toast('Abrindo o agendamento no Microsoft Teams. Se não abrir, use "Baixar convite (.ics)".', 'valido');
 }
 
 function formatarDataIcsUtc(date){
